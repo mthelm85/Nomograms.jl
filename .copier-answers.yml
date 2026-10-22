@@ -1,0 +1,13 @@
+# Changes here will be overwritten by Copier
+AddPrecommitUpdateCI: false
+Authors: Matt Helm <mthelm85@gmail.com>
+JuliaMinVersion: '1.10'
+License: MIT
+LicenseCopyrightHolders: Matt Helm
+PackageName: Nomograms
+PackageOwner: mthelm85
+PackageUUID: b6901a49-8fc0-5115-9fef-fa1fe4b11763
+StrategyConfirmIncluded: false
+StrategyLevel: 2
+StrategyReviewExcluded: false
+_src_path: C:\Users\mthel\.julia\packages\BestieTemplate\MPEqY
