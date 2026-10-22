@@ -39,6 +39,12 @@ itself — and rejects a domain you supply that contradicts the relation.
   determinant). Solving is therefore always "where does this line cross that curve",
   which means forward and inverse problems are the same call and new layouts need no new
   solver.
+- **No silent wrong answers on curved scales.** A straight line can cross a curve more
+  than once, and each crossing is a real solution. The whole domain is searched rather
+  than the residual's sign being checked at the two ends, which would report *no* solution
+  for an even number of crossings. `evaluate` refuses to pick one of several and names
+  them; `evaluate_all` returns the lot. Straight scales have a monotone residual, so
+  parallel layouts never see this.
 - **Invertible scale transforms.** `LinearScale`, `LogScale`, `ReciprocalScale`,
   `PowerScale`, `ComposedScale`, and `FunctionScale(f, finv)` for anything else. Carrying
   the inverse alongside the forward map is what lets the result axis be derived exactly.

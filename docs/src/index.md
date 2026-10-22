@@ -83,6 +83,28 @@ problems are the same operation — any variable may be the unknown. Another is 
 layout the built-in constructions do not cover needs no new solver: hand-build the scales
 and everything downstream still works.
 
+### More than one crossing
+
+A straight line can meet a *curved* scale more than once, and each crossing is a genuine
+solution of the relation. The usual shortcut — checking the sign of the residual at the two
+ends of the domain and bisecting — gets this wrong twice over: it reports "no solution" for
+an even number of crossings, because both ends lie on the same side of the line, and it
+returns an arbitrary one of an odd number without saying so.
+
+So [`solve_all_on`](@ref) searches the whole domain. [`evaluate`](@ref) still returns a
+single answer, but throws rather than choosing when there are several, naming the values it
+could not choose between; [`evaluate_all`](@ref) returns every solution:
+
+```julia
+sols = evaluate_all(nom; u = 20, v = 20)
+isos = [isopleth(nom, sol) for sol in sols]
+```
+
+A straight scale makes the residual an affine function of position, hence monotone, so
+there is always at most one root: parallel-layout nomograms never encounter this. The cost
+of searching rather than bracketing is around 120 µs per `evaluate` instead of a few, which
+is immaterial for reading charts.
+
 ### When is a relation chartable?
 
 A three-variable relation fits on three parallel scales exactly when it can be separated

@@ -66,8 +66,11 @@ export
     multiplicative_nomogram,
     # solving
     evaluate,
+    evaluate_all,
     isopleth,
     align_residual,
+    solve_on,
+    solve_all_on,
     relation_residual,
     # rendering
     NomogramStyle,

@@ -14,15 +14,30 @@ that makes the criterion agree with the relation being charted.
 align_residual(s::Scale, value, p::Point, q::Point) =
     _cross(_sub(q, p), _sub(point(s, value), p))
 
-"""
-    solve_on(s::Scale, p, q) -> Float64
+function _no_solution_error(s::Scale)
+    lo, hi = s.domain
+    return ArgumentError(
+        "no solution for :$(name(s)) within its domain " *
+        "($(default_tickformat(lo)), $(default_tickformat(hi))): the alignment " *
+        "line misses this scale. The inputs are outside the range this chart covers.",
+    )
+end
 
-The value on scale `s` whose point lies on the line through `p` and `q`.
-
-Works for any scale curve, straight or not, by bracketed root finding over the scale's
-domain, so the same solver serves forward and inverse problems and every layout.
 """
-function solve_on(s::Scale, p::Point, q::Point)
+    solve_all_on(s::Scale, p, q) -> Vector{Float64}
+
+Every value on scale `s` whose point lies on the line through `p` and `q`, in increasing
+order. Empty when the line misses the scale.
+
+A straight line can cross a curved scale more than once, so "the" solution is not always
+well defined. Checking only the sign of the residual at the ends of the domain -- the
+usual shortcut -- would report *no* solution for an even number of crossings and pick an
+arbitrary one of an odd number, so the whole domain is searched instead.
+
+For a straight scale the residual is monotone and this returns at most one value, which is
+why parallel-layout nomograms never see the ambiguity.
+"""
+function solve_all_on(s::Scale, p::Point, q::Point)
     if isapprox(p[1], q[1]; atol = 1e-12) && isapprox(p[2], q[2]; atol = 1e-12)
         throw(
             ArgumentError(
@@ -31,46 +46,34 @@ function solve_on(s::Scale, p::Point, q::Point)
         )
     end
     lo, hi = s.domain
-    g = v -> align_residual(s, v, p, q)
-    glo, ghi = g(lo), g(hi)
-    iszero(glo) && return lo
-    iszero(ghi) && return hi
-    if glo * ghi > 0
-        throw(
-            ArgumentError(
-                "no solution for :$(name(s)) within its domain " *
-                "($(default_tickformat(lo)), $(default_tickformat(hi))): the " *
-                "alignment line misses this scale. The inputs are outside the " *
-                "range this chart covers.",
-            ),
-        )
-    end
-    return Roots.find_zero(g, (lo, hi), Roots.A42())
+    return Roots.find_zeros(v -> align_residual(s, v, p, q), lo, hi)
 end
 
 """
-    evaluate(nom::Nomogram; values...) -> NamedTuple
+    solve_on(s::Scale, p, q) -> Float64
 
-Solve the relation by alignment. Supply every variable but one and the remaining one is
-read off its scale; the result is a `NamedTuple` of all variables.
+The single value on scale `s` whose point lies on the line through `p` and `q`.
 
-Because the solver only ever asks "where does this line cross that scale", forward and
-inverse problems are the same call — any one of the variables may be the unknown.
-
-# Example
-
-```jldoctest
-julia> nom = additive_nomogram(
-           Variable(:a; domain = (0, 10)),
-           Variable(:b; domain = (0, 10)),
-           Variable(:s),
-       );
-
-julia> round(evaluate(nom; a = 2, s = 9).b; digits = 10)
-7.0
-```
+Throws if the line misses the scale, and also if it crosses more than once -- an ambiguity
+only curved scales can produce. Use [`solve_all_on`](@ref) to get every crossing.
 """
-function evaluate(nom::Nomogram; values...)
+function solve_on(s::Scale, p::Point, q::Point)
+    roots = solve_all_on(s, p, q)
+    isempty(roots) && throw(_no_solution_error(s))
+    length(roots) == 1 && return only(roots)
+    throw(
+        ArgumentError(
+            "the alignment line crosses :$(name(s)) at $(length(roots)) values " *
+            "($(join(default_tickformat.(roots), ", "))), so there is no single " *
+            "answer to return. Use `evaluate_all` / `solve_all_on` to get them all, " *
+            "or narrow the scale's domain to the branch you want.",
+        ),
+    )
+end
+
+# Shared front half of `evaluate` and `evaluate_all`: validate the given values, work out
+# which variable is unknown, and build the two points that fix the alignment line.
+function _alignment(nom::Nomogram, values)
     given = Dict{Symbol,Float64}()
     known = variablenames(nom)
     for (k, v) in pairs(values)
@@ -111,20 +114,103 @@ function evaluate(nom::Nomogram; values...)
     end
     p = point(anchors[1], given[name(anchors[1])])
     q = point(anchors[2], given[name(anchors[2])])
-    given[name(target)] = solve_on(target, p, q)
-    return NamedTuple{Tuple(known)}(Tuple(given[n] for n in known))
+    return (known, given, target, p, q)
+end
+
+_with_root(known, given, target, root) =
+    NamedTuple{Tuple(known)}(Tuple(n === name(target) ? root : given[n] for n in known))
+
+"""
+    evaluate(nom::Nomogram; values...) -> NamedTuple
+
+Solve the relation by alignment. Supply every variable but one and the remaining one is
+read off its scale; the result is a `NamedTuple` of all variables.
+
+Because the solver only ever asks "where does this line cross that scale", forward and
+inverse problems are the same call — any one of the variables may be the unknown.
+
+Throws if the alignment line crosses the unknown's scale more than once, which only a
+curved scale can do; [`evaluate_all`](@ref) returns every solution instead.
+
+# Example
+
+```jldoctest
+julia> nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 10)),
+           Variable(:s),
+       );
+
+julia> round(evaluate(nom; a = 2, s = 9).b; digits = 10)
+7.0
+```
+"""
+function evaluate(nom::Nomogram; values...)
+    known, given, target, p, q = _alignment(nom, values)
+    return _with_root(known, given, target, solve_on(target, p, q))
+end
+
+"""
+    evaluate_all(nom::Nomogram; values...) -> Vector{NamedTuple}
+
+Every solution of the relation consistent with the values given, in increasing order of
+the unknown.
+
+A straight alignment line can cross a curved scale more than once, and each crossing is a
+genuine solution. [`evaluate`](@ref) refuses to choose between them; this returns the lot.
+For a parallel-layout nomogram the result always has exactly one element.
+
+# Example
+
+```jldoctest
+julia> nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 10)),
+           Variable(:s),
+       );
+
+julia> length(evaluate_all(nom; a = 2, b = 3))
+1
+```
+"""
+function evaluate_all(nom::Nomogram; values...)
+    known, given, target, p, q = _alignment(nom, values)
+    roots = solve_all_on(target, p, q)
+    isempty(roots) && throw(_no_solution_error(target))
+    return [_with_root(known, given, target, r) for r in roots]
 end
 
 """
     isopleth(nom::Nomogram; label = "", values...) -> Isopleth
+    isopleth(nom::Nomogram, solution::NamedTuple; label = "") -> Isopleth
 
-The alignment line for one solution of the relation: solves for the missing variable with
-[`evaluate`](@ref), then records where the line meets every scale so it can be drawn.
+The alignment line for one solution of the relation: records where the line meets every
+scale so it can be drawn.
+
+The first form solves for the missing variable with [`evaluate`](@ref). The second takes a
+solution you already have, which is how to draw a chart whose scales a line can cross more
+than once:
+
+```julia
+isos = [isopleth(nom, sol) for sol in evaluate_all(nom; u = 20, v = 20)]
+```
 """
+function isopleth(nom::Nomogram, solution::NamedTuple; label::AbstractString = "")
+    for n in variablenames(nom)
+        haskey(solution, n) || throw(
+            ArgumentError(
+                "solution is missing a value for :$n; it needs one per variable " *
+                "(have $(join(":" .* string.(keys(solution)), ", ")))",
+            ),
+        )
+    end
+    pts = [point(s, solution[name(s)]) for s in nom.scales]
+    values = Dict{Symbol,Float64}(n => float(solution[n]) for n in variablenames(nom))
+    return Isopleth(values, pts, String(label))
+end
+
 function isopleth(nom::Nomogram; label::AbstractString = "", values...)
-    sol = evaluate(nom; values...)
-    pts = [point(s, sol[name(s)]) for s in nom.scales]
-    return Isopleth(Dict(pairs(sol)), pts, String(label))
+    return isopleth(nom, evaluate(nom; values...); label)
 end
 
 """
