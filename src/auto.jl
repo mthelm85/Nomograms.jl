@@ -190,6 +190,24 @@ end
 
 # --- building it ----------------------------------------------------------------------
 
+# The user's formula behind one concrete type per arity. Every closure is a type of its
+# own, so code specialised on the formula would be compiled afresh for each one a user
+# writes, which is most of the wait on a first call. Behind this wrapper it compiles once
+# and is cached at precompile time. A FunctionWrapper calls through a pointer of a fixed
+# signature, so unlike a field typed `Any` it costs no dynamic dispatch and no boxed
+# result -- and the formula is called a great many times. The stages a chain builds
+# internally stay plain closures: their types depend on the shape of the chain, not on the
+# formula, so the cache covers them too.
+struct _Formula{N}
+    f::FunctionWrapper{Float64,NTuple{N,Float64}}
+end
+_Formula(f::_Formula, n::Int) = f
+_Formula(f, n::Int) = _Formula{n}(
+    FunctionWrapper{Float64,NTuple{n,Float64}}((args...) -> Float64(f(args...))),
+)
+(g::_Formula{N})(args::Vararg{Float64,N}) where {N} = g.f(args...)
+(g::_Formula{N})(args::Vararg{Real,N}) where {N} = g.f(map(Float64, args)...)
+
 _as_variable(v::Variable) = v
 _as_variable(p::Pair{Symbol}) = Variable(first(p); domain = last(p))
 _as_variable(s::Symbol) = Variable(s)
@@ -350,6 +368,7 @@ function auto_nomogram(
         isnothing(v.domain) &&
             throw(ArgumentError("input variable :$(v.name) must declare a domain"))
     end
+    F = _Formula(F, length(vs))
     names = [v.name for v in vs]
     allunique([names; vz.name]) ||
         throw(ArgumentError("variable names must be distinct, got $([names; vz.name])"))

@@ -233,3 +233,12 @@ end
     sum = auto_nomogram((x, y) -> x + y, :x => (1, 100), :y => (1, 100))
     @test style(sum, :x) === :linear
 end
+
+@testitem "a formula may return any real number type" tags = [:unit] begin
+    # Formulas are called behind a wrapper of fixed signature, Float64 in and out; what
+    # they return on the way is converted.
+    big_ = auto_nomogram((x, y) -> big(x) * y, :x => (1, 10), :y => (1, 10), :z)
+    @test evaluate(big_; x = 3, y = 4).z ≈ 12 rtol = 1e-6
+    # Integer arguments reach it too, as they do through the chart's relation.
+    @test Nomograms.relation_residual(big_, (x = 3, y = 4, z = 12)) ≈ 0 atol = 1e-9
+end

@@ -87,19 +87,13 @@ function _pivot_on(
     )
 
     others = [k for k = 1:m if k != i && k != j]
-    function arguments(a, b, rest)
-        v = Vector{Float64}(undef, m)
-        v[i], v[j] = a, b
-        for (q, k) in enumerate(others)
-            v[k] = rest[q]
-        end
-        return v
-    end
+    # Where each argument of F comes from: 0 for the pair, else its place among the rest.
+    slot = Tuple(something(findfirst(==(k), others), 0) for k = 1:m)
     # The combination itself: F with every other input held at the middle of its domain.
     # Any fixed setting would do, since by the test above they all give the same level
     # curves; the scale it is drawn on is blank, so its units never show.
-    ref = [(doms[k][1] + doms[k][2]) / 2 for k in others]
-    T = (a, b) -> float(F(arguments(a, b, ref)...))
+    ref = Tuple((doms[k][1] + doms[k][2]) / 2 for k in others)
+    T = _combination(F, Val(m), i, j, slot, ref)
     tname = Symbol(:_t, depth)
     blank = Variable(tname; label = "", ticks = Float64[])
     # The first stage, drawn with either input on the left. Which goes where, and how wide
@@ -140,10 +134,7 @@ function _pivot_on(
         for s in path.svals
     ]
     s_of_t = TabulatedScale(path.zs, path.svals, dsdt)
-    G = function (t, rest...)
-        a, b = path.along(clamp(transform(s_of_t, t), 0.0, 1.0))
-        return float(F(arguments(a, b, rest)...))
-    end
+    G = _remainder(F, Val(m), i, j, slot, path.along, s_of_t)
 
     tvar = Variable(tname; domain = stage[tname].domain, label = "", ticks = Float64[])
     downstream = try
@@ -165,6 +156,24 @@ function _pivot_on(
     end
     fitted = _fit_first_stage(first_stage, assembled, stage, downstream, tname, width)
     return Nomogram[downstream; fitted]
+end
+
+# F's arguments, with the pair at i and j and the rest in order elsewhere. A tuple of known
+# length, so F is called with a fixed number of arguments rather than a splatted vector --
+# which matters because the user's F sits behind `_Formula` and is called dynamically.
+@inline _arguments(::Val{M}, i, j, slot, a, b, rest) where {M} =
+    ntuple(k -> k == i ? a : k == j ? b : Float64(rest[slot[k]]), Val(M))
+
+# The combination of the pair, and F as a function of it and the rest. Built behind these
+# function barriers so that the arity is a type parameter.
+_combination(F, v::Val, i, j, slot, ref) =
+    (a, b) -> float(F(_arguments(v, i, j, slot, a, b, ref)...))
+
+function _remainder(F, v::Val, i, j, slot, along, s_of_t)
+    return function (t, rest...)
+        a, b = along(clamp(transform(s_of_t, t), 0.0, 1.0))
+        return float(F(_arguments(v, i, j, slot, a, b, rest)...))
+    end
 end
 
 # The turning line sits between the first stage's inputs, so one of them always lands

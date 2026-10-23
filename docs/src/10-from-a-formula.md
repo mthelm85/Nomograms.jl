@@ -159,8 +159,8 @@ max_relation_residual(bmi)
 A formula that is not monotone in some input over its domain is refused as well, since a
 straight scale cannot fold back on itself.
 
-!!! note "The first chart in a session is slow"
-    The first `auto_nomogram` call in a fresh Julia session takes several seconds while
-    Julia compiles. After that a chart with two or three inputs takes a fraction of a
-    second, one with four a second or two, and one with five several seconds, most of it
-    spent comparing layouts.
+!!! note "How long it takes"
+    The common paths are compiled when the package is installed, so the first chart of a
+    session takes about as long as any other: a fraction of a second for up to four
+    inputs, and a couple of seconds for five, most of it spent comparing layouts. The
+    first five-input chart of a session also compiles for several seconds.

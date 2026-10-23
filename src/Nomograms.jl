@@ -41,7 +41,9 @@ module Nomograms
 
 using Printf: @sprintf
 
+using FunctionWrappers: FunctionWrapper
 import LinearAlgebra
+import PrecompileTools
 import Roots
 
 export
@@ -107,6 +109,7 @@ include("auto.jl")
 include("auto_chain.jl")
 include("drawing.jl")
 include("svg.jl")
+include("precompile.jl")
 
 """
     nomogramplot(nom::Nomogram; kwargs...) -> Figure
