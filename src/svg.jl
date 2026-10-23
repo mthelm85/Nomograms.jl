@@ -7,11 +7,39 @@ end
 
 _num(x::Real) = @sprintf("%.2f", x)
 
-# Horizontal anchoring implied by a tick's outward normal.
-function _anchor(n::Point)
-    n[1] < -0.3 && return "end"
-    n[1] > 0.3 && return "start"
-    return "middle"
+_svg_anchor(h::Symbol) = h === :left ? "start" : h === :right ? "end" : "middle"
+_svg_baseline(v::Symbol) = v === :bottom ? "auto" : v === :top ? "hanging" : "central"
+
+# A text element placed from the layout's anchor point, alignment and rotation. The
+# rotation is negated because SVG's y axis runs downwards while the layout's runs up.
+function _text(
+    io::IO,
+    indent::AbstractString,
+    X,
+    Y,
+    pos::Point,
+    text::AbstractString,
+    size::Real,
+    align::NTuple{2,Symbol},
+    rotation::Real,
+    fill::AbstractString,
+    weight::AbstractString = "",
+)
+    x, y = X(pos[1]), Y(pos[2])
+    transform = if iszero(rotation)
+        ""
+    else
+        """ transform="rotate($(_num(-rad2deg(rotation))) $(_num(x)) $(_num(y)))\""""
+    end
+    bold = isempty(weight) ? "" : """ font-weight="$weight\""""
+    println(
+        io,
+        """$indent<text x="$(_num(x))" y="$(_num(y))" font-size="$(_num(size))" """ *
+        """text-anchor="$(_svg_anchor(align[1]))" """ *
+        """dominant-baseline="$(_svg_baseline(align[2]))" """ *
+        """fill="$(_esc(fill))"$bold$transform>$(_esc(text))</text>""",
+    )
+    return nothing
 end
 
 """
@@ -63,18 +91,21 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
     if background != "none"
         println(io, """  <rect width="100%" height="100%" fill="$(_esc(background))"/>""")
     end
-    println(
-        io,
-        """  <g font-family="$(_esc(font))" fill="$(_esc(textcolor))" """ *
-        """stroke-linecap="round">""",
-    )
+    println(io, """  <g font-family="$(_esc(font))" stroke-linecap="round">""")
 
     if !isempty(d.title)
-        println(
+        _text(
             io,
-            """    <text x="$(_num(X(d.titlepos[1])))" """ *
-            """y="$(_num(Y(d.titlepos[2])))" font-size="$(_num(st.titlesize * k))" """ *
-            """text-anchor="middle" font-weight="600">$(_esc(d.title))</text>""",
+            "    ",
+            X,
+            Y,
+            d.titlepos,
+            d.title,
+            st.titlesize * k,
+            d.titlealign,
+            0.0,
+            textcolor,
+            "600",
         )
     end
 
@@ -88,33 +119,44 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
             """stroke-width="$(_num(st.axislinewidth * k))"/>""",
         )
         for t in sd.ticks
-            ox = t.position[1] + t.normal[1] * t.length
-            oy = t.position[2] + t.normal[2] * t.length
+            o = (
+                t.position[1] + t.normal[1] * t.length,
+                t.position[2] + t.normal[2] * t.length,
+            )
             println(
                 io,
                 """      <line x1="$(_num(X(t.position[1])))" """ *
-                """y1="$(_num(Y(t.position[2])))" x2="$(_num(X(ox)))" """ *
-                """y2="$(_num(Y(oy)))" stroke="$(_esc(axiscolor))" """ *
+                """y1="$(_num(Y(t.position[2])))" x2="$(_num(X(o[1])))" """ *
+                """y2="$(_num(Y(o[2])))" stroke="$(_esc(axiscolor))" """ *
                 """stroke-width="$(_num(st.tickwidth * k))"/>""",
             )
             isnothing(t.label) && continue
-            lx = ox + t.normal[1] * st.ticklabelgap
-            ly = oy + t.normal[2] * st.ticklabelgap
-            println(
+            _text(
                 io,
-                """      <text x="$(_num(X(lx)))" y="$(_num(Y(ly)))" """ *
-                """font-size="$(_num(st.ticklabelsize * k))" """ *
-                """text-anchor="$(_anchor(t.normal))" """ *
-                """dominant-baseline="central">$(_esc(t.label))</text>""",
+                "      ",
+                X,
+                Y,
+                t.labelpos,
+                t.label,
+                st.ticklabelsize * k,
+                t.align,
+                t.rotation,
+                textcolor,
             )
         end
         if !isempty(sd.label)
-            println(
+            _text(
                 io,
-                """      <text x="$(_num(X(sd.titlepos[1])))" """ *
-                """y="$(_num(Y(sd.titlepos[2])))" """ *
-                """font-size="$(_num(st.titlesize * k))" text-anchor="middle" """ *
-                """font-weight="600">$(_esc(sd.label))</text>""",
+                "      ",
+                X,
+                Y,
+                sd.titlepos,
+                sd.label,
+                st.titlesize * k,
+                sd.titlealign,
+                0.0,
+                textcolor,
+                "600",
             )
         end
         println(io, "    </g>")
@@ -122,29 +164,34 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
 
     colors = collect(isoplethcolors)
     for (i, iso) in enumerate(d.isopleths)
-        c = _esc(colors[mod1(i, length(colors))])
+        c = colors[mod1(i, length(colors))]
         a, b = iso.segment
         println(io, """    <g id="isopleth-$i">""")
         println(
             io,
             """      <line x1="$(_num(X(a[1])))" y1="$(_num(Y(a[2])))" """ *
-            """x2="$(_num(X(b[1])))" y2="$(_num(Y(b[2])))" stroke="$c" """ *
+            """x2="$(_num(X(b[1])))" y2="$(_num(Y(b[2])))" stroke="$(_esc(c))" """ *
             """stroke-width="$(_num(st.isoplethwidth * k))"/>""",
         )
         for p in iso.points
             println(
                 io,
                 """      <circle cx="$(_num(X(p[1])))" cy="$(_num(Y(p[2])))" """ *
-                """r="$(_num(st.markersize * k))" fill="$c"/>""",
+                """r="$(_num(st.markersize * k))" fill="$(_esc(c))"/>""",
             )
         end
         if !isempty(iso.label)
-            println(
+            _text(
                 io,
-                """      <text x="$(_num(X(b[1] + st.ticklabelgap)))" """ *
-                """y="$(_num(Y(b[2])))" font-size="$(_num(st.ticklabelsize * k))" """ *
-                """text-anchor="start" dominant-baseline="central" """ *
-                """fill="$c">$(_esc(iso.label))</text>""",
+                "      ",
+                X,
+                Y,
+                iso.labelpos,
+                iso.label,
+                st.ticklabelsize * k,
+                iso.labelalign,
+                0.0,
+                c,
             )
         end
         println(io, "    </g>")

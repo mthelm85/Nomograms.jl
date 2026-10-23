@@ -52,6 +52,12 @@ itself — and rejects a domain you supply that contradicts the relation.
   by distance *on the page*, so a reciprocal or logarithmic axis keeps sensible labels
   where it is stretched and quietly drops them where it is compressed. Endpoints and
   decade boundaries are kept in preference to crowded neighbours.
+- **Labels that stay out of each other's way.** Each label's text box is computed from its
+  anchor, alignment and rotation, so the layout can see collisions between *different*
+  scales — the ones that per-axis thinning cannot know about. Axis titles win, tick labels
+  that would overlap are dropped while their tick marks stay, and isopleth labels are
+  nudged clear rather than discarded. Titles follow their scale off its end, and
+  `ticklabelrotation = :tangent` turns labels to run along a steep or curved axis.
 - **Two renderers over one layout.** `drawing(nom)` produces pure geometry; `svg` walks it
   with no dependencies beyond the standard library, and a package extension walks it with
   Makie when you load a backend.

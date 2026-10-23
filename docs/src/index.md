@@ -146,6 +146,33 @@ and decade boundaries are placed first, so a crowded axis gives up `9` before it
 Where an axis compresses so hard that automatic selection has nothing to work with, pass
 `ticks = [...]` to the [`Variable`](@ref); anything that will not fit is still dropped.
 
+### Placing the labels
+
+Thinning compares a scale only against itself, which is all a parallel layout needs. Bring
+scales together — a diagonal, a curve, two axes close on the page — and labels from
+*different* scales start to overlap, which no amount of per-axis thinning can see.
+
+So each label carries its anchor point, alignment and rotation, and
+[`label_box`](@ref Nomograms.label_box) turns those into the box it actually occupies. The
+layout then makes one pass over the whole chart: axis titles are reserved first, then major
+tick labels, then minor ones, and a label that cannot fit is dropped while its tick mark
+stays. Isopleth labels are nudged along the perpendicular until they are clear instead,
+since the caller asked for those by name.
+
+Two related details fall out of the same geometry:
+
+- [`align_for`](@ref Nomograms.align_for) uses *both* components of the direction a label
+  is pushed in. While every axis was vertical only the horizontal one mattered; on a curve,
+  a label pushed straight down from its tick has to hang from its top edge rather than sit
+  centred on the point.
+- An axis title is placed off the **end** of its scale, continuing along the tangent. For a
+  vertical axis that is straight up from the top, exactly as before; for a diagonal or a
+  curve it follows the scale instead of jumping to whichever point is highest.
+
+Set `ticklabelrotation = :tangent` on the [`NomogramStyle`](@ref) to turn tick labels to run
+along their scale, which reads better on a steep or curved axis; the default leaves them
+upright. `resolve_collisions = false` turns the whole pass off.
+
 ### Rendering
 
 [`drawing`](@ref) turns a nomogram into a [`NomogramDrawing`](@ref): axis polylines, tick

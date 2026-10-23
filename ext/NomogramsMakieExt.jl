@@ -7,13 +7,6 @@ using Nomograms: drawing, nomogramplot, nomogramplot!
 
 const DEFAULT_COLORS = Nomograms.DEFAULT_ISOPLETH_COLORS
 
-# Text alignment implied by a tick's outward normal, matching the SVG backend.
-function _align(n)
-    n[1] < -0.3 && return (:right, :center)
-    n[1] > 0.3 && return (:left, :center)
-    return (:center, :center)
-end
-
 _p(p) = Point2f(p[1], p[2])
 
 """
@@ -42,7 +35,7 @@ function Nomograms.nomogramplot!(
             _p(d.titlepos);
             text = d.title,
             fontsize = st.titlesize * k,
-            align = (:center, :bottom),
+            align = d.titlealign,
             color = textcolor,
             font = titlefont,
         )
@@ -70,16 +63,13 @@ function Nomograms.nomogramplot!(
             linesegments!(ax, segs; color = axiscolor, linewidth = st.tickwidth * k)
         for t in sd.ticks
             isnothing(t.label) && continue
-            reach = t.length + st.ticklabelgap
             text!(
                 ax,
-                Point2f(
-                    t.position[1] + t.normal[1] * reach,
-                    t.position[2] + t.normal[2] * reach,
-                );
+                _p(t.labelpos);
                 text = t.label,
                 fontsize = st.ticklabelsize * k,
-                align = _align(t.normal),
+                align = t.align,
+                rotation = t.rotation,
                 color = textcolor,
                 font = font,
             )
@@ -90,7 +80,7 @@ function Nomograms.nomogramplot!(
             _p(sd.titlepos);
             text = sd.label,
             fontsize = st.titlesize * k,
-            align = (:center, :bottom),
+            align = sd.titlealign,
             color = textcolor,
             font = titlefont,
         )
@@ -110,10 +100,10 @@ function Nomograms.nomogramplot!(
         isempty(iso.label) && continue
         text!(
             ax,
-            Point2f(b[1] + st.ticklabelgap, b[2]);
+            _p(iso.labelpos);
             text = iso.label,
             fontsize = st.ticklabelsize * k,
-            align = (:left, :center),
+            align = iso.labelalign,
             color = c,
             font = font,
         )
