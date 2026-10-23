@@ -64,6 +64,7 @@ export
     # construction
     additive_nomogram,
     multiplicative_nomogram,
+    ratio_nomogram,
     # solving
     evaluate,
     evaluate_all,

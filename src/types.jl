@@ -22,6 +22,9 @@ One variable of a nomogram, before it has been placed on the page.
 - `label`: axis title; defaults to `string(name)`.
 - `ticks`, `minorticks`: explicit tick values, bypassing automatic selection.
 - `tickformat`: `value -> String`.
+- `tickstyle`: `:linear` or `:log` to choose how automatic tick values are picked, or
+  `:auto` to take it from the transform. A construction may override `:auto` when it knows
+  better: an N-chart's ratio axis gets logarithmic ticks when it spans a decade or more.
 - `side`: `:left`, `:right`, or `:auto` (the construction chooses).
 """
 struct Variable
@@ -32,6 +35,7 @@ struct Variable
     ticks::Union{Nothing,Vector{Float64}}
     minorticks::Union{Nothing,Vector{Float64}}
     tickformat::Function
+    tickstyle::Symbol
     side::Symbol
 end
 
@@ -43,10 +47,13 @@ function Variable(
     ticks = nothing,
     minorticks = nothing,
     tickformat::Function = default_tickformat,
+    tickstyle::Symbol = :auto,
     side::Symbol = :auto,
 )
     side in (:left, :right, :auto) ||
         throw(ArgumentError("side must be :left, :right or :auto, got :$side"))
+    tickstyle in (:auto, :linear, :log) ||
+        throw(ArgumentError("tickstyle must be :auto, :linear or :log, got :$tickstyle"))
     dom = isnothing(domain) ? nothing : (float(domain[1]), float(domain[2]))
     if !isnothing(dom) && !(dom[1] < dom[2])
         throw(ArgumentError("domain of :$name must be increasing, got $dom"))
@@ -59,9 +66,19 @@ function Variable(
         isnothing(ticks) ? nothing : collect(float.(ticks)),
         isnothing(minorticks) ? nothing : collect(float.(minorticks)),
         tickformat,
+        tickstyle,
         side,
     )
 end
+
+"""
+    resolved_tickstyle(v::Variable) -> Symbol
+
+`:linear` or `:log`, taking the variable's own `tickstyle` when it is not `:auto` and
+otherwise asking the transform.
+"""
+resolved_tickstyle(v::Variable) =
+    v.tickstyle === :auto ? tickstyle(v.transform) : v.tickstyle
 
 """
     Scale

@@ -19,6 +19,10 @@ end
 # 0.010000000000000002, an error that then shows up in tick values and their labels.
 _pow10(e::Integer) = e >= 0 ? 10.0^e : inv(10.0^(-e))
 
+# `m` times a power of ten, kept exact below 1: `3 * inv(10.0)` is 0.30000000000000004,
+# whereas dividing gives the 0.3 a reader expects to see.
+_mantissa(m::Integer, e::Integer) = e >= 0 ? m * 10.0^e : m / 10.0^(-e)
+
 """
     nicestep(raw) -> Float64
 
@@ -118,9 +122,8 @@ function log_ticks(lo::Real, hi::Real)
     majors = Float64[]
     minors = Float64[]
     for d = dlo:dhi
-        mag = _pow10(d)
         for m = 1:9
-            v = m * mag
+            v = _mantissa(m, d)
             inrange(v) || continue
             if wide
                 m == 1 ? push!(majors, v) : push!(minors, v)
@@ -131,7 +134,7 @@ function log_ticks(lo::Real, hi::Real)
         wide && continue
         # Fine subdivisions between mantissa ticks on a short-range log axis.
         for i = 11:99
-            v = (i / 10) * mag
+            v = _mantissa(i, d - 1)
             (i % 10 == 0 || !inrange(v)) && continue
             push!(minors, v)
         end
@@ -159,7 +162,7 @@ function candidate_ticks(v::Variable, dom::Tuple{Float64,Float64})
         minors = isnothing(v.minorticks) ? Float64[] : filter(inside, v.minorticks)
         return (majors, minors)
     end
-    if tickstyle(v.transform) === :log && lo > 0
+    if resolved_tickstyle(v) === :log && lo > 0
         majors, minors = log_ticks(lo, hi)
     else
         majors, minors = linear_ticks(lo, hi)

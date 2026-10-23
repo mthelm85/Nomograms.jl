@@ -1,16 +1,24 @@
-# Rebuild a Variable with a different transform, keeping every other field.
-function withtransform(v::Variable, t::ScaleTransform)
+# Rebuild a Variable, keeping every field the caller does not replace.
+function rebuild(
+    v::Variable;
+    transform::ScaleTransform = v.transform,
+    domain = v.domain,
+    tickstyle::Symbol = v.tickstyle,
+)
     return Variable(
         v.name,
-        t;
-        domain = v.domain,
+        transform;
+        domain,
         label = v.label,
         ticks = v.ticks,
         minorticks = v.minorticks,
         tickformat = v.tickformat,
+        tickstyle,
         side = v.side,
     )
 end
+
+withtransform(v::Variable, t::ScaleTransform) = rebuild(v; transform = t)
 
 function _result_domain(v::Variable, reachable::Tuple{Float64,Float64})
     r0, r1 = reachable
@@ -55,8 +63,8 @@ function _result_domain(v::Variable, reachable::Tuple{Float64,Float64})
             ArgumentError(
                 "domain $(v.domain) of the result variable :$(v.name) is " *
                 "inconsistent with the relation: the other two scales reach " *
-                "f = [$r0, $r1], but :$(v.name) spans f = [$s0, $s1]. The length " *
-                "of the middle axis is fixed by the outer two, so this chart " *
+                "f = [$r0, $r1], but :$(v.name) spans f = [$s0, $s1]. The extent " *
+                "of the result axis is fixed by the outer two, so this chart " *
                 "cannot be drawn." *
                 suggestion *
                 "\nTo label only part of the axis, keep the full domain and pass " *
@@ -207,4 +215,135 @@ function multiplicative_nomogram(v1::Variable, v2::Variable, v3::Variable; kwarg
         withtransform(v3, ComposedScale(L, v3.transform));
         kwargs...,
     )
+end
+
+"""
+    ratio_nomogram(v1, v2, v3; width = 70, height = 100, title = "")
+
+An N-chart (also called a Z-chart) for the ratio relation
+
+```
+f1(v1) / f2(v2) = f3(v3)
+```
+
+Two vertical scales joined by a diagonal, which is where the result is read. `v3` may
+leave `domain = nothing`, in which case the range it can reach is derived from the other
+two. All three transforms must be strictly positive over their domains.
+
+# Why not a parallel chart?
+
+[`multiplicative_nomogram`](@ref) already charts ratios, by taking logarithms. The N-chart
+earns its place by needing no logarithm at all: the scales stay *linear*, so precision is
+even along them and small ratios are not squeezed into a corner. It is the layout to reach
+for when the quantities are everyday ones -- a rate as distance over time, a concentration,
+a unit conversion -- and the reader wants to interpolate by eye.
+
+# The construction
+
+Put `v1` on `x = 0` at `y1 = a1 * f1`, running up from the bottom-left corner, and `v2` on
+`x = W` at `y2 = H - a2 * f2`, running down from the top-right. Take the diagonal between
+those two corners, `D(s) = (sW, sH)`. A line through a point on each outer scale meets the
+diagonal where
+
+```
+s = a1*f1 / (a1*f1 + a2*f2)
+```
+
+Writing `r = f1/f2` and `k = a1/a2` that is `s = k*r / (k*r + 1)`, a one-to-one map from
+the ratio onto the diagonal: reading `s` back gives `r = s / (k * (1 - s))`.
+
+Note what the two scale factors do *not* have to be. The usual textbook derivation makes
+them equal and the ratio falls out directly; here the diagonal's own scale absorbs `k`
+instead, so each outer axis is free to be fitted to the canvas on its own. Taking
+`a1 = H/max(f1)` and `a2 = H/max(f2)` anchors the diagonal at the two corners, which is
+what gives the layout its N.
+
+The diagonal is drawn only over the part its scale actually reaches, `f1/f2` between
+`min(f1)/max(f2)` and `max(f1)/min(f2)`, so it stops short of the corners -- those are the
+ratios 0 and infinity.
+
+# Example
+
+```jldoctest
+julia> nom = ratio_nomogram(
+           Variable(:distance; domain = (1, 10)),
+           Variable(:time; domain = (1, 10)),
+           Variable(:speed),
+       );
+
+julia> nom[:speed].domain
+(0.1, 10.0)
+
+julia> round(evaluate(nom; distance = 6, time = 3).speed; digits = 10)
+2.0
+```
+"""
+function ratio_nomogram(
+    v1::Variable,
+    v2::Variable,
+    v3::Variable;
+    width::Real = 70.0,
+    height::Real = 100.0,
+    title::AbstractString = "",
+)
+    width > 0 || throw(ArgumentError("width must be positive, got $width"))
+    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    for v in (v1, v2)
+        isnothing(v.domain) && throw(
+            ArgumentError(
+                "variable :$(v.name) must declare `domain`; only the result " *
+                "variable (the third argument) may leave it to be derived",
+            ),
+        )
+    end
+    W, H = float(width), float(height)
+
+    p0, p1 = frange(v1.transform, v1.domain)
+    q0, q1 = frange(v2.transform, v2.domain)
+    for (v, lo) in ((v1, p0), (v2, q0))
+        lo > 0 || throw(
+            ArgumentError(
+                "an N-chart divides one scale by the other, so both must be " *
+                "strictly positive: :$(v.name) reaches f = $lo on its domain " *
+                "$(v.domain). Shift the variable, or use `multiplicative_nomogram` " *
+                "if a logarithmic chart suits.",
+            ),
+        )
+    end
+
+    a1 = H / p1
+    a2 = H / q1
+    k = a1 / a2
+    r0, r1 = p0 / q1, p1 / q0
+    dom3 = _result_domain(v3, (r0, r1))
+
+    # The diagonal is a projective scale -- s = kr/(kr+1) -- so a ratio spanning decades
+    # is spread across it roughly logarithmically. Round numbers picked linearly then sit
+    # all in one half: over 0.1 to 10 a linear choice offers nothing between 0.1 and 2,
+    # which is most of the axis. Decade-based values fit the geometry, so take them unless
+    # the caller has said otherwise.
+    if v3.tickstyle === :auto && isnothing(v3.ticks) && r1 / r0 >= 10
+        v3 = rebuild(v3; domain = dom3, tickstyle = :log)
+    end
+
+    t1, t2, t3 = v1.transform, v2.transform, v3.transform
+    c1 = u -> (0.0, a1 * transform(t1, u))
+    c2 = v -> (W, H - a2 * transform(t2, v))
+    function c3(w)
+        kr = k * transform(t3, w)
+        s = kr / (kr + 1)
+        return (s * W, s * H)
+    end
+
+    side1 = v1.side === :auto ? :left : v1.side
+    side2 = v2.side === :auto ? :right : v2.side
+    side3 = v3.side === :auto ? :left : v3.side
+
+    scales = [
+        Scale(v1, v1.domain, c1, side1),
+        Scale(v2, v2.domain, c2, side2),
+        Scale(v3, dom3, c3, side3),
+    ]
+    relation = (x, y, z) -> transform(t1, x) / transform(t2, y) - transform(t3, z)
+    return Nomogram(scales; width = W, height = H, title, relation)
 end

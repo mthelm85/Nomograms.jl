@@ -298,7 +298,7 @@ function _title_anchor(s::Scale, path::Vector{Point}, style::NomogramStyle)
         ends[1][2][1] <= ends[2][2][1] ? ends[1] : ends[2]
     away = _unit(chosen[3])
     pos = _offset(chosen[2], away, style.titlegap)
-    return (pos, align_for(away))
+    return (pos, align_for(away), away)
 end
 
 function _expand_box!(bb::Vector{Float64}, box::NTuple{4,Float64})
@@ -313,23 +313,56 @@ function _expand!(bb::Vector{Float64}, p::Point)
     return _expand_box!(bb, (p[1], p[2], p[1], p[2]))
 end
 
+"""
+    nudge_clear(text, anchor, dir, size, align, style, occupied) -> (position, box)
+
+Place a label at `anchor`, or at the nearest offset along `±dir` that clears everything in
+`occupied`, and record the box it takes.
+
+This is for text that must not simply be dropped: an axis title, or an isopleth label the
+caller asked for by name. Tick labels are the other case -- there are plenty of those, so
+one that will not fit loses its label and keeps its tick.
+"""
+function nudge_clear(
+    text::AbstractString,
+    anchor::Point,
+    dir::Point,
+    size::Real,
+    align::NTuple{2,Symbol},
+    style::NomogramStyle,
+    occupied::Vector{NTuple{4,Float64}};
+    maxsteps::Int = 6,
+)
+    if !style.resolve_collisions
+        box = label_box(anchor, text, size, align, 0.0)
+        push!(occupied, box)
+        return (anchor, box)
+    end
+    step = float(size) * 1.25
+    for k = 0:maxsteps, sgn in (k == 0 ? (1,) : (1, -1))
+        pos = _offset(anchor, dir, sgn * step * k)
+        box = label_box(pos, text, size, align, 0.0)
+        if !any(b -> _overlaps(box, b, style.collisionpad), occupied)
+            push!(occupied, box)
+            return (pos, box)
+        end
+    end
+    pos = _offset(anchor, dir, step * (maxsteps + 1))
+    box = label_box(pos, text, size, align, 0.0)
+    push!(occupied, box)
+    return (pos, box)
+end
+
 # Tick labels are thinned per scale by distance along their own axis, which says nothing
 # about labels belonging to other scales. Non-parallel layouts bring scales together, so
-# compare the actual text boxes across the whole chart: titles are reserved first, then
-# major labels, then minor ones, and a label that cannot fit is dropped while its tick
-# mark stays.
+# compare the actual text boxes across the whole chart: titles come first, then major
+# labels, then minor ones, and a label that cannot fit is dropped while its tick mark
+# stays. `occupied` already holds the titles, which were nudged clear of each other.
 function _resolve_tick_collisions!(
     scaledrawings::Vector{ScaleDrawing},
     style::NomogramStyle,
+    occupied::Vector{NTuple{4,Float64}},
 )
-    occupied = NTuple{4,Float64}[]
-    for sd in scaledrawings
-        isempty(sd.label) && continue
-        push!(
-            occupied,
-            label_box(sd.titlepos, sd.label, style.titlesize, sd.titlealign, 0.0),
-        )
-    end
     for level in (1, 2), sd in scaledrawings, i in eachindex(sd.ticks)
         t = sd.ticks[i]
         (t.level == level && !isnothing(t.label)) || continue
@@ -341,36 +374,6 @@ function _resolve_tick_collisions!(
         end
     end
     return occupied
-end
-
-# An isopleth label is something the caller asked for by name, so it is nudged clear
-# rather than dropped.
-function _place_isopleth_label(
-    label::AbstractString,
-    anchor::Point,
-    perp::Point,
-    style::NomogramStyle,
-    occupied::Vector{NTuple{4,Float64}},
-)
-    align = (:left, :center)
-    step = style.ticklabelsize * 1.25
-    if !style.resolve_collisions
-        return (anchor, align, label_box(anchor, label, style.ticklabelsize, align, 0.0))
-    end
-    for k = 0:6
-        for sgn in (k == 0 ? (1,) : (1, -1))
-            pos = _offset(anchor, perp, sgn * step * k)
-            box = label_box(pos, label, style.ticklabelsize, align, 0.0)
-            if !any(b -> _overlaps(box, b, style.collisionpad), occupied)
-                push!(occupied, box)
-                return (pos, align, box)
-            end
-        end
-    end
-    pos = _offset(anchor, perp, step * 7)
-    box = label_box(pos, label, style.ticklabelsize, align, 0.0)
-    push!(occupied, box)
-    return (pos, align, box)
 end
 
 """
@@ -392,22 +395,36 @@ function drawing(
         ),
     )
 
+    occupied = NTuple{4,Float64}[]
     scaledrawings = ScaleDrawing[]
     for s in nom.scales
         majors, minors = candidate_ticks(s.variable, s.domain)
         ticks = thin_ticks(s, majors, minors, style)
         path = _path(s)
-        titlepos, titlealign = _title_anchor(s, path, style)
+        titlepos, titlealign, away = _title_anchor(s, path, style)
+        if !isempty(s.variable.label)
+            # Two scales that converge can want their titles in the same place -- the end
+            # of an N-chart's diagonal lands on the right-hand axis. Slide along the
+            # perpendicular, which moves the title sideways without pulling it back over
+            # its own scale.
+            titlepos, _ = nudge_clear(
+                s.variable.label,
+                titlepos,
+                (-away[2], away[1]),
+                style.titlesize,
+                titlealign,
+                style,
+                occupied,
+            )
+        end
         push!(
             scaledrawings,
             ScaleDrawing(name(s), s.variable.label, path, ticks, titlepos, titlealign),
         )
     end
 
-    occupied = if style.resolve_collisions
-        _resolve_tick_collisions!(scaledrawings, style)
-    else
-        NTuple{4,Float64}[]
+    if style.resolve_collisions
+        _resolve_tick_collisions!(scaledrawings, style, occupied)
     end
 
     bb = [Inf, Inf, -Inf, -Inf]
@@ -444,9 +461,15 @@ function drawing(
         labelpos = _offset(seg[2], (1.0, 0.0), style.ticklabelgap)
         labelalign = (:left, :center)
         if !isempty(iso.label)
-            perp = (-u[2], u[1])
-            labelpos, labelalign, box =
-                _place_isopleth_label(iso.label, labelpos, perp, style, occupied)
+            labelpos, box = nudge_clear(
+                iso.label,
+                labelpos,
+                (-u[2], u[1]),
+                style.ticklabelsize,
+                labelalign,
+                style,
+                occupied,
+            )
             _expand_box!(bb, box)
         end
         push!(isodrawings, IsoplethDrawing(seg, pts, iso.label, labelpos, labelalign))

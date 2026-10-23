@@ -14,6 +14,26 @@ that makes the criterion agree with the relation being charted.
 align_residual(s::Scale, value, p::Point, q::Point) =
     _cross(_sub(q, p), _sub(point(s, value), p))
 
+function _finite_at(g, x)
+    try
+        return isfinite(g(x))
+    catch
+        return false
+    end
+end
+
+# A root sitting exactly on the end of a domain -- the ratio at the very corner of an
+# N-chart, say -- can land an ulp outside it, because the arithmetic that produced the
+# domain and the arithmetic that solves for the root are not the same arithmetic. So search
+# a hair wider and clamp back. Only where the curve is still defined, though: a transform
+# may have a hard edge exactly at its domain, and stepping over it would throw.
+function _search_bounds(g, lo::Float64, hi::Float64)
+    pad = 1e-9 * max(hi - lo, abs(lo), abs(hi), 1.0)
+    a = _finite_at(g, lo - pad) ? lo - pad : lo
+    b = _finite_at(g, hi + pad) ? hi + pad : hi
+    return (a, b)
+end
+
 function _no_solution_error(s::Scale)
     lo, hi = s.domain
     return ArgumentError(
@@ -46,7 +66,11 @@ function solve_all_on(s::Scale, p::Point, q::Point)
         )
     end
     lo, hi = s.domain
-    return Roots.find_zeros(v -> align_residual(s, v, p, q), lo, hi)
+    g = v -> align_residual(s, v, p, q)
+    a, b = _search_bounds(g, lo, hi)
+    roots = Roots.find_zeros(g, a, b)
+    isempty(roots) && return roots
+    return unique!(sort!(clamp.(roots, lo, hi)))
 end
 
 """

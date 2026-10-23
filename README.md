@@ -100,6 +100,28 @@ can be written `f₁(u) + f₂(v) = f₃(w)`. Supply the `fᵢ` as transforms an
 does the rest; see [`examples/compound_growth.jl`](examples/compound_growth.jl), which
 charts `growth = (1 + r)ⁿ` by way of `log(growth) = n · log(1 + r)`.
 
+## Ratios, on an N-chart
+
+Parallel scales are not the only layout. `ratio_nomogram` builds an N-chart (Z-chart) —
+two vertical scales joined by a diagonal, with the result read off the diagonal — for
+
+```julia
+nom = ratio_nomogram(
+    Variable(:distance; domain = (1, 10)),
+    Variable(:time;     domain = (1, 10)),
+    Variable(:speed),                        # derived: 0.1 to 10
+)
+evaluate(nom; distance = 6, time = 3).speed  # 2.0
+```
+
+`multiplicative_nomogram` charts ratios too, by taking logarithms. The N-chart earns its
+place by needing none: the outer scales stay **linear**, so precision is even along them
+and small ratios are not squeezed into a corner.
+
+The diagonal is a projective scale, `s = k·r / (k·r + 1)`, so a ratio spanning decades is
+spread across it roughly logarithmically — and the tick values follow suit rather than
+being picked linearly, which over 0.1 to 10 would offer nothing between 0.1 and 2.
+
 For a layout the constructions do not cover, build `Scale`s directly — a curve per
 variable, straight or not — and pass them to `Nomogram`. Everything downstream, the solver
 included, works unchanged.
@@ -110,11 +132,15 @@ included, works unchanged.
   parallel, the classic reciprocal chart.
 - [`examples/compound_growth.jl`](examples/compound_growth.jl) — compound growth, with a
   custom transform and hand-picked ticks for an axis that compresses hard.
+- [`examples/speed_distance_time.jl`](examples/speed_distance_time.jl) — an N-chart for a
+  ratio, on linear scales.
 
 ## Status
 
-Version 0.1.0, not yet registered. The parallel-axis construction, the solver, both
-renderers and the tick engine are implemented and tested. Not yet implemented: non-parallel
-layouts (N/Z charts, curved and circular scales) as named constructions, grid or
-"compound" nomograms for four or more variables, and a symbolic front end that would
-recognise separable forms from an expression rather than taking the transforms directly.
+Version 0.1.0, not yet registered. The parallel-axis and N-chart constructions, the solver,
+both renderers and the tick engine are implemented and tested. Not yet implemented: curved
+and circular scales as named constructions (hand-built ones already work), a general
+determinant constructor with automatic fitting, collinearity-preserving projective
+reshaping, grid or "compound" nomograms for four or more variables, and a symbolic front
+end that would recognise separable forms from an expression rather than taking the
+transforms directly.

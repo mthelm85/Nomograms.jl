@@ -134,6 +134,34 @@ evaluate(prod; rate = 7.5, hours = 12)
 See [`additive_nomogram`](@ref) for the geometry of the construction, including why the
 middle axis spans exactly the same height as the outer two.
 
+### Ratios, and the N-chart
+
+Not every relation wants parallel scales. [`ratio_nomogram`](@ref) builds an N-chart (also
+called a Z-chart) for `f₁(u) / f₂(v) = f₃(w)`: two vertical scales joined by a diagonal,
+with the result read off the diagonal.
+
+```@example intro
+speed = ratio_nomogram(
+    Variable(:distance; domain = (1, 10)),
+    Variable(:time; domain = (1, 10)),
+    Variable(:speed),
+)
+evaluate(speed; distance = 6, time = 3)
+```
+
+`multiplicative_nomogram` charts ratios as well, by way of logarithms. The N-chart earns
+its place by needing none: the outer scales stay *linear*, so precision is even along them
+and a reader can interpolate between ticks by eye.
+
+Two details are worth knowing. The textbook derivation gives both outer scales the same
+scale factor so that the ratio falls out directly; here the diagonal's own scale absorbs
+the ratio of the two factors instead, so each outer axis is fitted to the canvas on its
+own. And the diagonal is a *projective* scale, `s = k·r / (k·r + 1)`, so a ratio spanning
+decades is spread across it roughly logarithmically — which is why the result axis takes
+decade-based tick values in that case. Picking them linearly would offer nothing between
+0.1 and 2, most of the diagonal. Pass `tickstyle = :linear` on the [`Variable`](@ref) to
+override.
+
 ### Ticks
 
 Tick values are chosen to be round numbers *in the variable*, then thinned by distance *on

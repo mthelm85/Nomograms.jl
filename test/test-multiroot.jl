@@ -119,3 +119,30 @@ end
     p = point(nom[:u], 20)
     @test_throws ArgumentError solve_all_on(nom[:w], p, p)
 end
+
+@testitem "a root exactly on the end of a domain is still found" tags = [:unit] begin
+    # The extreme ratios of an N-chart sit precisely at the ends of the diagonal's
+    # domain, and the arithmetic that derives the domain is not the arithmetic that
+    # solves for the root, so the answer can land an ulp outside. Both corners must
+    # still resolve.
+    nom = ratio_nomogram(
+        Variable(:a; domain = (1, 10)),
+        Variable(:b; domain = (1, 10)),
+        Variable(:c),
+    )
+    lo, hi = nom[:c].domain
+    @test evaluate(nom; a = 1, b = 10).c ≈ lo
+    @test evaluate(nom; a = 10, b = 1).c ≈ hi
+    # ...and the answer is clamped onto the domain rather than left just outside it.
+    @test lo <= evaluate(nom; a = 1, b = 10).c <= hi
+    @test lo <= evaluate(nom; a = 10, b = 1).c <= hi
+
+    # The same at both ends of a parallel chart.
+    add = additive_nomogram(
+        Variable(:x; domain = (0, 10)),
+        Variable(:y; domain = (0, 10)),
+        Variable(:s),
+    )
+    @test evaluate(add; x = 0, y = 0).s ≈ 0 atol = 1e-12
+    @test evaluate(add; x = 10, y = 10).s ≈ 20
+end
