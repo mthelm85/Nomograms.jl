@@ -219,7 +219,12 @@ than once:
 isos = [isopleth(nom, sol) for sol in evaluate_all(nom; u = 20, v = 20)]
 ```
 """
-function isopleth(nom::Nomogram, solution::NamedTuple; label::AbstractString = "")
+function isopleth(
+    nom::Nomogram,
+    solution::NamedTuple;
+    label::AbstractString = "",
+    group::Int = 0,
+)
     for n in variablenames(nom)
         haskey(solution, n) || throw(
             ArgumentError(
@@ -230,11 +235,11 @@ function isopleth(nom::Nomogram, solution::NamedTuple; label::AbstractString = "
     end
     pts = [point(s, solution[name(s)]) for s in nom.scales]
     values = Dict{Symbol,Float64}(n => float(solution[n]) for n in variablenames(nom))
-    return Isopleth(values, pts, String(label))
+    return Isopleth(values, pts, String(label), group)
 end
 
-function isopleth(nom::Nomogram; label::AbstractString = "", values...)
-    return isopleth(nom, evaluate(nom; values...); label)
+function isopleth(nom::Nomogram; label::AbstractString = "", group::Int = 0, values...)
+    return isopleth(nom, evaluate(nom; values...); label, group)
 end
 
 """

@@ -58,7 +58,9 @@ export
     # model
     Variable,
     Scale,
+    AbstractNomogram,
     Nomogram,
+    CompoundNomogram,
     Isopleth,
     point,
     variablenames,
@@ -69,6 +71,7 @@ export
     determinant_nomogram,
     project,
     projective_transform,
+    compound,
     # solving
     evaluate,
     evaluate_all,
@@ -92,6 +95,7 @@ include("types.jl")
 include("ticks.jl")
 include("construct.jl")
 include("solve.jl")
+include("compound.jl")
 include("drawing.jl")
 include("svg.jl")
 

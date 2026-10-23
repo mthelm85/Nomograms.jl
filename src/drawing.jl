@@ -95,6 +95,7 @@ struct IsoplethDrawing
     label::String
     labelpos::Point
     labelalign::NTuple{2,Symbol}
+    group::Int
 end
 
 """
@@ -253,7 +254,10 @@ function thin_ticks(
 
     # The ends of the domain go down first: a reader needs to know where an axis stops,
     # so a round tick that crowds an endpoint is the one to sacrifice, not the endpoint.
-    if style.endpoint_ticks
+    # An explicitly empty tick list is a request for a bare line, though -- a compound
+    # nomogram's turning line is usually drawn blank -- so it overrides this.
+    blank = !isnothing(v.ticks) && isempty(v.ticks)
+    if style.endpoint_ticks && !blank
         for value in s.domain
             tryplace(value, 1)
         end
@@ -392,14 +396,14 @@ function _resolve_tick_collisions!(
 end
 
 """
-    drawing(nom::Nomogram; style = NomogramStyle(), isopleths = Isopleth[])
+    drawing(nom::AbstractNomogram; style = NomogramStyle(), isopleths = Isopleth[])
 
 Lay out a nomogram: choose and position ticks, resolve label collisions, and place titles
 and any alignment lines. Returns a [`NomogramDrawing`](@ref) of pure geometry, shared by
 every rendering backend.
 """
 function drawing(
-    nom::Nomogram;
+    nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
 )
@@ -487,7 +491,10 @@ function drawing(
             )
             _expand_box!(bb, box)
         end
-        push!(isodrawings, IsoplethDrawing(seg, pts, iso.label, labelpos, labelalign))
+        push!(
+            isodrawings,
+            IsoplethDrawing(seg, pts, iso.label, labelpos, labelalign, iso.group),
+        )
     end
 
     titlepos = (nom.width / 2, bb[4] + style.titlegap)

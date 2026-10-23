@@ -2,7 +2,7 @@ module NomogramsMakieExt
 
 using Makie: Makie, Figure, Axis, DataAspect, Point2f
 using Makie: hidedecorations!, hidespines!, lines!, linesegments!, scatter!, text!
-using Nomograms: Nomograms, Nomogram, NomogramDrawing, NomogramStyle, Isopleth
+using Nomograms: Nomograms, AbstractNomogram, NomogramDrawing, NomogramStyle, Isopleth
 using Nomograms: drawing, nomogramplot, nomogramplot!
 
 const DEFAULT_COLORS = Nomograms.DEFAULT_ISOPLETH_COLORS
@@ -89,7 +89,11 @@ function Nomograms.nomogramplot!(
     end
 
     for (i, iso) in enumerate(d.isopleths)
-        c, dash = Nomograms.isopleth_style(i, isoplethcolors, isoplethdashes)
+        c, dash = Nomograms.isopleth_style(
+            iso.group == 0 ? i : iso.group,
+            isoplethcolors,
+            isoplethdashes,
+        )
         a, b = iso.segment
         lines!(
             ax,
@@ -120,7 +124,7 @@ end
 
 function Nomograms.nomogramplot!(
     ax::Axis,
-    nom::Nomogram;
+    nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
     kwargs...,
@@ -129,7 +133,7 @@ function Nomograms.nomogramplot!(
 end
 
 """
-    nomogramplot(nom::Nomogram; kwargs...) -> Figure
+    nomogramplot(nom::AbstractNomogram; kwargs...) -> Figure
 
 Draw a nomogram as a standalone Makie `Figure`, sized from the drawing's bounding box so
 that one chart unit is `pxperunit` pixels. Save it with Makie's `save`, which gives PDF,
@@ -165,7 +169,7 @@ function Nomograms.nomogramplot(
 end
 
 function Nomograms.nomogramplot(
-    nom::Nomogram;
+    nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
     kwargs...,

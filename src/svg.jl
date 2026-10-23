@@ -90,7 +90,7 @@ function _text(
 end
 
 """
-    svg(nom::Nomogram; kwargs...) -> String
+    svg(nom::AbstractNomogram; kwargs...) -> String
     svg(d::NomogramDrawing; kwargs...) -> String
 
 Render a nomogram as a standalone SVG document, returned as a `String`.
@@ -210,7 +210,10 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
     end
 
     for (i, iso) in enumerate(d.isopleths)
-        c, dash = isopleth_style(i, isoplethcolors, isoplethdashes)
+        # A reading of a compound chart is several segments that belong together, so a
+        # grouped isopleth takes its colour from the group rather than its position.
+        c, dash =
+            isopleth_style(iso.group == 0 ? i : iso.group, isoplethcolors, isoplethdashes)
         a, b = iso.segment
         println(io, """    <g id="isopleth-$i">""")
         println(
@@ -249,7 +252,7 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
 end
 
 function svg(
-    nom::Nomogram;
+    nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
     kwargs...,
@@ -258,7 +261,7 @@ function svg(
 end
 
 """
-    save_svg(path, nom::Nomogram; kwargs...) -> path
+    save_svg(path, nom::AbstractNomogram; kwargs...) -> path
     save_svg(path, d::NomogramDrawing; kwargs...) -> path
 
 Write [`svg`](@ref) output to a file. Keywords are those of `svg`.

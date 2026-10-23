@@ -208,6 +208,60 @@ max_relation_residual(quad)
 It returns `NaN` rather than a flattering zero when there is no relation to check, or when
 no input in the grid produced a solution.
 
+### More than three variables
+
+One alignment line can relate only three scales. A fourth variable means two stages sharing
+an intermediate, and [`compound`](@ref) positions them so the shared scale coincides.
+
+```@example intro
+stage1 = multiplicative_nomogram(
+    Variable(:L; domain = (1, 10)),
+    Variable(:W; domain = (1, 10)),
+    Variable(:t; label = "", ticks = Float64[]),
+)
+stage2 = multiplicative_nomogram(
+    Variable(:t; domain = stage1[:t].domain, label = "", ticks = Float64[]),
+    Variable(:H; domain = (1, 10)),
+    Variable(:V);
+    width = 130,
+)
+box = compound(stage1, stage2; title = "V = L × W × H")
+evaluate(box; L = 3, W = 4, H = 2)
+```
+
+The reader lays a line across the first stage, notes where it crosses the shared scale,
+then pivots about that point and reads the second — which is why that scale is called the
+turning line. Giving it an empty tick list draws it bare, as here; leave the ticks on and
+it carries the intermediate value, which is worth doing when the intermediate means
+something.
+
+Solving propagates rather than following a fixed direction: any stage with exactly one
+unknown is read, its answer becomes known, and the pass repeats. So inputs may be given in
+whatever combination closes the chain,
+
+```@example intro
+evaluate(box; L = 3, W = 4, V = 24).H
+```
+
+and a combination that cannot close it is refused, naming what stayed unknown. Supplying
+`t`, `H` and `V`, for instance, pins the product `L × W` but neither factor.
+
+Alignment is a similarity — rotate, scale, translate — carrying the later stage's shared
+scale onto the placed one, checked along the whole domain rather than only at the two
+points that fixed it. Being affine, it cannot change what either stage computes.
+
+!!! note "The shared scale must be the same scale in both stages"
+    Both stages above are multiplicative, so both place `t` logarithmically and the two
+    coincide. Splitting `V = (L + W) × H` the same way would not work: the first stage
+    puts `t` on a linear scale and the second on a logarithmic one, and no amount of
+    moving the stages reconciles that. `compound` checks and says so rather than drawing
+    a chart that lies.
+
+Stages generally interleave rather than sitting side by side, because a parallel-axis
+construction puts its result *between* its inputs, so both stages straddle the pivot.
+Widening the later stage's canvas spreads it clear, and [`project`](@ref) will reshape the
+result if the arrangement is still awkward.
+
 ### Reshaping, for free
 
 An affine map preserves collinearity, which is why fitting curves to the canvas is safe.

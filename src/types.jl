@@ -105,14 +105,27 @@ name(s::Scale) = s.variable.name
 domain(s::Scale) = s.domain
 
 """
+    AbstractNomogram
+
+A chart made of [`Scale`](@ref)s on a canvas. Everything about *drawing* one -- ticks,
+labels, bounding box, both backends -- needs only the scales, the canvas and the title, so
+it is written against this type. What differs between subtypes is how they are *solved*: a
+[`Nomogram`](@ref) is one alignment line through every scale, while a
+[`CompoundNomogram`](@ref) is several stages read in turn.
+"""
+abstract type AbstractNomogram end
+
+"""
     Nomogram
 
-A set of [`Scale`](@ref)s on a shared canvas, plus the relation they encode.
+A set of [`Scale`](@ref)s on a shared canvas, plus the relation they encode. Every scale is
+crossed by one alignment line.
 
 Build one with [`additive_nomogram`](@ref) or [`multiplicative_nomogram`](@ref), or
-directly from scales for layouts those constructions do not cover.
+directly from scales for layouts those constructions do not cover. For a relation needing
+more than three variables, see [`compound`](@ref).
 """
-struct Nomogram
+struct Nomogram <: AbstractNomogram
     scales::Vector{Scale}
     width::Float64
     height::Float64
@@ -134,14 +147,14 @@ function Nomogram(
     return Nomogram(collect(scales), float(width), float(height), String(title), relation)
 end
 
-Base.getindex(nom::Nomogram, n::Symbol) = scale(nom, n)
+Base.getindex(nom::AbstractNomogram, n::Symbol) = scale(nom, n)
 
 """
-    scale(nom::Nomogram, name::Symbol) -> Scale
+    scale(nom::AbstractNomogram, name::Symbol) -> Scale
 
 The scale carrying the given variable name.
 """
-function scale(nom::Nomogram, n::Symbol)
+function scale(nom::AbstractNomogram, n::Symbol)
     i = findfirst(s -> name(s) === n, nom.scales)
     isnothing(i) && throw(
         KeyError(
@@ -154,9 +167,9 @@ function scale(nom::Nomogram, n::Symbol)
 end
 
 """
-    variablenames(nom::Nomogram) -> Vector{Symbol}
+    variablenames(nom::AbstractNomogram) -> Vector{Symbol}
 """
-variablenames(nom::Nomogram) = [name(s) for s in nom.scales]
+variablenames(nom::AbstractNomogram) = [name(s) for s in nom.scales]
 
 """
     Isopleth
@@ -173,7 +186,10 @@ struct Isopleth
     values::Dict{Symbol,Float64}
     points::Vector{Point}
     label::String
+    group::Int
 end
+
+Isopleth(values, points, label) = Isopleth(values, points, String(label), 0)
 
 Base.getindex(iso::Isopleth, n::Symbol) = iso.values[n]
 
@@ -184,7 +200,7 @@ function Base.show(io::IO, nom::Nomogram)
     return nothing
 end
 
-function Base.show(io::IO, ::MIME"text/plain", nom::Nomogram)
+function Base.show(io::IO, ::MIME"text/plain", nom::AbstractNomogram)
     println(
         io,
         "Nomogram: $(length(nom.scales)) scales, ",

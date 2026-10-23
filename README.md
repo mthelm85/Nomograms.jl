@@ -166,6 +166,37 @@ checks the answers against the algebra.
 For full control, build `Scale`s directly — a curve per variable, in final coordinates —
 and pass them to `Nomogram`. Everything downstream, the solver included, works unchanged.
 
+## More than three variables
+
+One alignment line can relate only three scales, so a four-variable relation is split into
+two stages sharing an intermediate, and `compound` positions them so the shared scale
+coincides:
+
+```julia
+# V = L × W × H, as t = L × W then V = t × H
+stage1 = multiplicative_nomogram(L, W, Variable(:t; ticks = Float64[]))
+stage2 = multiplicative_nomogram(
+    Variable(:t; domain = stage1[:t].domain, ticks = Float64[]), H, V,
+)
+nom = compound(stage1, stage2)
+
+evaluate(nom; L = 3, W = 4, H = 2)     # (L=3, t=12, W=4, V=24, H=2)
+evaluate(nom; L = 3, W = 4, V = 24).H  # 2.0 — any direction the chain allows
+```
+
+The reader lays a line across the first stage, notes where it crosses the shared scale,
+then pivots about that point and reads the second. Hence the usual name for that scale: the
+turning line. An empty tick list draws it bare, as above.
+
+Solving propagates: any stage with exactly one unknown is read, its answer becomes known,
+and the pass repeats. So inputs can be given in whatever combination closes the chain, and
+a combination that cannot is refused with the variables still missing.
+
+The one real constraint is that a shared scale must be the *same* scale in both stages.
+Both stages above are multiplicative, so both place `t` logarithmically. Splitting
+`V = (L + W) × H` the same way would not work — one stage would want `t` linear and the
+other logarithmic — and `compound` says so rather than drawing a chart that lies.
+
 ## Reshaping, for free
 
 A projective map sends straight lines to straight lines, so it preserves the one thing a
@@ -195,12 +226,15 @@ chart cramped at one end can be pulled open, and nothing needs re-deriving.
   curved scale derived from the determinant and both roots read off one line.
 - [`examples/projective.jl`](examples/projective.jl) — reshaping a chart without changing
   what it computes.
+- [`examples/box_volume.jl`](examples/box_volume.jl) — four variables over two stages, with
+  a blank turning line.
 
 ## Status
 
 Version 0.1.0, not yet registered. The parallel-axis, N-chart and general determinant
-constructions, projective reshaping, the solver, both renderers and the tick engine are
-implemented and tested. Not yet implemented: grid or "compound" nomograms for four or more
-variables, resolving tick labels against isopleth *lines* rather than only against other
-labels, and a symbolic front end that would recognise separable forms from an expression
-rather than taking the transforms directly.
+constructions, compound charts for four or more variables, projective reshaping, the
+solver, both renderers and the tick engine are implemented and tested. Not yet implemented:
+the *net* form of a compound chart, where one scale becomes a two-parameter family of
+curves rather than a shared pivot; resolving tick labels against isopleth *lines* rather
+than only against other labels; and a symbolic front end that would recognise separable
+forms from an expression rather than taking the transforms directly.
