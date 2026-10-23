@@ -182,3 +182,30 @@ end
     @test !occursin("NaN", out)
     @test nomogramplot(nom; isopleths = isos) isa Figure
 end
+
+@testitem "a domain spanning decades keeps its accuracy" tags = [:unit] begin
+    # A derivative step sized to the span of the domain is 1% of R at R = 1 over
+    # [1, 1000], which put V²/R off by 1.8e-5 of its range and had the chart refused.
+    # Found by running a real formula, not by a toy one.
+    nom = auto_nomogram((V, R) -> V^2 / R, :V => (1, 240), :R => (1, 1000), :P)
+    lo, hi = nom[:P].domain
+    @test hi / lo > 1e7
+    for (V, R) in ((1, 1), (12, 1000), (120, 50), (240, 1))
+        @test abs(evaluate(nom; V, R).P - V^2 / R) / (hi - lo) < 1e-7
+    end
+end
+
+@testitem "the result axis reads upwards" tags = [:unit] begin
+    # The transforms are fixed only up to a common sign, and the natural derivation flips
+    # the result whenever F decreases in its second argument. Either sign is a correct
+    # chart; this checks the conventional one is chosen.
+    up(nom, z) = (d = nom[z].domain; point(nom[z], d[2])[2] > point(nom[z], d[1])[2])
+    @test up(auto_nomogram((r, c) -> r - c, :r => (0, 100), :c => (0, 80), :p), :p)
+    @test up(auto_nomogram((x, y) -> x / y, :x => (1, 10), :y => (1, 10), :q), :q)
+    @test up(auto_nomogram(atan, :y => (1, 10), :x => (1, 10), :angle), :angle)
+    @test up(auto_nomogram((x, y) -> x + y, :x => (0, 1), :y => (0, 1), :s), :s)
+    # And flipping did not change any answer.
+    nom = auto_nomogram((r, c) -> r - c, :r => (0, 100), :c => (0, 80), :p)
+    @test evaluate(nom; r = 70, c = 30).p ≈ 40 atol = 1e-8
+    @test evaluate(nom; r = 70, p = 40).c ≈ 30 atol = 1e-8
+end

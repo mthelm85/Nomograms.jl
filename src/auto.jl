@@ -65,7 +65,11 @@ end
 # so that a function is never evaluated outside the region its caller vouched for. A
 # formula like log(r) may simply not exist past the end of its domain.
 function _deriv(f, x::Float64, lo::Float64, hi::Float64)
-    h = 1e-5 * (hi - lo)
+    # The step scales with x itself, not only the domain. A span-relative step is a large
+    # fraction of x at the small end of a domain spanning decades -- 1% of R at R = 1 over
+    # [1, 1000] -- and the truncation error there was enough for V²/R to disagree with its
+    # own chart. The floor keeps the step sensible where x passes through zero.
+    h = 6e-6 * max(abs(x), 1e-2 * (hi - lo))
     if x - h >= lo && x + h <= hi
         return (f(x + h) - f(x - h)) / (2h)
     elseif x + 2h <= hi
@@ -338,6 +342,15 @@ function auto_nomogram(
     ]
     th = TabulatedScale(zs, hs, hd)
     zd = (zlo, zhi)
+
+    # The transforms are only fixed up to a common sign -- -f, -g, -h serve as well as f,
+    # g, h -- and as derived, h decreases whenever F decreases in its second argument,
+    # turning the result axis upside down: profit = revenue - cost, atan(y, x). Choose the
+    # sign that makes the result read upwards.
+    if hs[end] < hs[1]
+        flip(t::TabulatedScale) = TabulatedScale(t.x, -t.y, -t.dy)
+        tf, tg, th = flip(tf), flip(tg), flip(th)
+    end
 
     if !isnothing(vz.domain)
         ok =
