@@ -248,7 +248,9 @@ it means drawing a line across each in turn.
 
 They come back sharing a `group`, so a renderer draws the whole reading in one colour. Pass
 the vector straight to [`drawing`](@ref) or a backend. The label goes on the last stage,
-where the answer is read.
+where the answer is read: the one whose result scale no other stage shares. That is not
+always the last in the list -- [`auto_nomogram`](@ref) lists its final stage first -- so
+the list order is only the fallback.
 """
 function isopleth(
     cn::CompoundNomogram,
@@ -257,11 +259,14 @@ function isopleth(
     group::Int = 1,
 )
     out = Isopleth[]
+    shared(n) = count(st -> n in variablenames(st), cn.stages) > 1
+    ends = findall(st -> !shared(last(variablenames(st))), cn.stages)
+    answer = length(ends) == 1 ? only(ends) : length(cn.stages)
     for (i, stage) in enumerate(cn.stages)
         sol = NamedTuple{Tuple(variablenames(stage))}(
             Tuple(solution[n] for n in variablenames(stage)),
         )
-        text = i == length(cn.stages) ? String(label) : ""
+        text = i == answer ? String(label) : ""
         push!(out, isopleth(stage, sol; label = text, group))
     end
     return out

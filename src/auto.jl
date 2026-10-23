@@ -324,11 +324,12 @@ back on itself.
 
 # Keywords
 - `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for
-  two inputs. In a chain it is the width of the last stage. An earlier stage always has
-  one input inside the stage it feeds, so it is mirrored and narrowed to put the input
-  nearer its turning line halfway between that line and the next result, rather than
-  wherever it happens to fall. The default grows with the chain: 35 per input after the
-  first.
+  two inputs. In a chain it is the width of the last stage, and the default grows with
+  the chain, 35 per input after the first. An earlier stage always has one input inside
+  the rest of the chain, so it is mirrored and resized, between a quarter of `width` and
+  `width`, to land that input mid-way between the axes already there. Every way of
+  pairing the inputs is tried for the first two levels of the chain, and the one whose
+  axes end up furthest apart is kept.
 - `rtol = 1e-6`: the largest disagreement with `F` to accept, relative to the result's
   range.
 """
@@ -366,6 +367,7 @@ function _auto_two(
     height::Real = 100.0,
     title::AbstractString = "",
     rtol::Real = 1e-6,
+    verify::Bool = true,
 )
     xd, yd = vx.domain, vy.domain
     Fc = (a, b) -> float(F(a, b))
@@ -447,7 +449,9 @@ function _auto_two(
         relation = (a, b, c) -> c - Fc(a, b),
     )
 
-    # The chart is only worth returning if reading it gives F. Solve it and check.
+    # The chart is only worth returning if reading it gives F. Solve it and check -- unless
+    # it is one stage of a chain, which is checked whole once assembled.
+    verify || return nom
     zspan = zd[2] - zd[1]
     worst = 0.0
     names = (vx.name, vy.name)

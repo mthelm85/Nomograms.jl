@@ -159,7 +159,12 @@ end
 end
 
 @testitem "a chain keeps its axes apart" tags = [:unit] begin
-    # n spans a decade and T barely half of one, so the turning line sits close to n.
+    gap(nom) = begin
+        xs = sort([Nomograms.point(s, sum(s.domain) / 2)[1] for s in nom.scales])
+        minimum(diff(xs)) / (xs[end] - xs[1])
+    end
+    # n spans a decade and T barely half of one, which left to chance put an input of
+    # the first stage on top of the pressure axis.
     gas = auto_nomogram(
         (n, T, V) -> n * 8.314 * T / V,
         :n => (0.5, 5),
@@ -167,16 +172,51 @@ end
         :V => (10, 100),
         :P,
     )
-    x(n) = (s = gas[n]; Nomograms.point(s, sum(s.domain) / 2)[1])
-    t = only(n for n in Nomograms.name.(gas.scales) if startswith(string(n), "_t"))
-    inward = sign(x(:P) - x(t))
-    # The input nearer the turning line goes inside, towards halfway to the result -- here
-    # short of it, since getting there would take a stage wider than the one it feeds...
-    @test 0 < inward * (x(:n) - x(t)) <= abs(x(:P) - x(t)) / 2 + 1e-9
-    @test gas.stages[end].width == gas.stages[1].width
-    # ...and the other one outside, clear of the second stage.
-    @test inward * (x(:T) - x(t)) < 0
-    xs = sort([x(n) for n in Nomograms.name.(gas.scales)])
-    @test minimum(diff(xs)) > 0.05 * (xs[end] - xs[1])
+    @test gap(gas) > 0.1
     @test evaluate(gas; n = 1, T = 300, V = 24).P ≈ 8.314 * 300 / 24 rtol = 1e-6
+
+    # Nested chains, where one stage's outside is the next one's inside.
+    four = auto_nomogram(
+        (a, b, c, d) -> a * b * c * d,
+        :a => (1, 5),
+        :b => (1, 5),
+        :c => (1, 5),
+        :d => (1, 5),
+        :p,
+    )
+    @test gap(four) > 0.1
+    five = auto_nomogram(
+        (a, b, c, d, e) -> a + b + c + d + e,
+        (n => (0, 10) for n in (:a, :b, :c, :d, :e))...,
+        :s,
+    )
+    @test gap(five) > 0.05
+    @test evaluate(five; a = 1, b = 2, c = 3, d = 4, e = 5).s ≈ 15 rtol = 1e-6
+
+    # Lopsided ranges: d spans a fifth of a decade, so a last stage pairing it with a
+    # wide turning line would squeeze the result against that line.
+    lop = auto_nomogram(
+        (a, b, c, d) -> a * b * c / d,
+        :a => (1, 100),
+        :b => (1, 1.5),
+        :c => (0.1, 10),
+        :d => (2, 3),
+        :z,
+    )
+    @test gap(lop) > 0.05
+end
+
+@testitem "a chain's reading is labelled where the answer is read" tags = [:unit] begin
+    vol = auto_nomogram(
+        (L, W, H) -> L * W * H,
+        :L => (1, 10),
+        :W => (1, 10),
+        :H => (1, 10),
+        :V,
+    )
+    isos = isopleth(vol; L = 3, W = 4, H = 2, label = "24")
+    labelled = only(iso for iso in isos if !isempty(iso.label))
+    # The stage carrying V, which auto_nomogram lists first rather than last.
+    @test haskey(labelled.values, :V)
+    @test labelled.values[:V] ≈ 24 rtol = 1e-6
 end

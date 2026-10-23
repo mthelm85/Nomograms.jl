@@ -102,8 +102,8 @@ both styles are thinned onto it and whichever lands more labels wins.
 One alignment line relates only three scales, so a formula with three or more inputs
 becomes a chain of charts linked by bare *turning lines*. The reader lays a line across the
 first stage, notes where it crosses the turning line, then pivots there and reads the next.
-`auto_nomogram` finds the chain itself. Read it from temperature through amount to the
-turning line, then from there through volume to pressure:
+`auto_nomogram` finds the chain itself. Lay a line from amount to temperature and mark
+where it crosses the bare turning line, then pivot there to volume and read the pressure:
 
 ```@example auto
 gas = auto_nomogram(
@@ -122,6 +122,14 @@ one combination of them, ``F = G(T(x, y), w)``. That holds exactly when ``F_x / 
 not depend on ``w`` — then ``F``'s level curves in the ``(x, y)`` plane are the same family
 whatever ``w`` is. The first stage charts the combination ``T``, the second charts ``z``
 from ``T`` and ``w``, and more inputs are reduced the same way, a pair at a time.
+
+Which pair goes first changes the picture, not the answers. A stage puts its result
+between its inputs, closest to the one spanning more, so a last stage that pairs a scale
+running over decades with one covering a sliver squeezes the result against the former.
+So every workable pairing is built and the one with its axes furthest apart is kept,
+which for a product of four can be two pairs joined at the end rather than one long
+chain. Each earlier stage is then mirrored and sized so that the input it pushes into the
+rest of the chain lands in a gap rather than on an axis.
 
 A pair can combine and still not work. In `(a + b)·c`, the first stage wants `a + b` on a
 linear scale and the second on a logarithmic one, and no layout of straight scales serves
@@ -152,6 +160,7 @@ A formula that is not monotone in some input over its domain is refused as well,
 straight scale cannot fold back on itself.
 
 !!! note "The first chart in a session is slow"
-    The first `auto_nomogram` call in a fresh Julia session takes a few seconds — longer
-    for three or more inputs — while Julia compiles. After that a chart takes a fraction
-    of a second.
+    The first `auto_nomogram` call in a fresh Julia session takes several seconds while
+    Julia compiles. After that a chart with two or three inputs takes a fraction of a
+    second, one with four a second or two, and one with five several seconds, most of it
+    spent comparing layouts.

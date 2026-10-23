@@ -105,8 +105,17 @@ function _pivot_on(
     # The first stage, drawn with either input on the left. Which goes where, and how wide
     # the stage is, are layout choices settled once the chain is assembled.
     function first_stage(w, swapped)
-        swapped || return _auto_two(T, vs[i], vs[j], blank; width = w, height)
-        return _auto_two((b, a) -> T(a, b), vs[j], vs[i], blank; width = w, height)
+        swapped ||
+            return _auto_two(T, vs[i], vs[j], blank; width = w, height, verify = false)
+        return _auto_two(
+            (b, a) -> T(a, b),
+            vs[j],
+            vs[i],
+            blank;
+            width = w,
+            height,
+            verify = false,
+        )
     end
     stage = try
         first_stage(width, false)
@@ -159,39 +168,91 @@ function _pivot_on(
 end
 
 # The turning line sits between the first stage's inputs, so one of them always lands
-# inside the stage it feeds -- and left to chance, on top of that stage's result axis. So
-# put the input nearer the turning line on that side, and size the stage so it lands
-# halfway to the result, never wider than the stage it feeds. The turning line always
-# reads upwards, so whichever way the stages are aligned, swapping the inputs mirrors the
-# stage about it.
+# inside the rest of the chain -- and left to chance, on top of one of its axes. So choose
+# which input goes inside and how wide the stage is, aiming the inside input at the middle
+# of a gap between the axes already there, and keep whichever choice leaves the new axes
+# furthest from their neighbours for the width it takes -- otherwise a lopsided stage
+# would fling its outside input a long way to buy a little room inside. An input that is
+# itself a turning line goes outside: the stage feeding it straddles it in turn and needs
+# the room. The stage is never wider than the
+# last one, nor narrower than a quarter of it. The turning line always reads upwards, so
+# whichever way the stages are aligned, swapping the inputs mirrors the stage about it.
 function _fit_first_stage(first_stage, assembled, stage, downstream, tname, width)
     consumer = only(st for st in downstream if tname in variablenames(st))
     x(n) = (s = assembled[n]; point(s, sum(s.domain) / 2)[1])
     xt = x(tname)
-    xr = x(name(consumer.scales[3]))
-    # Signed offsets from the turning line, positive towards the next stage's result.
-    da, db = (sign(xr - xt) * (x(name(s)) - xt) for s in stage.scales[1:2])
-    near = min(abs(da), abs(db))
-    swapped = max(da, db) > near
-    w = min(stage.width * abs(xr - xt) / 2 / near, width)
-    (swapped || !isapprox(w, stage.width; rtol = 1e-3)) || return stage
-    return first_stage(w, swapped)
+    inward = sign(x(name(consumer.scales[3])) - xt)
+    # Everything as signed offsets from the turning line, positive into the chain.
+    # A turning line belongs to two stages; it is one axis.
+    others = unique(name(s) for st in downstream for s in st.scales)
+    placed = sort!([inward * (x(n) - xt) for n in others])
+    inputs = [name(s) for s in stage.scales[1:2]]
+    offsets = [inward * (x(n) - xt) for n in inputs]
+    pivots = [_is_turning_line(n) for n in inputs]
+    gaps = [(placed[k] + placed[k+1]) / 2 for k = 1:(length(placed)-1) if placed[k] >= 0]
+
+    best = (spread = -Inf, w = stage.width, swapped = false)
+    for swapped in (false, true)
+        o = swapped ? -offsets : offsets
+        inside = findfirst(>(0), o)
+        isnothing(inside) && continue
+        # Mirror so that a turning-line input stays outside, unless both are.
+        any(pivots) && !all(pivots) && pivots[inside] && continue
+        for target in gaps
+            w = clamp(stage.width * target / o[inside], width / 4, width)
+            # Only the gaps beside the new axes: the rest are already settled.
+            new = o .* (w / stage.width)
+            spread =
+                min(abs(new[1] - new[2]), minimum(abs(p - q) for p in new, q in placed))
+            spread /=
+                max(maximum(placed), maximum(new)) - min(minimum(placed), minimum(new))
+            if spread > best.spread + 1e-9
+                best = (; spread, w, swapped)
+            end
+        end
+    end
+    (best.swapped || !isapprox(best.w, stage.width; rtol = 1e-3)) || return stage
+    return first_stage(best.w, best.swapped)
+end
+
+_is_turning_line(n::Symbol) = occursin(r"^_t\d+$", string(n))
+
+# The narrowest gap between neighbouring axes of a chain, as a fraction of its width.
+function _spacing(stages)
+    nom = compound(stages...)
+    xs = sort!([point(s, sum(s.domain) / 2)[1] for s in nom.scales])
+    return minimum(diff(xs)) / (xs[end] - xs[1])
 end
 
 # The stages of a chain for z = F(vs…), in an order compound accepts: every stage shares a
 # variable with one placed before it. Each pivot is built after the stages that consume
 # it, so reversing the order of construction gives exactly that.
+#
+# Every pairing that works is built and the best spaced kept. Which pair comes first
+# decides which ranges share the last stage, and a result axis squeezed between a scale
+# spanning decades and one spanning a fraction of one sits almost on the former; no
+# choice of widths can fix that afterwards. Below the second level the first pairing that
+# works is taken: the search multiplies with every level, and the first two levels settle
+# both the last stage and whether the chain branches.
 function _chain_stages(F, vs::Vector{Variable}, vz::Variable; width, height, depth)
-    length(vs) == 2 && return Nomogram[_auto_two(F, vs[1], vs[2], vz; width, height)]
+    length(vs) == 2 &&
+        return Nomogram[_auto_two(F, vs[1], vs[2], vz; width, height, verify = false)]
     reasons = String[]
+    best, bestspacing = nothing, -Inf
     for i = 1:(length(vs)-1), j = (i+1):length(vs)
         try
-            return _pivot_on(F, vs, vz, i, j; width, height, depth)
+            stages = _pivot_on(F, vs, vz, i, j; width, height, depth)
+            spacing = _spacing(stages)
+            if spacing > bestspacing + 1e-9
+                best, bestspacing = stages, spacing
+            end
+            depth > 2 && break
         catch err
             err isa ArgumentError || rethrow()
             push!(reasons, ":$(vs[i].name) with :$(vs[j].name) — $(err.msg)")
         end
     end
+    isnothing(best) || return best
     throw(
         ArgumentError(
             "cannot split $(vz.name) = F($(join(string.(getfield.(vs, :name)), ", "))) " *
