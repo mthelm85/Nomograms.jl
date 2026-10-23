@@ -104,6 +104,7 @@ include("solve.jl")
 include("compound.jl")
 include("net.jl")
 include("auto.jl")
+include("auto_chain.jl")
 include("drawing.jl")
 include("svg.jl")
 

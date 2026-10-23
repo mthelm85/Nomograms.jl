@@ -60,6 +60,28 @@ catch err
     println(sprint(showerror, err))
 end
 
+# More than two inputs: the ideal gas law. One alignment line relates only three scales,
+# so this becomes two stages linked by a bare turning line -- found automatically, by
+# looking for a pair of inputs the formula depends on only through one combination.
+gas = auto_nomogram(
+    (n, T, V) -> n * 8.314 * T / V,
+    Variable(:n; domain = (0.5, 5), label = "amount (mol)"),
+    Variable(:T; domain = (250, 400), label = "temperature (K)"),
+    Variable(:V; domain = (0.01, 0.1), label = "volume (m³)"),
+    Variable(:P; label = "pressure (Pa)");
+    title = "Ideal gas",
+)
+@show evaluate(gas; n = 1, T = 300, V = 0.024).P
+
+# Some formulas combine two inputs but still have no chain. In (a + b)·c, the first stage
+# wants a + b on a linear scale and the second on a logarithmic one; that needs a net, and
+# the error says so for each pairing it tried.
+try
+    auto_nomogram((a, b, c) -> (a + b) * c, :a => (1, 10), :b => (1, 10), :c => (1, 10), :d)
+catch err
+    println(sprint(showerror, err))
+end
+
 outdir = joinpath(@__DIR__, "output")
 mkpath(outdir)
 save_svg(

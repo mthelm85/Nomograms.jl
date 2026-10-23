@@ -51,6 +51,17 @@ straight scales at all — transforms with `h(z) = f(x) + g(y)` exist exactly wh
 identity hands back the transforms by integration. Each axis then gets linear or
 decade-based ticks according to how its transform spreads values out.
 
+It takes any number of inputs. With three or more, one alignment line can no longer relate
+them all, so it looks for a pair the formula depends on only through one combination,
+charts that combination as a first stage, and continues from there — the result is a
+chain of stages linked by bare turning lines:
+
+```julia
+gas = auto_nomogram((n, T, V) -> n * 8.314 * T / V,
+                    :n => (0.5, 5), :T => (250, 400), :V => (0.01, 0.1), :P)
+evaluate(gas; n = 1, T = 300, V = 0.024).P   # 103925.0…
+```
+
 Nothing is returned on trust. The finished chart is *solved* over a grid of inputs and
 every answer compared with your function; a chart that disagrees is an error, not a
 result. When a formula has no straight-scale chart, it says so and points you at the

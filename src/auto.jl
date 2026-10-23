@@ -224,10 +224,43 @@ function _with_derived(v::Variable, t::ScaleTransform, dom)
     return rebuild(v; transform = t, domain = dom, tickstyle = style)
 end
 
-"""
-    auto_nomogram(F, x, y, z = :z; kwargs...) -> Nomogram
+# A straight path across the domain rectangle along which F rises steadily: from the
+# corner minimising F to the corner maximising it, so every step moves both inputs in the
+# direction that raises F, and F is monotone in the path parameter whatever its shape. The
+# parameter is solved for at nodes placed in F's own values -- geometrically when F spans
+# decades, since nodes spaced evenly along the path leave the small end of a wide-ranging
+# result (x*y over [1, 100]²) with too few to hold the accuracy.
+function _rising_path(Fc, P::_Partials, xd, yd)
+    xr, yr = (xd[1] + xd[2]) / 2, (yd[1] + yd[2]) / 2
+    sx = sign(_Fx(P, xr, yr))
+    sy = sign(_Fy(P, xr, yr))
+    cmin = (sx > 0 ? xd[1] : xd[2], sy > 0 ? yd[1] : yd[2])
+    cmax = (sx > 0 ? xd[2] : xd[1], sy > 0 ? yd[2] : yd[1])
+    dx, dy = cmax[1] - cmin[1], cmax[2] - cmin[2]
+    along(s) = (cmin[1] + s * dx, cmin[2] + s * dy)
+    zlo, zhi = Fc(cmin...), Fc(cmax...)
+    zlo < zhi || throw(
+        ArgumentError(
+            "the result does not increase across the domain, which a separable, " *
+            "monotone function must; the domains may straddle a singularity",
+        ),
+    )
+    zs = _nodes(zlo, zhi, 1024)
+    svals = [
+        i == 1 ? 0.0 :
+        i == length(zs) ? 1.0 :
+        Roots.find_zero(s -> Fc(along(s)...) - zs[i], (0.0, 1.0), Roots.A42()) for
+        i in eachindex(zs)
+    ]
+    return (; along, zs, svals, dx, dy)
+end
 
-A nomogram for `z = F(x, y)`, from the function as you would ordinarily write it.
+"""
+    auto_nomogram(F, x, y, [z]; kwargs...) -> Nomogram
+    auto_nomogram(F, x, y, w, ..., z; kwargs...) -> CompoundNomogram
+
+A nomogram for `z = F(x, y)` — or `z = F(x, y, w, …)` with any number of inputs — from the
+function as you would ordinarily write it.
 
 Every other constructor asks you to rewrite your formula first — into `f₁(u) + f₂(v) =
 f₃(w)`, with the transforms chosen and the inverses supplied. This one does that part:
@@ -236,10 +269,11 @@ f₃(w)`, with the transforms chosen and the inverses supplied. This one does th
 nom = auto_nomogram((r, n) -> (1 + r/100)^n, :r => (1, 20), :n => (1, 30), :growth)
 ```
 
-`x` and `y` are each a [`Variable`](@ref) with a domain, or simply `name => (lo, hi)`. `z`
-is a `Variable` or a name; its domain is derived from `F` and, if you give one, checked.
-Labels, tick formats and explicit ticks on the variables are kept. Transforms are not —
-deriving them is the point.
+Each input is a [`Variable`](@ref) with a domain, or simply `name => (lo, hi)`, in the order
+`F` takes them. The last argument names the result — a `Variable` or a name — except that
+with exactly two arguments after `F` both are inputs and the result is `:z`. The result's
+domain is derived from `F` and, if you give one, checked. Labels, tick formats and explicit
+ticks on the variables are kept. Transforms are not — deriving them is the point.
 
 # How
 
@@ -264,6 +298,22 @@ result's range is never returned — the call throws instead, quoting the error 
 The chart's `relation` is `F`, so [`relation_residual`](@ref) and
 [`max_relation_residual`](@ref) check against your formula rather than the derived one.
 
+# More than two inputs
+
+One alignment line relates three scales, so `F(x, y, w)` is drawn as a chain of
+[`compound`](@ref) stages and the result is a [`CompoundNomogram`](@ref). That needs `F` to
+depend on some pair of its inputs only through a single combination of them, `t = T(x, y)`,
+which holds exactly when `F_x / F_y` does not depend on `w`. The first stage then charts
+`t`, the second charts `z` from `t` and `w`, and the reader pivots between them on a
+bare turning line. More inputs are reduced the same way, a pair at a time.
+
+Every pairing is tried. One can fail for two reasons: `F` may not depend on the pair
+through one combination at all, or it may, but with the two stages wanting the
+intermediate on different scales — `(x + y)·w` is the standard case, linear in the first
+stage and logarithmic in the second. That second kind needs a net, which has to be derived
+by hand ([`net_nomogram`](@ref)). If no pairing works, the error lists what went wrong
+with each.
+
 # When it can't
 
 A formula that is not separable has no three-straight-scale chart at all, and the error
@@ -279,19 +329,38 @@ back on itself.
 """
 function auto_nomogram(
     F,
-    x,
-    y,
-    z = :z;
+    args...;
     width::Real = 70.0,
     height::Real = 100.0,
     title::AbstractString = "",
     rtol::Real = 1e-6,
 )
-    vx, vy, vz = _as_variable(x), _as_variable(y), _as_variable(z)
-    for v in (vx, vy)
+    length(args) >= 2 ||
+        throw(ArgumentError("auto_nomogram needs at least two inputs, got $(length(args))"))
+    inputs, result = length(args) == 2 ? (args, :z) : (args[1:(end-1)], args[end])
+    vs = Variable[_as_variable(a) for a in inputs]
+    vz = _as_variable(result)
+    for v in vs
         isnothing(v.domain) &&
             throw(ArgumentError("input variable :$(v.name) must declare a domain"))
     end
+    names = [v.name for v in vs]
+    allunique([names; vz.name]) ||
+        throw(ArgumentError("variable names must be distinct, got $([names; vz.name])"))
+    length(vs) == 2 && return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
+    return _auto_chain(F, vs, vz; width, height, title, rtol)
+end
+
+function _auto_two(
+    F,
+    vx::Variable,
+    vy::Variable,
+    vz::Variable;
+    width::Real = 70.0,
+    height::Real = 100.0,
+    title::AbstractString = "",
+    rtol::Real = 1e-6,
+)
     xd, yd = vx.domain, vy.domain
     Fc = (a, b) -> float(F(a, b))
 
@@ -320,34 +389,13 @@ function auto_nomogram(
     tf = _integrate_to_scale(fprime, xd...)
     tg = _integrate_to_scale(gprime, yd...)
 
-    # h along a path on which F is monotone: from the corner minimising F to the corner
-    # maximising it. Moving along it changes f and g the same way (h′F_x = f′ and
-    # h′F_y = g′ fix their signs together), so h is tabulated without ever having to
+    # h along the rising path. Moving along it changes f and g the same way (h′F_x = f′
+    # and h′F_y = g′ fix their signs together), so h is tabulated without ever having to
     # invert F.
-    sx = sign(_Fx(P, xr, yr))
-    sy = sign(_Fy(P, xr, yr))
-    cmin = (sx > 0 ? xd[1] : xd[2], sy > 0 ? yd[1] : yd[2])
-    cmax = (sx > 0 ? xd[2] : xd[1], sy > 0 ? yd[2] : yd[1])
-    dx, dy = cmax[1] - cmin[1], cmax[2] - cmin[2]
-    along(s) = (cmin[1] + s * dx, cmin[2] + s * dy)
-    zlo, zhi = Fc(cmin...), Fc(cmax...)
-    zlo < zhi || throw(
-        ArgumentError(
-            "the result does not increase across the domain, which a separable, " *
-            "monotone function must; the domains may straddle a singularity",
-        ),
-    )
-    # Nodes are placed in z, geometrically when z spans decades, and the path is solved
-    # for each. Spacing them evenly along the path instead leaves the small end of a
-    # wide-ranging result -- x*y over [1, 100]², say -- with too few to hold the accuracy.
-    zs = _nodes(zlo, zhi, 1024)
-    svals = [
-        i == 1 ? 0.0 :
-        i == length(zs) ? 1.0 :
-        Roots.find_zero(s -> Fc(along(s)...) - zs[i], (0.0, 1.0), Roots.A42()) for
-        i in eachindex(zs)
-    ]
-    pts = along.(svals)
+    path = _rising_path(Fc, P, xd, yd)
+    zs, svals, dx, dy = path.zs, path.svals, path.dx, path.dy
+    zlo, zhi = zs[1], zs[end]
+    pts = path.along.(svals)
     hs = [transform(tf, p[1]) + transform(tg, p[2]) for p in pts]
     hd = [
         (fprime(p[1]) * dx + gprime(p[2]) * dy) / (_Fx(P, p...) * dx + _Fy(P, p...) * dy) for p in pts
