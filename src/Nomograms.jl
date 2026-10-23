@@ -65,6 +65,7 @@ export
     additive_nomogram,
     multiplicative_nomogram,
     ratio_nomogram,
+    determinant_nomogram,
     # solving
     evaluate,
     evaluate_all,
@@ -73,6 +74,7 @@ export
     solve_on,
     solve_all_on,
     relation_residual,
+    max_relation_residual,
     # rendering
     NomogramStyle,
     NomogramDrawing,

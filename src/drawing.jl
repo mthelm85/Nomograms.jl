@@ -129,16 +129,27 @@ function _tangent(s::Scale, v::Float64)
     return _unit(_sub(point(s, b), point(s, a)))
 end
 
-# Unit normal pointing to whichever side of the axis the ticks and labels belong on.
-function _normal(s::Scale, v::Float64)
-    t = _tangent(s, v)
+# The two candidate normals are negatives of each other, so ordering them lexicographically
+# by (x, y) names them unambiguously: `:left` is the smaller, `:right` the larger. Ordering
+# on x alone leaves a horizontal scale with no way to say "label above" -- both sides would
+# resolve to the same normal.
+_normal_lt(a::Point, b::Point) = a[1] < b[1] || (a[1] == b[1] && a[2] < b[2])
+
+"""
+    side_normals(tangent) -> (left, right)
+
+The two unit normals to a scale, named as [`Variable`](@ref)'s `side` names them.
+"""
+function side_normals(t::Point)
     n1 = (t[2], -t[1])
     n2 = (-t[2], t[1])
-    if s.side === :left
-        return n1[1] <= n2[1] ? n1 : n2
-    else
-        return n1[1] >= n2[1] ? n1 : n2
-    end
+    return _normal_lt(n1, n2) ? (n1, n2) : (n2, n1)
+end
+
+# Unit normal pointing to whichever side of the axis the ticks and labels belong on.
+function _normal(s::Scale, v::Float64)
+    left, right = side_normals(_tangent(s, v))
+    return s.side === :left ? left : right
 end
 
 """

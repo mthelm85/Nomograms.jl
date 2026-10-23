@@ -135,9 +135,36 @@ The diagonal is a projective scale, `s = k·r / (k·r + 1)`, so a ratio spanning
 spread across it roughly logarithmically — and the tick values follow suit rather than
 being picked linearly, which over 0.1 to 10 would offer nothing between 0.1 and 2.
 
-For a layout the constructions do not cover, build `Scale`s directly — a curve per
-variable, straight or not — and pass them to `Nomogram`. Everything downstream, the solver
-included, works unchanged.
+## Anything else, from the determinant
+
+`determinant_nomogram` takes the scales as curves and fits them to the canvas, which covers
+the layouts the named constructions cannot express. A quadratic needs a curved scale:
+
+```julia
+# Matching (1-x₃)·p + x₃·q = y₃ against z·p + q + z² = 0 gives the curve below.
+nom = determinant_nomogram(
+    Variable(:p; domain = (-6, 0)) => p -> (0.0, p),
+    Variable(:q; domain = (0, 6))  => q -> (1.0, q),
+    Variable(:z; domain = (0.2, 5)) => z -> (1 / (1 + z), -z^2 / (1 + z));
+    relation = (p, q, z) -> z^2 + p * z + q,
+)
+
+[sol.z for sol in evaluate_all(nom; p = -3, q = 2)]   # [1.0, 2.0]
+```
+
+Write the curves in whatever coordinates suit the geometry; their bounding box is measured
+and mapped onto the canvas. Collinearity survives any affine map, so the fit cannot change
+what the chart computes.
+
+Note the two answers. A quadratic has two roots and the chart shows why — one alignment
+line, meeting the curved scale twice.
+
+Getting a determinant form right is the hard part of designing a chart by hand, and a wrong
+one still draws perfectly well, so `max_relation_residual(nom)` solves on the geometry and
+checks the answers against the algebra.
+
+For full control, build `Scale`s directly — a curve per variable, in final coordinates —
+and pass them to `Nomogram`. Everything downstream, the solver included, works unchanged.
 
 ## Examples
 
@@ -147,13 +174,14 @@ included, works unchanged.
   custom transform and hand-picked ticks for an axis that compresses hard.
 - [`examples/speed_distance_time.jl`](examples/speed_distance_time.jl) — an N-chart for a
   ratio, on linear scales.
+- [`examples/quadratic.jl`](examples/quadratic.jl) — roots of `z² + pz + q`, with the
+  curved scale derived from the determinant and both roots read off one line.
 
 ## Status
 
-Version 0.1.0, not yet registered. The parallel-axis and N-chart constructions, the solver,
-both renderers and the tick engine are implemented and tested. Not yet implemented: curved
-and circular scales as named constructions (hand-built ones already work), a general
-determinant constructor with automatic fitting, collinearity-preserving projective
-reshaping, grid or "compound" nomograms for four or more variables, and a symbolic front
-end that would recognise separable forms from an expression rather than taking the
-transforms directly.
+Version 0.1.0, not yet registered. The parallel-axis, N-chart and general determinant
+constructions, the solver, both renderers and the tick engine are implemented and tested.
+Not yet implemented: collinearity-preserving projective reshaping, grid or "compound"
+nomograms for four or more variables, resolving tick labels against isopleth *lines* rather
+than only against other labels, and a symbolic front end that would recognise separable
+forms from an expression rather than taking the transforms directly.

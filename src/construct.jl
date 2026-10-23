@@ -347,3 +347,205 @@ function ratio_nomogram(
     relation = (x, y, z) -> transform(t1, x) / transform(t2, y) - transform(t3, z)
     return Nomogram(scales; width = W, height = H, title, relation)
 end
+
+_curvepoint(f, t) = (p = f(t); (float(p[1]), float(p[2])))
+
+# Which side of a scale faces away from the middle of the chart. With parallel axes the
+# answer is obvious and the constructions hard-code it; for curves in general position it
+# is worth working out, so labels radiate outwards instead of piling into the centre.
+function _outward_side(f, domain::Tuple{Float64,Float64}, centre::Point)
+    lo, hi = domain
+    mid = (lo + hi) / 2
+    h = max(1e-6 * (hi - lo), 1e-9)
+    a = _curvepoint(f, max(mid - h, lo))
+    b = _curvepoint(f, min(mid + h, hi))
+    t = (b[1] - a[1], b[2] - a[2])
+    n = hypot(t[1], t[2])
+    n == 0 && return :right
+    left, right = side_normals((t[1] / n, t[2] / n))
+    p = _curvepoint(f, mid)
+    away = (p[1] - centre[1], p[2] - centre[2])
+    # `side` is recorded as :left/:right and resolved against the tangent at draw time, so
+    # name whichever normal points away from the middle of the chart.
+    return (right[1] * away[1] + right[2] * away[2]) >=
+           (left[1] * away[1] + left[2] * away[2]) ? :right : :left
+end
+
+"""
+    determinant_nomogram(var => curve, var => curve, var => curve, ...; kwargs...)
+
+A nomogram from scales given directly as curves, fitted to the canvas for you.
+
+This is the general form. Every three-variable nomogram is a set of parametric curves
+positioned so that d'Ocagne's determinant
+
+```
+| x₁(u)  y₁(u)  1 |
+| x₂(v)  y₂(v)  1 |  =  0
+| x₃(w)  y₃(w)  1 |
+```
+
+vanishes exactly when the relation holds. [`additive_nomogram`](@ref) and
+[`ratio_nomogram`](@ref) are two particular solutions of that condition; this constructor
+takes any other one you can write down, including curved and concurrent layouts that no
+arrangement of parallel axes can express.
+
+Each argument is a [`Variable`](@ref) paired with a function from its value to a point.
+The curves may be written in whatever coordinates are natural for the geometry: their
+combined bounding box is measured and mapped onto `width` × `height`. Collinearity survives
+any affine map, so the fit cannot change what the chart computes -- including the
+anisotropic one used by default to fill the canvas.
+
+# Keywords
+- `width`, `height`: the canvas to fit to.
+- `preserve_aspect`: fit with one scale factor and centre the result, rather than
+  stretching each axis to fill.
+- `relation`: the algebraic relation, if you have it, for [`relation_residual`](@ref) and
+  [`max_relation_residual`](@ref) to check the geometry against. Optional -- the chart
+  draws and solves without it.
+- `title`, `nsamples`: chart title, and how finely curves are sampled when measuring the
+  bounding box.
+
+Every variable must declare a `domain`: with no distinguished result there is nothing to
+derive one from.
+
+# Example
+
+The parallel-axis construction, written out by hand in its natural coordinates. Scales at
+`x = 0`, `2` and `1`, with the middle one at half scale, encode `u + v = w`; the fit then
+stretches that `2 × 10` sketch onto the full canvas.
+
+```jldoctest
+julia> nom = determinant_nomogram(
+           Variable(:u; domain = (0, 10)) => u -> (0.0, u),
+           Variable(:v; domain = (0, 10)) => v -> (2.0, v),
+           Variable(:w; domain = (0, 20)) => w -> (1.0, w / 2);
+           relation = (u, v, w) -> u + v - w,
+       );
+
+julia> round(evaluate(nom; u = 3, v = 4).w; digits = 10)
+7.0
+
+julia> point(nom[:v], 10)
+(70.0, 100.0)
+```
+"""
+function determinant_nomogram(
+    specs::Pair...;
+    width::Real = 70.0,
+    height::Real = 100.0,
+    title::AbstractString = "",
+    relation = nothing,
+    preserve_aspect::Bool = false,
+    nsamples::Int = 129,
+)
+    length(specs) >= 3 ||
+        throw(ArgumentError("a nomogram needs at least 3 scales, got $(length(specs))"))
+    width > 0 || throw(ArgumentError("width must be positive, got $width"))
+    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    W, H = float(width), float(height)
+
+    vars = Variable[]
+    curves = Any[]
+    for spec in specs
+        v, f = first(spec), last(spec)
+        v isa Variable || throw(
+            ArgumentError(
+                "each argument must be a `Variable => curve` pair, got a " *
+                "$(typeof(v)) on the left",
+            ),
+        )
+        isnothing(v.domain) && throw(
+            ArgumentError(
+                "variable :$(v.name) must declare `domain`: a determinant nomogram " *
+                "has no distinguished result to derive one from",
+            ),
+        )
+        push!(vars, v)
+        push!(curves, f)
+    end
+
+    sampled = Vector{Vector{Point}}(undef, length(vars))
+    for (i, (v, f)) in enumerate(zip(vars, curves))
+        lo, hi = v.domain
+        pts = [_curvepoint(f, t) for t in range(lo, hi; length = nsamples)]
+        all(p -> isfinite(p[1]) && isfinite(p[2]), pts) || throw(
+            ArgumentError(
+                "the curve for :$(v.name) is not finite everywhere on $(v.domain)",
+            ),
+        )
+        sampled[i] = pts
+    end
+
+    xs = (p[1] for pts in sampled for p in pts)
+    ys = (p[2] for pts in sampled for p in pts)
+    x0, x1 = extrema(xs)
+    y0, y1 = extrema(ys)
+    for (span, axis) in ((x1 - x0, "horizontally"), (y1 - y0, "vertically"))
+        span > 0 || throw(
+            ArgumentError(
+                "the scales have no extent $axis, so there is nothing to fit to the " *
+                "canvas; check the curves are not all on one line",
+            ),
+        )
+    end
+
+    ax, ay = W / (x1 - x0), H / (y1 - y0)
+    if preserve_aspect
+        ax = ay = min(ax, ay)
+    end
+    bx = (W - ax * (x1 - x0)) / 2 - ax * x0
+    by = (H - ay * (y1 - y0)) / 2 - ay * y0
+    fit(p) = (ax * p[1] + bx, ay * p[2] + by)
+
+    centre = (W / 2, H / 2)
+    scales = Scale[]
+    for (v, f) in zip(vars, curves)
+        placed = t -> fit(_curvepoint(f, t))
+        side = v.side === :auto ? _outward_side(placed, v.domain, centre) : v.side
+        push!(scales, Scale(v, v.domain, placed, side))
+    end
+    return Nomogram(scales; width = W, height = H, title, relation)
+end
+
+"""
+    max_relation_residual(nom::Nomogram; n = 9) -> Float64
+
+The worst disagreement between a nomogram's geometry and the algebra it claims to encode,
+over a grid of `n × n` inputs.
+
+Getting a determinant form right is the hard part of designing a nomogram by hand, and a
+chart that is subtly wrong still draws perfectly well. This solves the first two variables
+against the third *geometrically* and then asks [`relation_residual`](@ref) whether the
+answer satisfies the relation; anything far from zero means the curves and the formula
+disagree.
+
+Returns `NaN` for a nomogram built without a `relation`. Inputs for which the alignment
+line misses the third scale are skipped, since those say nothing about correctness.
+"""
+function max_relation_residual(nom::Nomogram; n::Int = 9)
+    isnothing(nom.relation) && return NaN
+    a, b = nom.scales[1], nom.scales[2]
+    target = name(nom.scales[3])
+    worst = 0.0
+    checked = 0
+    for u in range(a.domain...; length = n), v in range(b.domain...; length = n)
+        sols = nothing
+        try
+            sols = evaluate_all(nom; NamedTuple{(name(a), name(b))}((u, v))...)
+        catch err
+            # An alignment line that misses the third scale says nothing about whether
+            # the formula and the curves agree.
+            err isa ArgumentError || rethrow()
+        end
+        isnothing(sols) && continue
+        # Every crossing is a solution and every one has to satisfy the relation, which
+        # is the whole point on a chart whose third scale a line can meet twice.
+        for sol in sols
+            checked += 1
+            worst = max(worst, abs(relation_residual(nom, sol)))
+        end
+    end
+    # Vacuous success is worse than no answer: say so rather than returning a clean zero.
+    return checked == 0 ? NaN : worst
+end

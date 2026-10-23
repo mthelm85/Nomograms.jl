@@ -162,6 +162,52 @@ decade-based tick values in that case. Picking them linearly would offer nothing
 0.1 and 2, most of the diagonal. Pass `tickstyle = :linear` on the [`Variable`](@ref) to
 override.
 
+### Anything else, from the determinant
+
+The two named constructions are particular solutions of the collinearity condition.
+[`determinant_nomogram`](@ref) takes any other one you can write down: give each variable a
+curve, and the combined bounding box is measured and mapped onto the canvas for you.
+
+Deriving a curve is mechanical once the first two scales are fixed. Put `p` on `x = 0` at
+height `p` and `q` on `x = 1` at height `q`; a line between them crosses `x = x₃` at
+`p + x₃(q - p)`, so a third scale is met exactly when `(1 - x₃)·p + x₃·q = y₃`. To make
+that say `z·p + q + z² = 0`, match coefficients:
+
+```math
+\frac{1 - x_3}{z} = \frac{x_3}{1} = \frac{-y_3}{z^2}
+```
+
+giving `x₃ = 1/(1 + z)` and `y₃ = -z²/(1 + z)` — a curved scale for the roots of a
+quadratic.
+
+```@example intro
+quad = determinant_nomogram(
+    Variable(:p; domain = (-6, 0)) => p -> (0.0, p),
+    Variable(:q; domain = (0, 6)) => q -> (1.0, q),
+    Variable(:z; domain = (0.2, 5)) => z -> (1 / (1 + z), -z^2 / (1 + z));
+    relation = (p, q, z) -> z^2 + p * z + q,
+)
+[sol.z for sol in evaluate_all(quad; p = -3, q = 2)]
+```
+
+Two answers, because a quadratic has two roots and the chart shows why: one alignment line,
+meeting the curved scale twice.
+
+Collinearity survives any affine map, so fitting the curves to the canvas cannot change
+what the chart computes — including the anisotropic fit used by default to fill it. Pass
+`preserve_aspect = true` to scale both axes alike and centre the result.
+
+Getting a determinant form right is the hard part of designing a chart by hand, and a chart
+that is subtly wrong still draws perfectly well. [`max_relation_residual`](@ref) solves on
+the geometry over a grid of inputs and checks each answer against the algebra:
+
+```@example intro
+max_relation_residual(quad)
+```
+
+It returns `NaN` rather than a flattering zero when there is no relation to check, or when
+no input in the grid produced a solution.
+
 ### Ticks
 
 Tick values are chosen to be round numbers *in the variable*, then thinned by distance *on
