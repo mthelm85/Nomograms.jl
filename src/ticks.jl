@@ -99,17 +99,28 @@ function _log_priority(v::Float64)
     isapprox(m, 1.0; atol = 1e-6) && return 0
     isapprox(m, 5.0; atol = 1e-6) && return 1
     isapprox(m, 2.0; atol = 1e-6) && return 2
-    return 3
+    # Other whole mantissas before tenths such as 1.5, which only become labels at all on
+    # an axis too narrow to hold several whole ones.
+    isapprox(m, round(m); atol = 1e-6) && return 3
+    return 4
 end
 
 """
     log_ticks(lo, hi) -> (majors, minors)
 
-Decade-based ticks for a logarithmic axis. Over a short range (two decades or fewer) each
-mantissa 1-9 becomes a major tick; over a wide range only the decades do.
+Ticks for a logarithmic axis: every whole mantissa 1–9 in every decade the range touches,
+offered as a major, with tenths between them as minors.
 
-As with [`linear_ticks`](@ref), `majors` comes back in the order [`thin_ticks`](@ref)
-should try them: decades, then 5s, then 2s, then everything else.
+There is deliberately no cut-off for wide ranges. `majors` comes back in the order
+[`thin_ticks`](@ref) should try them — decades, then 5s, then 2s, then the rest — and
+thinning keeps whatever fits. So a crowded axis settles on decades alone, a less crowded
+one on the classic 1-2-5 sequence, and a roomy one labels every mantissa, all from the same
+candidates. A fixed rule counting decades could only ever pick one of those, and picked
+decades-only for an axis spanning a hair over two.
+
+Every mantissa is also offered as a minor, so one whose label is dropped still gets a tick
+mark. On a range too narrow to hold three whole mantissas — 100 to 200 holds only its ends
+— the tenths are promoted to majors as well, since otherwise almost nothing is labelled.
 """
 function log_ticks(lo::Real, hi::Real)
     lo, hi = float(lo), float(hi)
@@ -118,29 +129,22 @@ function log_ticks(lo::Real, hi::Real)
     dlo = floor(Int, log10(lo))
     dhi = ceil(Int, log10(hi))
     inrange(x) = lo * (1 - 1e-9) <= x <= hi * (1 + 1e-9)
-    wide = (dhi - dlo) > 2
     majors = Float64[]
-    minors = Float64[]
+    tenths = Float64[]
     for d = dlo:dhi
         for m = 1:9
             v = _mantissa(m, d)
-            inrange(v) || continue
-            if wide
-                m == 1 ? push!(majors, v) : push!(minors, v)
-            else
-                push!(majors, v)
-            end
+            inrange(v) && push!(majors, v)
         end
-        wide && continue
-        # Fine subdivisions between mantissa ticks on a short-range log axis.
         for i = 11:99
+            i % 10 == 0 && continue
             v = _mantissa(i, d - 1)
-            (i % 10 == 0 || !inrange(v)) && continue
-            push!(minors, v)
+            inrange(v) && push!(tenths, v)
         end
     end
+    minors = sort!(vcat(majors, tenths))
+    length(majors) < 3 && append!(majors, tenths)
     sort!(majors; by = v -> (_log_priority(v), v))
-    sort!(minors)
     return (majors, minors)
 end
 

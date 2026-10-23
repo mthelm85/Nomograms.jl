@@ -209,3 +209,27 @@ end
     @test evaluate(nom; r = 70, c = 30).p ≈ 40 atol = 1e-8
     @test evaluate(nom; r = 70, p = 40).c ≈ 30 atol = 1e-8
 end
+
+@testitem "a log-shaped axis gets log ticks even inside a decade" tags = [:unit] begin
+    labels(nom, n) = [
+        t.value for
+        t in only(sd for sd in drawing(nom).scales if sd.name === n).ticks if
+        !isnothing(t.label)
+    ]
+    style(nom, n) = Nomograms.resolved_tickstyle(nom[n].variable)
+    # log(b, x)'s base axis is ln ln b over [2, 10]: strongly non-linear but under a
+    # decade, so the old rule gave it linear ticks with nothing between 2 and 4.
+    lb = auto_nomogram(log, :base => (2, 10), :x => (2, 1000), :logx)
+    @test style(lb, :base) === :log
+    @test 3.0 in labels(lb, :base)
+
+    # Log-shaped but narrow: the log candidates are fewer and worse, and the label count
+    # says so. Linear wins.
+    small = auto_nomogram((x, y) -> x * y, :x => (2, 5), :y => (2, 5))
+    @test style(small, :x) === :linear
+    @test length(labels(small, :x)) >= 6
+
+    # Not log-shaped at all: never asked.
+    sum = auto_nomogram((x, y) -> x + y, :x => (1, 100), :y => (1, 100))
+    @test style(sum, :x) === :linear
+end

@@ -115,9 +115,12 @@ tabulated by walking from the corner of the domain that minimises ``F`` to the o
 maximises it, along which ``f`` and ``g`` change the same way, so ``F`` never has to be
 inverted.
 
-Each axis then gets linear or decade-based ticks according to how its transform spreads its
-values: if the geometric mean of the domain lands nearer the middle of the axis than the
-arithmetic mean, the axis is logarithmic in character and gets decade ticks.
+Each axis then gets linear or logarithmic ticks according to how its transform spreads its
+values. If the geometric mean of the domain lands nearer the middle of the axis than the
+arithmetic mean, the axis is logarithmic in character — even inside a single decade, as
+with `log(b, x)`'s `base` axis over `[2, 10]`. Shape alone does not settle it, though: over
+100 to 200 the only whole logarithmic values are the two ends. So for a log-shaped axis
+both styles are thinned onto it and whichever lands more labels wins.
 
 ### Nothing on trust
 
@@ -417,6 +420,14 @@ reciprocal or logarithmic scale keeps its labels where it is stretched and drops
 where it is compressed, and the numbers that survive are still round ones. Axis endpoints
 and decade boundaries are placed first, so a crowded axis gives up `9` before it gives up
 `10`.
+
+A logarithmic axis is offered every whole mantissa in every decade, in the order it should
+give them up — decades, then 5s, then 2s, then the rest — with no rule counting decades to
+decide in advance. One candidate set then serves every length of axis: eight decades
+settles on the classic 1-2-5 sequence, two decades labels every mantissa, and a range too
+narrow to hold three whole mantissas, such as 100 to 200, has its tenths promoted to labels
+instead of being left bare between its ends. A mantissa whose label is dropped still gets a
+tick mark.
 
 Where an axis compresses so hard that automatic selection has nothing to work with, pass
 `ticks = [...]` to the [`Variable`](@ref); anything that will not fit is still dropped.

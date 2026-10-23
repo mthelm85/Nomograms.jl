@@ -194,15 +194,27 @@ _as_variable(v::Variable) = v
 _as_variable(p::Pair{Symbol}) = Variable(first(p); domain = last(p))
 _as_variable(s::Symbol) = Variable(s)
 
-# Which kind of round number suits an axis: if the transform puts the geometric mean of the
-# domain nearer the middle of the axis than the arithmetic mean, it spreads values
-# logarithmically and wants decade-based ticks.
+# Which kind of round number suits an axis. Two questions, in order.
+#
+# Is it shaped like a log axis? If the transform puts the geometric mean of the domain
+# nearer the middle of the axis than the arithmetic mean, it spreads values multiplicatively.
+# This used to be asked only of domains spanning a decade, which left log(b, x)'s base axis
+# over [2, 10] -- strongly non-linear, being ln ln b -- on linear ticks with nothing
+# labelled between 2 and 4.
+#
+# And if so, does it actually label better? Shape alone is not enough: over 100 to 200 the
+# whole log mantissas are only the two ends. So both styles are thinned onto a nominal axis
+# and the one that lands more labels wins, ties going to the log.
 function _auto_tickstyle(t::ScaleTransform, dom::Tuple{Float64,Float64})
     lo, hi = dom
-    (lo > 0 && hi / lo >= 10) || return :linear
+    lo > 0 || return :linear
     f0, f1 = transform(t, lo), transform(t, hi)
     frac(v) = (transform(t, v) - f0) / (f1 - f0)
-    return abs(frac(sqrt(lo * hi)) - 0.5) < abs(frac((lo + hi) / 2) - 0.5) ? :log : :linear
+    abs(frac(sqrt(lo * hi)) - 0.5) < abs(frac((lo + hi) / 2) - 0.5) || return :linear
+    probe = Scale(Variable(:_probe; domain = dom), dom, v -> (0.0, 100 * frac(v)), :left)
+    labelled((majors, minors)) =
+        count(k -> !isnothing(k.label), thin_ticks(probe, majors, minors, NomogramStyle()))
+    return labelled(log_ticks(lo, hi)) >= labelled(linear_ticks(lo, hi)) ? :log : :linear
 end
 
 function _with_derived(v::Variable, t::ScaleTransform, dom)

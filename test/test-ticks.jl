@@ -29,12 +29,19 @@ end
 end
 
 @testitem "log ticks follow decades" tags = [:unit] begin
+    # Every mantissa is offered however wide the range, in the order thinning should keep
+    # them: decades, then 5s, then 2s, then the rest. There is no cut-off by decade count.
     majors, minors = Nomograms.log_ticks(1.0, 1e4)
-    @test sort(majors) == [1.0, 10.0, 100.0, 1000.0, 10_000.0]
-    @test 20.0 in minors
-    @test !(20.0 in majors)
+    @test majors[1:5] == [1.0, 10.0, 100.0, 1000.0, 10_000.0]
+    @test 20.0 in majors
+    @test findfirst(==(50.0), majors) <
+          findfirst(==(20.0), majors) <
+          findfirst(==(30.0), majors)
+    # Each mantissa is a minor too, so one whose label is dropped keeps its tick mark.
+    @test 30.0 in minors && 20.0 in minors
+    @test issorted(minors)
 
-    # Over a short range every mantissa is a major, decades first.
+    # Over a short range too, decades first.
     majors, _ = Nomograms.log_ticks(1.0, 100.0)
     @test 1.0 in majors && 9.0 in majors && 100.0 in majors
     @test findfirst(==(10.0), majors) < findfirst(==(9.0), majors)
@@ -52,7 +59,45 @@ end
 
     vlog = Variable(:a, LogScale(); domain = (1, 1000))
     majors, _ = Nomograms.candidate_ticks(vlog, (1.0, 1000.0))
-    @test sort(majors) == [1.0, 10.0, 100.0, 1000.0]
+    @test majors[1:4] == [1.0, 10.0, 100.0, 1000.0]
+end
+
+@testitem "log axes label what fits, from decades to every mantissa" tags = [:unit] begin
+    # One candidate set, three outcomes, decided only by how much room the axis has.
+    labels(nom, n) = [
+        t.value for
+        t in only(sd for sd in drawing(nom).scales if sd.name === n).ticks if
+        !isnothing(t.label)
+    ]
+    mantissa(v) = round(v / 10.0^floor(log10(v) + 1e-9); digits = 6)
+
+    # Eight decades: no room for every mantissa, but plenty for the 1-2-5 sequence. The
+    # old rule counted decades and labelled the decades alone.
+    wide = auto_nomogram((V, R) -> V^2 / R, :V => (1, 240), :R => (1, 1000), :P)
+    ms = Set(mantissa(v) for v in labels(wide, :P))
+    @test 2.0 in ms && 5.0 in ms
+    @test !(3.0 in ms)
+
+    # About two decades on a full-height axis: every mantissa fits. The old rule counted
+    # floor/ceil decades -- three, for 0.127 to 12.9 -- and labelled just 1 and 10.
+    two = multiplicative_nomogram(
+        Variable(:s; domain = (0.5, 5)),
+        Variable(:k; domain = (0.2534, 2.576)),
+        Variable(:z),
+    )
+    zl = labels(two, :z)
+    @test count(v -> 1 < v < 10, zl) >= 6
+    @test count(v -> 0.1 < v < 1, zl) >= 4
+
+    # Inside a single mantissa step there are no whole mantissas to speak of, so tenths
+    # are promoted rather than leaving the axis bare between its ends.
+    narrow = multiplicative_nomogram(
+        Variable(:a; domain = (100, 200)),
+        Variable(:b; domain = (1, 2)),
+        Variable(:c),
+    )
+    @test 150.0 in labels(narrow, :a)
+    @test length(labels(narrow, :a)) >= 6
 end
 
 @testitem "default_tickformat is compact" tags = [:unit] begin
