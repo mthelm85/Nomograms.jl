@@ -63,6 +63,75 @@ using CairoMakie
 save("parallel.pdf", nomogramplot(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6)]))
 ```
 
+## Starting from a formula
+
+The constructions above ask you to rewrite a formula into a separable form and choose its
+transforms. [`auto_nomogram`](@ref) does that part, from the function as you would
+ordinarily write it:
+
+```@example intro
+growth = auto_nomogram((r, n) -> (1 + r / 100)^n, :r => (1, 20), :n => (1, 30), :growth)
+evaluate(growth; r = 7, growth = 2)
+```
+
+### When a formula has a chart at all
+
+A formula `z = F(x, y)` can be drawn on three straight parallel scales exactly when there
+are transforms with ``h(z) = f(x) + g(y)``. Differentiating that with respect to each
+argument gives
+
+```math
+h'(z)\,F_x = f'(x), \qquad h'(z)\,F_y = g'(y)
+\quad\Longrightarrow\quad
+\frac{F_x}{F_y} = \frac{f'(x)}{g'(y)}
+```
+
+so ``\ln|F_x / F_y|`` must split into a function of ``x`` plus a function of ``y``. The
+converse holds too: if it splits, take ``f'`` and ``g'`` from the two parts; then
+``\nabla(f + g)`` is everywhere parallel to ``\nabla F``, so ``f + g`` is constant exactly
+where ``F`` is, which makes it a function of ``F`` — and that function is ``h``. The test
+is classical in nomography, but the argument above is all it rests on here.
+
+[`separability_defect`](@ref) applies it numerically. Rather than take a mixed second
+derivative of a logarithm, which is noisy, it checks the equivalent identity
+
+```math
+L(x, y) - L(x, y_0) - L(x_0, y) + L(x_0, y_0) = 0, \qquad L = \ln|F_x / F_y|
+```
+
+which needs only first derivatives:
+
+```@example intro
+separability_defect((x, y) -> x + y + x * y, (0, 5), (0, 5)),   # (1+x)(1+y) - 1
+separability_defect((x, y) -> x^2 + x * y + y, (0.5, 5), (0.5, 5))
+```
+
+### Recovering the transforms
+
+When the test passes, the same identity hands the transforms back. Fixing ``y`` at a
+reference value ``y_0`` gives ``f'(x)`` up to a constant, fixing ``x`` at ``x_0`` gives
+``g'(y)``, and numerical integration turns each into a [`TabulatedScale`](@ref). ``h`` is
+tabulated by walking from the corner of the domain that minimises ``F`` to the one that
+maximises it, along which ``f`` and ``g`` change the same way, so ``F`` never has to be
+inverted.
+
+Each axis then gets linear or decade-based ticks according to how its transform spreads its
+values: if the geometric mean of the domain lands nearer the middle of the axis than the
+arithmetic mean, the axis is logarithmic in character and gets decade ticks.
+
+### Nothing on trust
+
+The finished chart is *solved* over a grid of inputs and every answer compared with `F`
+itself. A chart that disagrees by more than `rtol` of the result's range is not returned —
+the call throws instead, quoting the disagreement it measured. The chart's `relation` is
+your function, so [`max_relation_residual`](@ref) measures it against what you wrote rather
+than anything derived along the way.
+
+A formula with no straight-scale chart gets an error saying so, pointing at
+[`determinant_nomogram`](@ref) and [`net_nomogram`](@ref), which can still handle it given a
+form derived by hand. So does a formula that is not monotone in some variable over its
+domain, since a straight scale cannot fold back on itself.
+
 ## How it works
 
 A nomogram asserts one thing: that a point taken from each scale lies on a single straight

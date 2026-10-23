@@ -76,6 +76,8 @@ export
     compound,
     net_nomogram,
     netpoint,
+    auto_nomogram,
+    separability_defect,
     # solving
     evaluate,
     evaluate_all,
@@ -101,6 +103,7 @@ include("construct.jl")
 include("solve.jl")
 include("compound.jl")
 include("net.jl")
+include("auto.jl")
 include("drawing.jl")
 include("svg.jl")
 

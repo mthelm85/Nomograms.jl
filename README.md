@@ -32,6 +32,30 @@ Note that `R` declares no domain. The length and position of the middle axis are
 *consequences* of the outer two, not free parameters, so the package derives `R ∈ [0.5, 5]`
 itself — and rejects a domain you supply that contradicts the relation.
 
+## Or just give it the formula
+
+Every constructor below asks you to rewrite your formula into a separable form first and
+choose the transforms. `auto_nomogram` does that for you, from the function as you would
+ordinarily write it:
+
+```julia
+nom = auto_nomogram((r, n) -> (1 + r/100)^n, :r => (1, 20), :n => (1, 30), :growth)
+
+evaluate(nom; r = 5, n = 10).growth   # 1.6288946…  = 1.05^10
+evaluate(nom; r = 7, growth = 2).n    # 10.2447…    the rule of 72's question
+```
+
+It applies the classical test for when a formula `z = F(x, y)` can be drawn on three
+straight scales at all — transforms with `h(z) = f(x) + g(y)` exist exactly when
+`ln|F_x / F_y|` splits into a part in `x` plus a part in `y` — and when it can, the same
+identity hands back the transforms by integration. Each axis then gets linear or
+decade-based ticks according to how its transform spreads values out.
+
+Nothing is returned on trust. The finished chart is *solved* over a grid of inputs and
+every answer compared with your function; a chart that disagrees is an error, not a
+result. When a formula has no straight-scale chart, it says so and points you at the
+constructions that can still handle it.
+
 ## What it does
 
 - **One geometric core.** Every scale is a parametric curve `value -> (x, y)`, and the
@@ -254,11 +278,17 @@ chart cramped at one end can be pulled open, and nothing needs re-deriving.
   a blank turning line.
 - [`examples/general_quadratic.jl`](examples/general_quadratic.jl) — four variables that
   no pivot can link, on a net.
+- [`examples/from_formula.jl`](examples/from_formula.jl) — compound growth, parallel
+  resistors and BMI, each from the formula as written.
 
 ## Status
 
-Version 0.1.0, not yet registered. The parallel-axis, N-chart and general determinant
-constructions, compound and net charts for four or more variables, projective reshaping, the
-solver, both renderers and the tick engine are implemented and tested. Not yet implemented:
-a symbolic front end that would recognise separable
-forms from an expression rather than taking the transforms directly.
+Version 0.1.0, not yet registered. Implemented and tested: building a chart directly from a
+formula; the parallel-axis, N-chart and general determinant constructions; compound and net
+charts for four or more variables; projective reshaping; the solver; both renderers; and
+the tick engine.
+
+Not yet implemented: taking an equation in implicit form, such as `1/R ~ 1/R₁ + 1/R₂`,
+rather than a function already solved for its result. That is where a Symbolics.jl front
+end would come in, alongside closed-form transforms where they exist and automatic
+derivation of curved and net layouts for formulas that are not separable.
