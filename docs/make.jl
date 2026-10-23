@@ -1,5 +1,6 @@
 using Nomograms
 using Documenter
+using MaterialDocs
 
 DocMeta.setdocmeta!(Nomograms, :DocTestSetup, :(using Nomograms); recursive = true)
 
@@ -63,8 +64,17 @@ makedocs(;
     authors = "Matt Helm <mthelm85@gmail.com>",
     repo = "https://github.com/mthelm85/Nomograms.jl/blob/{commit}{path}#{line}",
     sitename = "Nomograms.jl",
-    format = Documenter.HTML(; canonical = "https://mthelm85.github.io/Nomograms.jl"),
+    format = Material3(;
+        # Loaded by path so the build finds it whatever directory it runs from.
+        theme = MaterialDocs.load_theme(joinpath(@__DIR__, ".materialdocs.toml")),
+        dark_mode = :toggle,
+        canonical = "https://mthelm85.github.io/Nomograms.jl",
+        # Directory-style URLs need a server; a local build should open from disk.
+        prettyurls = get(ENV, "CI", nothing) == "true",
+        # One page holds every docstring; it is meant to be long.
+        size_threshold_ignore = ["95-reference.md"],
+    ),
     pages = list_pages(),
 )
 
-deploydocs(; repo = "github.com/mthelm85/Nomograms.jl")
+deploydocs(; repo = "github.com/mthelm85/Nomograms.jl", devbranch = "main")

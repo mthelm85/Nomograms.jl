@@ -101,15 +101,15 @@ function _pivot_on(
     ref = [(doms[k][1] + doms[k][2]) / 2 for k in others]
     T = (a, b) -> float(F(arguments(a, b, ref)...))
     tname = Symbol(:_t, depth)
+    blank = Variable(tname; label = "", ticks = Float64[])
+    # The first stage, drawn with either input on the left. Which goes where, and how wide
+    # the stage is, are layout choices settled once the chain is assembled.
+    function first_stage(w, swapped)
+        swapped || return _auto_two(T, vs[i], vs[j], blank; width = w, height)
+        return _auto_two((b, a) -> T(a, b), vs[j], vs[i], blank; width = w, height)
+    end
     stage = try
-        _auto_two(
-            T,
-            vs[i],
-            vs[j],
-            Variable(tname; label = "", ticks = Float64[]);
-            width,
-            height,
-        )
+        first_stage(width, false)
     catch err
         err isa ArgumentError || rethrow()
         throw(
@@ -143,9 +143,8 @@ function _pivot_on(
         err isa ArgumentError || rethrow()
         throw(ArgumentError("what remains once they are combined cannot be charted"))
     end
-    stages = Nomogram[downstream; stage]
-    try
-        compound(stages...)
+    assembled = try
+        compound(downstream..., stage)
     catch err
         err isa ArgumentError || rethrow()
         throw(
@@ -155,7 +154,28 @@ function _pivot_on(
             ),
         )
     end
-    return stages
+    fitted = _fit_first_stage(first_stage, assembled, stage, downstream, tname, width)
+    return Nomogram[downstream; fitted]
+end
+
+# The turning line sits between the first stage's inputs, so one of them always lands
+# inside the stage it feeds -- and left to chance, on top of that stage's result axis. So
+# put the input nearer the turning line on that side, and size the stage so it lands
+# halfway to the result, never wider than the stage it feeds. The turning line always
+# reads upwards, so whichever way the stages are aligned, swapping the inputs mirrors the
+# stage about it.
+function _fit_first_stage(first_stage, assembled, stage, downstream, tname, width)
+    consumer = only(st for st in downstream if tname in variablenames(st))
+    x(n) = (s = assembled[n]; point(s, sum(s.domain) / 2)[1])
+    xt = x(tname)
+    xr = x(name(consumer.scales[3]))
+    # Signed offsets from the turning line, positive towards the next stage's result.
+    da, db = (sign(xr - xt) * (x(name(s)) - xt) for s in stage.scales[1:2])
+    near = min(abs(da), abs(db))
+    swapped = max(da, db) > near
+    w = min(stage.width * abs(xr - xt) / 2 / near, width)
+    (swapped || !isapprox(w, stage.width; rtol = 1e-3)) || return stage
+    return first_stage(w, swapped)
 end
 
 # The stages of a chain for z = F(vs…), in an order compound accepts: every stage shares a

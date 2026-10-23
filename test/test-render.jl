@@ -153,3 +153,17 @@ end
     # Labels cannot be placed closer than their own height.
     @test st.min_major_spacing > st.ticklabelsize
 end
+
+@testitem "charts display as images" tags = [:unit] setup = [Render] begin
+    nom = Render.chart()
+    @test showable(MIME"image/svg+xml"(), nom)
+    out = sprint(show, MIME"image/svg+xml"(), nom)
+    @test startswith(out, "<?xml") && occursin("</svg>", out)
+
+    # A drawing displays too, which is how a chart is shown with its isopleths.
+    d = drawing(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6, label = "2.4")])
+    @test occursin(">2.4<", sprint(show, MIME"image/svg+xml"(), d))
+
+    # The REPL still gets its text summary.
+    @test occursin("Nomogram", sprint(show, MIME"text/plain"(), nom))
+end

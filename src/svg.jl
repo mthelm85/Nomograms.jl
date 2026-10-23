@@ -275,3 +275,9 @@ function save_svg(path::AbstractString, x; kwargs...)
     end
     return path
 end
+
+# Rich display: anything that can show an image -- a notebook, VS Code's plot pane, a
+# Documenter @example block -- shows the chart itself rather than a description of it.
+# Display a `drawing` to include isopleths: `drawing(nom; isopleths = [...])`.
+Base.show(io::IO, ::MIME"image/svg+xml", x::Union{AbstractNomogram,NomogramDrawing}) =
+    print(io, svg(x))

@@ -18,6 +18,8 @@ roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
   than this to one already placed. This is what keeps a non-uniform axis legible.
 - `label_minors`: whether minor ticks get labels too.
 - `endpoint_ticks`: whether to add the ends of each domain as labelled ticks when they fit.
+  An end needing more than three significant figures is left to the axis line: that is a
+  derived reach such as `237.4`, not a value anyone chose.
 - `ticklabelrotation`: `:horizontal` leaves tick labels upright; `:tangent` turns each to
   run along its scale, which reads better on a steep or curved axis.
 - `resolve_collisions`: whether to drop tick labels that would overlap a label from
@@ -299,7 +301,7 @@ function thin_ticks(
     blank = !isnothing(v.ticks) && isempty(v.ticks)
     if style.endpoint_ticks && !blank
         for value in s.domain
-            tryplace(value, 1)
+            _readable_end(value) && tryplace(value, 1)
         end
     end
     for value in majors
@@ -310,6 +312,15 @@ function thin_ticks(
     end
     sort!(ticks; by = t -> t.value)
     return ticks
+end
+
+# Whether an end of a domain is worth a label. A declared end is a round number someone
+# chose; a derived one -- the reach of a result axis -- is wherever the arithmetic landed,
+# and `237.4` or `1.883e6` at the end of an axis is noise rather than a reading. Three
+# significant figures keeps every end anyone is likely to type, and `1.01` with it.
+function _readable_end(x::Real)
+    (iszero(x) || !isfinite(x)) && return true
+    return isapprox(round(x; sigdigits = 3), x; rtol = 1e-9)
 end
 
 _unlabel(t::TickMark) = TickMark(

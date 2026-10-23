@@ -115,3 +115,23 @@ end
     @test id.segment[2][1] > maximum(p[1] for p in id.points)
     @test length(id.points) == 3
 end
+
+@testitem "a derived end is left unlabelled unless it is round" tags = [:unit] begin
+    nom = multiplicative_nomogram(
+        Variable(:a; domain = (1.5, 10)),
+        Variable(:b; domain = (1.11, 9)),
+        Variable(:c),
+    )
+    @test nom[:c].domain[1] ≈ 1.665
+    ticks = Dict(sd.name => [t.value for t in sd.ticks] for sd in drawing(nom).scales)
+    # Declared ends keep their ticks, up to three significant figures.
+    @test all(v -> any(t -> t ≈ v, ticks[:a]), (1.5, 10))
+    @test all(v -> any(t -> t ≈ v, ticks[:b]), (1.11, 9))
+    # The derived 1.665 is wherever the arithmetic landed; 90 is a round number.
+    @test !any(t -> t ≈ 1.665, ticks[:c])
+    @test any(t -> t ≈ 90, ticks[:c])
+
+    @test Nomograms._readable_end(0.0) && Nomograms._readable_end(-250)
+    @test Nomograms._readable_end(1.01) && !Nomograms._readable_end(237.4)
+    @test !Nomograms._readable_end(1.883e6)
+end

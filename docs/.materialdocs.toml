@@ -1,0 +1,14 @@
+# .materialdocs.toml -- the docs theme. Open MaterialDocs.editor() to try changes live.
+# The seed is the first isopleth colour, so the site and its charts share a blue.
+
+[theme]
+name = "nomograms"
+seed = "#2a78d6"
+
+[theme.fonts]
+display = "IBM Plex Sans"
+body = "IBM Plex Sans"
+code = "IBM Plex Mono"
+
+[theme.shape]
+corner_radius = "default"

@@ -323,14 +323,19 @@ not monotone in a variable over its domain fails too, since a straight scale can
 back on itself.
 
 # Keywords
-- `width`, `height`, `title`: as for the other constructions.
+- `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for
+  two inputs. In a chain it is the width of the last stage. An earlier stage always has
+  one input inside the stage it feeds, so it is mirrored and narrowed to put the input
+  nearer its turning line halfway between that line and the next result, rather than
+  wherever it happens to fall. The default grows with the chain: 35 per input after the
+  first.
 - `rtol = 1e-6`: the largest disagreement with `F` to accept, relative to the result's
   range.
 """
 function auto_nomogram(
     F,
     args...;
-    width::Real = 70.0,
+    width::Union{Nothing,Real} = nothing,
     height::Real = 100.0,
     title::AbstractString = "",
     rtol::Real = 1e-6,
@@ -347,6 +352,7 @@ function auto_nomogram(
     names = [v.name for v in vs]
     allunique([names; vz.name]) ||
         throw(ArgumentError("variable names must be distinct, got $([names; vz.name])"))
+    width = float(something(width, 35.0 * max(length(vs) - 1, 2)))
     length(vs) == 2 && return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
     return _auto_chain(F, vs, vz; width, height, title, rtol)
 end
