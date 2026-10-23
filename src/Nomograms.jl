@@ -41,6 +41,7 @@ module Nomograms
 
 using Printf: @sprintf
 
+import LinearAlgebra
 import Roots
 
 export
@@ -66,6 +67,8 @@ export
     multiplicative_nomogram,
     ratio_nomogram,
     determinant_nomogram,
+    project,
+    projective_transform,
     # solving
     evaluate,
     evaluate_all,

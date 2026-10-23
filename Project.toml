@@ -7,6 +7,7 @@ authors = ["Matt Helm <mthelm85@gmail.com>"]
 projects = ["test", "docs"]
 
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 
@@ -17,6 +18,7 @@ Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 NomogramsMakieExt = "Makie"
 
 [compat]
+LinearAlgebra = "1"
 Makie = "0.21, 0.22, 0.23, 0.24"
 Printf = "1"
 Roots = "2.1, 3"

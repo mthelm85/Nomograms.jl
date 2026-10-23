@@ -465,14 +465,31 @@ function determinant_nomogram(
         push!(curves, f)
     end
 
+    doms = Tuple{Float64,Float64}[v.domain for v in vars]
+    scales = _fitted_scales(vars, doms, curves, W, H, preserve_aspect, nsamples)
+    return Nomogram(scales; width = W, height = H, title, relation)
+end
+
+# Measure the curves, map their combined bounding box onto the canvas, and build the
+# scales. Shared by `determinant_nomogram` and `project`, which both start from curves in
+# coordinates of their own choosing.
+function _fitted_scales(
+    vars::Vector{Variable},
+    domains::Vector{Tuple{Float64,Float64}},
+    curves::Vector,
+    W::Float64,
+    H::Float64,
+    preserve_aspect::Bool,
+    nsamples::Int,
+)
+    # The domain is passed rather than read off the variable: a derived result variable
+    # leaves `domain` unset, and it is its scale that knows the range.
     sampled = Vector{Vector{Point}}(undef, length(vars))
-    for (i, (v, f)) in enumerate(zip(vars, curves))
-        lo, hi = v.domain
+    for (i, (v, dom, f)) in enumerate(zip(vars, domains, curves))
+        lo, hi = dom
         pts = [_curvepoint(f, t) for t in range(lo, hi; length = nsamples)]
         all(p -> isfinite(p[1]) && isfinite(p[2]), pts) || throw(
-            ArgumentError(
-                "the curve for :$(v.name) is not finite everywhere on $(v.domain)",
-            ),
+            ArgumentError("the curve for :$(v.name) is not finite everywhere on $dom"),
         )
         sampled[i] = pts
     end
@@ -500,12 +517,12 @@ function determinant_nomogram(
 
     centre = (W / 2, H / 2)
     scales = Scale[]
-    for (v, f) in zip(vars, curves)
+    for (v, dom, f) in zip(vars, domains, curves)
         placed = t -> fit(_curvepoint(f, t))
-        side = v.side === :auto ? _outward_side(placed, v.domain, centre) : v.side
-        push!(scales, Scale(v, v.domain, placed, side))
+        side = v.side === :auto ? _outward_side(placed, dom, centre) : v.side
+        push!(scales, Scale(v, dom, placed, side))
     end
-    return Nomogram(scales; width = W, height = H, title, relation)
+    return scales
 end
 
 """
@@ -548,4 +565,158 @@ function max_relation_residual(nom::Nomogram; n::Int = 9)
     end
     # Vacuous success is worse than no answer: say so rather than returning a clean zero.
     return checked == 0 ? NaN : worst
+end
+
+"""
+    projective_transform(src, dst) -> Matrix{Float64}
+
+The 3×3 homography taking the four points `src` to the four points `dst`, each given as a
+4-tuple (or vector) of `(x, y)`.
+
+Four correspondences fix a projective map exactly, which makes this the practical way to
+describe one: say where you want four corners to land rather than writing out nine
+coefficients. No three of the four source points may be collinear, nor of the destination.
+"""
+function projective_transform(src, dst)
+    length(src) == 4 && length(dst) == 4 ||
+        throw(ArgumentError("need exactly 4 source and 4 destination points"))
+    A = zeros(Float64, 8, 8)
+    b = zeros(Float64, 8)
+    for i = 1:4
+        x, y = float(src[i][1]), float(src[i][2])
+        X, Y = float(dst[i][1]), float(dst[i][2])
+        A[2i-1, :] .= (x, y, 1, 0, 0, 0, -x * X, -y * X)
+        A[2i, :] .= (0, 0, 0, x, y, 1, -x * Y, -y * Y)
+        b[2i-1] = X
+        b[2i] = Y
+    end
+    h = try
+        A \ b
+    catch err
+        err isa LinearAlgebra.SingularException || rethrow()
+        throw(
+            ArgumentError(
+                "those four points do not fix a projective map; check that no three " *
+                "of the source points are collinear, nor three of the destinations",
+            ),
+        )
+    end
+    H = [h[1] h[2] h[3]; h[4] h[5] h[6]; h[7] h[8] 1.0]
+    all(isfinite, H) || throw(
+        ArgumentError(
+            "those four points do not fix a projective map; check that no three of " *
+            "the source points are collinear, nor three of the destinations",
+        ),
+    )
+    return H
+end
+
+function _project_point(H::AbstractMatrix, p, name::Symbol)
+    x, y = p
+    w = H[3, 1] * x + H[3, 2] * y + H[3, 3]
+    if abs(w) < 1e-12
+        throw(
+            ArgumentError(
+                "the projective map sends a point of :$name to infinity: its vanishing " *
+                "line crosses that scale's domain. Move the line clear of the chart, " *
+                "or narrow the domain.",
+            ),
+        )
+    end
+    return (
+        (H[1, 1] * x + H[1, 2] * y + H[1, 3]) / w,
+        (H[2, 1] * x + H[2, 2] * y + H[2, 3]) / w,
+    )
+end
+
+"""
+    project(nom::Nomogram, H::AbstractMatrix; kwargs...) -> Nomogram
+    project(nom::Nomogram, src => dst; kwargs...) -> Nomogram
+
+Reshape a nomogram by a projective map, **without changing a single answer it gives**.
+
+A projective map sends straight lines to straight lines, so it preserves the one thing a
+nomogram asserts: that a point from each scale is collinear. Everything else about the
+picture is free. That is what makes reshaping a design tool rather than a risk — a region
+where the ticks are piled on top of one another can be pulled open, and the chart still
+computes exactly what it computed before.
+
+The second form builds the map from four point correspondences via
+[`projective_transform`](@ref), which is usually how you want to say it: give the corners
+of a quadrilateral in the current chart and where they should end up.
+
+The result is re-fitted to the canvas, since a projective map takes the bounding box
+somewhere arbitrary. The composition of that affine fit with the projective map is still
+projective, so the guarantee is unaffected.
+
+# Keywords
+- `width`, `height`: canvas for the reshaped chart; defaults to the original's.
+- `preserve_aspect`, `nsamples`: as for [`determinant_nomogram`](@ref).
+- `title`: defaults to the original's.
+
+# Example
+
+```jldoctest
+julia> nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 10)),
+           Variable(:s),
+       );
+
+julia> skew = project(nom, [(0, 0), (70, 0), (70, 100), (0, 100)] =>
+                           [(0, 0), (70, 20), (70, 80), (0, 100)]);
+
+julia> round(evaluate(skew; a = 3, b = 4).s; digits = 10)
+7.0
+```
+"""
+function project(
+    nom::Nomogram,
+    H::AbstractMatrix;
+    width::Real = nom.width,
+    height::Real = nom.height,
+    title::AbstractString = nom.title,
+    preserve_aspect::Bool = false,
+    nsamples::Int = 129,
+)
+    size(H) == (3, 3) ||
+        throw(ArgumentError("a homography is a 3x3 matrix, got $(size(H))"))
+    all(isfinite, H) || throw(ArgumentError("the homography has non-finite entries"))
+    d = LinearAlgebra.det(H)
+    abs(d) > 1e-12 || throw(
+        ArgumentError(
+            "the homography is singular (determinant $d), so it collapses the plane " *
+            "rather than reshaping it",
+        ),
+    )
+    width > 0 || throw(ArgumentError("width must be positive, got $width"))
+    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+
+    vars = [s.variable for s in nom.scales]
+    curves = Any[]
+    for s in nom.scales
+        n = name(s)
+        f = s.curve
+        push!(curves, t -> _project_point(H, _curvepoint(f, t), n))
+    end
+    scales = _fitted_scales(
+        vars,
+        Tuple{Float64,Float64}[s.domain for s in nom.scales],
+        curves,
+        float(width),
+        float(height),
+        preserve_aspect,
+        nsamples,
+    )
+    return Nomogram(
+        scales;
+        width = float(width),
+        height = float(height),
+        title,
+        relation = nom.relation,
+    )
+end
+
+function project(nom::Nomogram, quad::Pair; kwargs...)
+    return project(nom, projective_transform(first(quad), last(quad)); kwargs...)
 end

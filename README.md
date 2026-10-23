@@ -166,6 +166,23 @@ checks the answers against the algebra.
 For full control, build `Scale`s directly — a curve per variable, in final coordinates —
 and pass them to `Nomogram`. Everything downstream, the solver included, works unchanged.
 
+## Reshaping, for free
+
+A projective map sends straight lines to straight lines, so it preserves the one thing a
+nomogram asserts. `project` reshapes a chart **without changing a single answer it gives**:
+
+```julia
+corners = [(0, 0), (70, 0), (70, 100), (0, 100)]
+skew = project(nom, corners => [(14, 0), (56, 0), (70, 100), (0, 100)])
+
+evaluate(nom;  R1 = 4, R2 = 6).R   # 2.4
+evaluate(skew; R1 = 4, R2 = 6).R   # 2.4 — the same chart, differently drawn
+```
+
+Four point correspondences fix the map, so you say where the corners should go rather than
+writing out nine coefficients. That makes reshaping a design tool rather than a risk: a
+chart cramped at one end can be pulled open, and nothing needs re-deriving.
+
 ## Examples
 
 - [`examples/parallel_resistance.jl`](examples/parallel_resistance.jl) — resistors in
@@ -176,12 +193,14 @@ and pass them to `Nomogram`. Everything downstream, the solver included, works u
   ratio, on linear scales.
 - [`examples/quadratic.jl`](examples/quadratic.jl) — roots of `z² + pz + q`, with the
   curved scale derived from the determinant and both roots read off one line.
+- [`examples/projective.jl`](examples/projective.jl) — reshaping a chart without changing
+  what it computes.
 
 ## Status
 
 Version 0.1.0, not yet registered. The parallel-axis, N-chart and general determinant
-constructions, the solver, both renderers and the tick engine are implemented and tested.
-Not yet implemented: collinearity-preserving projective reshaping, grid or "compound"
-nomograms for four or more variables, resolving tick labels against isopleth *lines* rather
-than only against other labels, and a symbolic front end that would recognise separable
-forms from an expression rather than taking the transforms directly.
+constructions, projective reshaping, the solver, both renderers and the tick engine are
+implemented and tested. Not yet implemented: grid or "compound" nomograms for four or more
+variables, resolving tick labels against isopleth *lines* rather than only against other
+labels, and a symbolic front end that would recognise separable forms from an expression
+rather than taking the transforms directly.

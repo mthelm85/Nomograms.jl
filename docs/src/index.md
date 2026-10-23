@@ -208,6 +208,38 @@ max_relation_residual(quad)
 It returns `NaN` rather than a flattering zero when there is no relation to check, or when
 no input in the grid produced a solution.
 
+### Reshaping, for free
+
+An affine map preserves collinearity, which is why fitting curves to the canvas is safe.
+*Projective* maps preserve it too, and they are a much larger family — they can turn
+parallel scales into converging ones and redistribute spacing along an axis.
+
+So [`project`](@ref) reshapes a chart without changing a single answer it gives:
+
+```@example intro
+corners = [(0, 0), (70, 0), (70, 100), (0, 100)]
+skew = project(nom, corners => [(14, 0), (56, 0), (70, 100), (0, 100)])
+(evaluate(nom; R1 = 4, R2 = 6).R, evaluate(skew; R1 = 4, R2 = 6).R)
+```
+
+[`projective_transform`](@ref) builds the map from four point correspondences, which is
+how you want to say it in practice: name the corners of a quadrilateral and where they
+should end up, rather than writing out nine coefficients. A map whose bottom row is
+`[0 0 1]` is affine — the familiar translate, scale and shear — and everything above that
+is genuine perspective.
+
+The result is re-fitted to the canvas, since a projective map takes the bounding box
+somewhere arbitrary; composing that affine fit with the projective map leaves it
+projective, so the guarantee is unaffected.
+
+This is what makes reshaping a design tool rather than a risk. A region where the ticks
+pile up can be pulled open and nothing needs re-deriving — and
+[`max_relation_residual`](@ref) will confirm it on the reshaped chart.
+
+The one thing to watch for is the map's vanishing line, where the denominator goes to
+zero. If it crosses a scale's domain, points there go to infinity; that is reported
+against the scale it affects rather than producing a chart full of `Inf`.
+
 ### Ticks
 
 Tick values are chosen to be round numbers *in the variable*, then thinned by distance *on
