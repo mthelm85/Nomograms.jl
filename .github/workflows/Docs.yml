@@ -8,7 +8,9 @@ on:
       - "docs/**"
       - "src/**"
       - "*.toml"
+      - ".github/workflows/Docs.yml"
     tags: ["*"]
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -28,6 +30,11 @@ jobs:
   docs:
     name: Documentation
     runs-on: ubuntu-latest
+    # deploydocs pushes the built site to gh-pages and marks the commit with its status;
+    # the repository's default token can only read.
+    permissions:
+      contents: write
+      statuses: write
     steps:
       - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
