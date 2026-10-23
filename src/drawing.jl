@@ -26,7 +26,9 @@ roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
   too. A label a line runs across cannot be read, and the tick mark still shows where the
   value falls.
 - `collisionpad`: extra clearance required between two labels.
-- `axislinewidth`, `tickwidth`, `isoplethwidth`: stroke widths.
+- `axislinewidth`, `gridlinewidth`, `tickwidth`, `isoplethwidth`: stroke widths. The
+  grid width applies to the strands of a [`Net`](@ref), which are drawn lighter than the
+  scales a reader takes values from.
 - `isopleth_overhang`: how far an alignment line extends past the outermost scale.
 - `markersize`: radius of the dot where an isopleth meets a scale.
 """
@@ -46,6 +48,7 @@ Base.@kwdef struct NomogramStyle
     avoid_isopleths::Bool = true
     collisionpad::Float64 = 0.3
     axislinewidth::Float64 = 0.25
+    gridlinewidth::Float64 = 0.15
     tickwidth::Float64 = 0.25
     isoplethwidth::Float64 = 0.4
     isopleth_overhang::Float64 = 5.0
@@ -85,6 +88,7 @@ struct ScaleDrawing
     ticks::Vector{TickMark}
     titlepos::Point
     titlealign::NTuple{2,Symbol}
+    kind::Symbol
 end
 
 """
@@ -346,11 +350,17 @@ function _title_anchor(s::Scale, path::Vector{Point}, style::NomogramStyle)
         (lo, path[1], _sub(path[1], path[min(2, end)])),
         (hi, path[end], _sub(path[end], path[max(end - 1, 1)])),
     )
-    # Prefer the higher end, breaking ties on the left so the choice is deterministic.
-    chosen =
-        ends[1][2][2] > ends[2][2][2] + 1e-12 ? ends[1] :
-        ends[2][2][2] > ends[1][2][2] + 1e-12 ? ends[2] :
-        ends[1][2][1] <= ends[2][2][1] ? ends[1] : ends[2]
+    if s.variable.titleend === :start
+        chosen = ends[1]
+    elseif s.variable.titleend === :stop
+        chosen = ends[2]
+    else
+        # Prefer the higher end, breaking ties on the left so the choice is deterministic.
+        chosen =
+            ends[1][2][2] > ends[2][2][2] + 1e-12 ? ends[1] :
+            ends[2][2][2] > ends[1][2][2] + 1e-12 ? ends[2] :
+            ends[1][2][1] <= ends[2][2][1] ? ends[1] : ends[2]
+    end
     away = _unit(chosen[3])
     pos = _offset(chosen[2], away, style.titlegap)
     return (pos, align_for(away), away)
@@ -477,7 +487,15 @@ function drawing(
         end
         push!(
             scaledrawings,
-            ScaleDrawing(name(s), s.variable.label, path, ticks, titlepos, titlealign),
+            ScaleDrawing(
+                name(s),
+                s.variable.label,
+                path,
+                ticks,
+                titlepos,
+                titlealign,
+                s.kind,
+            ),
         )
     end
 

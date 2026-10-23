@@ -26,6 +26,10 @@ One variable of a nomogram, before it has been placed on the page.
   `:auto` to take it from the transform. A construction may override `:auto` when it knows
   better: an N-chart's ratio axis gets logarithmic ticks when it spans a decade or more.
 - `side`: `:left`, `:right`, or `:auto` (the construction chooses).
+- `titleend`: which end of the scale the title sits off — `:start` or `:stop` for the low
+  or high end of the domain, or `:auto` for whichever is higher on the page. Worth setting
+  where the automatic choice lands somewhere crowded, as it does for the strands of a
+  [`Net`](@ref) that converge at one end.
 """
 struct Variable
     name::Symbol
@@ -37,6 +41,7 @@ struct Variable
     tickformat::Function
     tickstyle::Symbol
     side::Symbol
+    titleend::Symbol
 end
 
 function Variable(
@@ -49,11 +54,14 @@ function Variable(
     tickformat::Function = default_tickformat,
     tickstyle::Symbol = :auto,
     side::Symbol = :auto,
+    titleend::Symbol = :auto,
 )
     side in (:left, :right, :auto) ||
         throw(ArgumentError("side must be :left, :right or :auto, got :$side"))
     tickstyle in (:auto, :linear, :log) ||
         throw(ArgumentError("tickstyle must be :auto, :linear or :log, got :$tickstyle"))
+    titleend in (:auto, :start, :stop) ||
+        throw(ArgumentError("titleend must be :auto, :start or :stop, got :$titleend"))
     dom = isnothing(domain) ? nothing : (float(domain[1]), float(domain[2]))
     if !isnothing(dom) && !(dom[1] < dom[2])
         throw(ArgumentError("domain of :$name must be increasing, got $dom"))
@@ -68,6 +76,7 @@ function Variable(
         tickformat,
         tickstyle,
         side,
+        titleend,
     )
 end
 
@@ -92,7 +101,17 @@ struct Scale
     domain::Tuple{Float64,Float64}
     curve::Function
     side::Symbol
+    kind::Symbol
 end
+
+"""
+    Scale(variable, domain, curve, side, kind = :scale)
+
+`kind` is `:scale` for a scale a reader takes a value from, or `:grid` for one strand of a
+[`Net`](@ref). Grid strands are drawn lighter, since a net is a backdrop rather than the
+instrument.
+"""
+Scale(v::Variable, domain, curve, side::Symbol) = Scale(v, domain, curve, side, :scale)
 
 """
     point(s::Scale, value) -> Point

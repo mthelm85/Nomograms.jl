@@ -61,6 +61,8 @@ export
     AbstractNomogram,
     Nomogram,
     CompoundNomogram,
+    Net,
+    NetNomogram,
     Isopleth,
     point,
     variablenames,
@@ -72,6 +74,8 @@ export
     project,
     projective_transform,
     compound,
+    net_nomogram,
+    netpoint,
     # solving
     evaluate,
     evaluate_all,
@@ -96,6 +100,7 @@ include("ticks.jl")
 include("construct.jl")
 include("solve.jl")
 include("compound.jl")
+include("net.jl")
 include("drawing.jl")
 include("svg.jl")
 

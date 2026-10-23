@@ -197,6 +197,30 @@ Both stages above are multiplicative, so both place `t` logarithmically. Splitti
 `V = (L + W) × H` the same way would not work — one stage would want `t` linear and the
 other logarithmic — and `compound` says so rather than drawing a chart that lies.
 
+### When a pivot will not do: nets
+
+A pivot works only when two variables collapse into one intermediate. When they do not —
+the general quadratic `a·x² + b·x + c = 0` is the classic case — one of the three points the
+line crosses has to carry two variables at once. That is a **net**: a mesh of curves,
+`(u, v) -> (x, y)`.
+
+```julia
+# a·x² + b·x = -c gives α = x², β = x, γ = -c, hence the surface below.
+nom = net_nomogram(
+    Net(Variable(:x; domain = (0.5, 5)), Variable(:c; domain = (0, 4)),
+        (x, c) -> (1 / (1 + x), -c / (x * (1 + x)))),
+    Variable(:a; domain = (0.5, 3)) => a -> (0.0, a),
+    Variable(:b; domain = (-6, 0)) => b -> (1.0, b);
+    relation = (x, c, a, b) -> a * x^2 + b * x + c,
+)
+[sol.x for sol in evaluate_all(nom; a = 1, b = -3, c = 2)]   # [1.0, 2.0]
+```
+
+The reader lays a line from `a` to `b`, finds where it crosses the strand for their `c`, and
+reads `x` off the strand through that point. Any of the four variables may be the unknown.
+The mesh is drawn lighter than the scales, and each family of strands is labelled at the
+end where it fans out rather than where it crowds together.
+
 ## Reshaping, for free
 
 A projective map sends straight lines to straight lines, so it preserves the one thing a
@@ -228,12 +252,13 @@ chart cramped at one end can be pulled open, and nothing needs re-deriving.
   what it computes.
 - [`examples/box_volume.jl`](examples/box_volume.jl) — four variables over two stages, with
   a blank turning line.
+- [`examples/general_quadratic.jl`](examples/general_quadratic.jl) — four variables that
+  no pivot can link, on a net.
 
 ## Status
 
 Version 0.1.0, not yet registered. The parallel-axis, N-chart and general determinant
-constructions, compound charts for four or more variables, projective reshaping, the
+constructions, compound and net charts for four or more variables, projective reshaping, the
 solver, both renderers and the tick engine are implemented and tested. Not yet implemented:
-the *net* form of a compound chart, where one scale becomes a two-parameter family of
-curves rather than a shared pivot; and a symbolic front end that would recognise separable
+a symbolic front end that would recognise separable
 forms from an expression rather than taking the transforms directly.

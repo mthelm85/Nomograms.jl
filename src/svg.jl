@@ -113,6 +113,7 @@ function svg(
     padding::Real = 2.0,
     background::AbstractString = "white",
     axiscolor::AbstractString = "#333333",
+    gridcolor::AbstractString = "#9a9a9a",
     textcolor::AbstractString = "#1a1a1a",
     isoplethcolors = DEFAULT_ISOPLETH_COLORS,
     isoplethdashes = DEFAULT_ISOPLETH_DASHES,
@@ -159,12 +160,14 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
 
     for sd in d.scales
         println(io, """    <g id="scale-$(sd.name)">""")
+        grid = sd.kind === :grid
+        stroke = grid ? gridcolor : axiscolor
+        linewidth = (grid ? st.gridlinewidth : st.axislinewidth) * k
         pts = join((" $(_num(X(p[1]))),$(_num(Y(p[2])))" for p in sd.path), "")
         println(
             io,
             """      <polyline points="$(strip(pts))" fill="none" """ *
-            """stroke="$(_esc(axiscolor))" """ *
-            """stroke-width="$(_num(st.axislinewidth * k))"/>""",
+            """stroke="$(_esc(stroke))" stroke-width="$(_num(linewidth))"/>""",
         )
         for t in sd.ticks
             o = (
@@ -203,7 +206,7 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
                 st.titlesize * k,
                 sd.titlealign,
                 0.0,
-                textcolor,
+                grid ? gridcolor : textcolor,
             )
         end
         println(io, "    </g>")

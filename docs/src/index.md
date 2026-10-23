@@ -262,6 +262,52 @@ construction puts its result *between* its inputs, so both stages straddle the p
 Widening the later stage's canvas spreads it clear, and [`project`](@ref) will reshape the
 result if the arrangement is still awkward.
 
+### When a pivot will not do: nets
+
+A pivot works only when the first two variables collapse into a single intermediate. When
+they do not, one of the three points an alignment line crosses must carry two variables at
+once. That is a [`Net`](@ref): a two-parameter surface `(u, v) -> (x, y)`, drawn as a mesh.
+
+Deriving one follows the same pattern as a curved scale. With `a` on `x = 0` at height
+`f(a)` and `b` on `x = 1` at height `g(b)`, a net point is crossed exactly when
+
+```math
+\alpha f(a) + \beta g(b) = \gamma, \qquad
+x_3 = \frac{\beta}{\alpha + \beta}, \quad y_3 = \frac{\gamma}{\alpha + \beta}
+```
+
+so any relation whose two net variables enter as the coefficients has a net. The general
+quadratic `a·x² + b·x + c = 0`, written `a·x² + b·x = -c`, has `α = x²`, `β = x`, `γ = -c`:
+
+```@example intro
+gq = net_nomogram(
+    Net(
+        Variable(:x; domain = (0.5, 5)),
+        Variable(:c; domain = (0, 4)),
+        (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
+    ),
+    Variable(:a; domain = (0.5, 3)) => a -> (0.0, a),
+    Variable(:b; domain = (-6, 0)) => b -> (1.0, b);
+    relation = (x, c, a, b) -> a * x^2 + b * x + c,
+)
+[sol.x for sol in evaluate_all(gq; a = 1, b = -3, c = 2)]
+```
+
+Which problem [`evaluate`](@ref) solves depends on what is unknown. With both net variables
+known the net contributes a single point and it is the ordinary three-point alignment. With
+one unknown, the line is already fixed by the two scales, and the answer is where it
+crosses the strand for the known net variable — a curve, which the line may cross twice.
+Here it does, because a quadratic has two roots.
+
+The mesh is genuinely two-dimensional only when `(α : β : γ)` sweeps a region. When it
+sweeps just a curve the net collapses onto a line, and the relation wanted a pivot instead —
+which is a useful check on whether you have reached for the right construction.
+
+Strands are scales of `kind = :grid`, drawn lighter than the scales a reader takes values
+from. Each family is labelled at whichever end it fans out, since at the end where strands
+converge the labels pile up and get nudged next to the wrong curve; set `titleend` on a
+[`Variable`](@ref) to choose by hand.
+
 ### Reshaping, for free
 
 An affine map preserves collinearity, which is why fitting curves to the canvas is safe.

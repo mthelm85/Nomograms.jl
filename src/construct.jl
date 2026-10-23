@@ -15,6 +15,7 @@ function rebuild(
         tickformat = v.tickformat,
         tickstyle,
         side = v.side,
+        titleend = v.titleend,
     )
 end
 
@@ -466,12 +467,14 @@ function determinant_nomogram(
     end
 
     doms = Tuple{Float64,Float64}[v.domain for v in vars]
-    scales = _fitted_scales(vars, doms, curves, W, H, preserve_aspect, nsamples)
+    scales, _ = _fitted_scales(vars, doms, curves, W, H, preserve_aspect, nsamples)
     return Nomogram(scales; width = W, height = H, title, relation)
 end
 
 # Measure the curves, map their combined bounding box onto the canvas, and build the
-# scales. Shared by `determinant_nomogram` and `project`, which both start from curves in
+# scales. Returns the fit alongside them, because a caller may hold geometry that is not a
+# scale -- a Net's surface -- and has to move it the same way. Shared by
+# `determinant_nomogram`, `project` and `net_nomogram`, which all start from curves in
 # coordinates of their own choosing.
 function _fitted_scales(
     vars::Vector{Variable},
@@ -522,7 +525,7 @@ function _fitted_scales(
         side = v.side === :auto ? _outward_side(placed, dom, centre) : v.side
         push!(scales, Scale(v, dom, placed, side))
     end
-    return scales
+    return (scales, fit)
 end
 
 """
@@ -699,7 +702,7 @@ function project(
         f = s.curve
         push!(curves, t -> _project_point(H, _curvepoint(f, t), n))
     end
-    scales = _fitted_scales(
+    scales, _ = _fitted_scales(
         vars,
         Tuple{Float64,Float64}[s.domain for s in nom.scales],
         curves,
