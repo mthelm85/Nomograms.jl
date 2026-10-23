@@ -22,6 +22,9 @@ roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
   run along its scale, which reads better on a steep or curved axis.
 - `resolve_collisions`: whether to drop tick labels that would overlap a label from
   another scale, and nudge isopleth labels clear of both.
+- `avoid_isopleths`: whether a tick label struck through by an alignment line is dropped
+  too. A label a line runs across cannot be read, and the tick mark still shows where the
+  value falls.
 - `collisionpad`: extra clearance required between two labels.
 - `axislinewidth`, `tickwidth`, `isoplethwidth`: stroke widths.
 - `isopleth_overhang`: how far an alignment line extends past the outermost scale.
@@ -40,6 +43,7 @@ Base.@kwdef struct NomogramStyle
     endpoint_ticks::Bool = true
     ticklabelrotation::Symbol = :horizontal
     resolve_collisions::Bool = true
+    avoid_isopleths::Bool = true
     collisionpad::Float64 = 0.3
     axislinewidth::Float64 = 0.25
     tickwidth::Float64 = 0.25
@@ -205,6 +209,38 @@ function label_box(
     xs = ntuple(i -> pos[1] + c * corners[i][1] - s * corners[i][2], 4)
     ys = ntuple(i -> pos[2] + s * corners[i][1] + c * corners[i][2], 4)
     return (minimum(xs), minimum(ys), maximum(xs), maximum(ys))
+end
+
+"""
+    segment_hits_box(a, b, box, pad) -> Bool
+
+Whether the segment from `a` to `b` passes through `box`, grown by `pad`.
+
+Liang--Barsky: clip the segment against each of the box's four slabs in turn, and see
+whether any of it is left. Label collisions are not only label against label -- an
+alignment line drawn straight through a number makes it just as unreadable.
+"""
+function segment_hits_box(a::Point, b::Point, box::NTuple{4,Float64}, pad::Real)
+    xmin, ymin = box[1] - pad, box[2] - pad
+    xmax, ymax = box[3] + pad, box[4] + pad
+    t0, t1 = 0.0, 1.0
+    dx, dy = b[1] - a[1], b[2] - a[2]
+    for (p, q) in
+        ((-dx, a[1] - xmin), (dx, xmax - a[1]), (-dy, a[2] - ymin), (dy, ymax - a[2]))
+        if p == 0
+            q < 0 && return false      # parallel to this slab and outside it
+        else
+            r = q / p
+            if p < 0
+                r > t1 && return false
+                r > t0 && (t0 = r)
+            else
+                r < t0 && return false
+                r < t1 && (t1 = r)
+            end
+        end
+    end
+    return t0 <= t1
 end
 
 _overlaps(a::NTuple{4,Float64}, b::NTuple{4,Float64}, pad::Real) =
@@ -381,12 +417,15 @@ function _resolve_tick_collisions!(
     scaledrawings::Vector{ScaleDrawing},
     style::NomogramStyle,
     occupied::Vector{NTuple{4,Float64}},
+    segments::Vector{Tuple{Point,Point}},
 )
     for level in (1, 2), sd in scaledrawings, i in eachindex(sd.ticks)
         t = sd.ticks[i]
         (t.level == level && !isnothing(t.label)) || continue
         box = label_box(t.labelpos, t.label, style.ticklabelsize, t.align, t.rotation)
-        if any(b -> _overlaps(box, b, style.collisionpad), occupied)
+        struck =
+            any(seg -> segment_hits_box(seg[1], seg[2], box, style.collisionpad), segments)
+        if struck || any(b -> _overlaps(box, b, style.collisionpad), occupied)
             sd.ticks[i] = _unlabel(t)
         else
             push!(occupied, box)
@@ -442,8 +481,31 @@ function drawing(
         )
     end
 
+    # Alignment-line geometry is settled before tick labels are, because it does not
+    # depend on them: an isopleth's segment comes straight from the solution. Knowing
+    # where the lines run lets the label pass reject anything they strike through.
+    segments = Tuple{Point,Point}[]
+    strikes = Tuple{Point,Point}[]
+    for iso in isopleths
+        length(iso.points) >= 2 || continue
+        a = argmin(p -> p[1], iso.points)
+        b = argmax(p -> p[1], iso.points)
+        u = _unit(_sub(b, a))
+        oh = style.isopleth_overhang
+        push!(segments, (_offset(a, u, -oh), _offset(b, u, oh)))
+        # Only the span between the outermost crossings counts against labels. The
+        # overhang past them is a flourish, and it falls exactly where the outer scales'
+        # labels sit -- including the label for the value being read.
+        push!(strikes, (a, b))
+    end
+
     if style.resolve_collisions
-        _resolve_tick_collisions!(scaledrawings, style, occupied)
+        _resolve_tick_collisions!(
+            scaledrawings,
+            style,
+            occupied,
+            style.avoid_isopleths ? strikes : Tuple{Point,Point}[],
+        )
     end
 
     bb = [Inf, Inf, -Inf, -Inf]
@@ -467,14 +529,10 @@ function drawing(
     end
 
     isodrawings = IsoplethDrawing[]
-    for iso in isopleths
+    drawable = [iso for iso in isopleths if length(iso.points) >= 2]
+    for (iso, seg) in zip(drawable, segments)
         pts = iso.points
-        length(pts) >= 2 || continue
-        a = argmin(p -> p[1], pts)
-        b = argmax(p -> p[1], pts)
-        u = _unit(_sub(b, a))
-        oh = style.isopleth_overhang
-        seg = (_offset(a, u, -oh), _offset(b, u, oh))
+        u = _unit(_sub(seg[2], seg[1]))
         _expand!(bb, seg[1])
         _expand!(bb, seg[2])
         labelpos = _offset(seg[2], (1.0, 0.0), style.ticklabelgap)

@@ -235,6 +235,5 @@ Version 0.1.0, not yet registered. The parallel-axis, N-chart and general determ
 constructions, compound charts for four or more variables, projective reshaping, the
 solver, both renderers and the tick engine are implemented and tested. Not yet implemented:
 the *net* form of a compound chart, where one scale becomes a two-parameter family of
-curves rather than a shared pivot; resolving tick labels against isopleth *lines* rather
-than only against other labels; and a symbolic front end that would recognise separable
+curves rather than a shared pivot; and a symbolic front end that would recognise separable
 forms from an expression rather than taking the transforms directly.

@@ -252,3 +252,70 @@ end
 
     @test nomogramplot(nom; style) isa Figure
 end
+
+@testitem "segment_hits_box clips correctly" tags = [:unit] begin
+    hits = Nomograms.segment_hits_box
+    box = (0.0, 0.0, 10.0, 10.0)
+    @test hits((-5.0, 5.0), (15.0, 5.0), box, 0)        # straight through
+    @test hits((5.0, 5.0), (20.0, 5.0), box, 0)         # starting inside
+    @test hits((-5.0, -5.0), (15.0, 15.0), box, 0)      # diagonal
+    @test !hits((-5.0, 20.0), (15.0, 20.0), box, 0)     # parallel, clear above
+    @test !hits((-5.0, 5.0), (-1.0, 5.0), box, 0)       # stops short
+    @test !hits((20.0, 0.0), (20.0, 10.0), box, 0)      # parallel, clear to the right
+    # Corner cases: just missing, and brought into contact by the pad.
+    @test !hits((11.0, -5.0), (11.0, 15.0), box, 0)
+    @test hits((11.0, -5.0), (11.0, 15.0), box, 2)
+end
+
+@testitem "a label an alignment line runs through is dropped" tags = [:unit] begin
+    quad = determinant_nomogram(
+        Variable(:p; domain = (-6, 0)) => p -> (0.0, p),
+        Variable(:q; domain = (0, 6)) => q -> (1.0, q),
+        Variable(:z; domain = (0.2, 5)) => z -> (1 / (1 + z), -z^2 / (1 + z)),
+    )
+    isos = [isopleth(quad, s) for s in evaluate_all(quad; p = -3, q = 2)]
+    zlabels(st) = [
+        t.value for t in only(
+            sd for
+            sd in drawing(quad; style = st, isopleths = isos).scales if sd.name === :z
+        ).ticks if !isnothing(t.label)
+    ]
+
+    on = zlabels(NomogramStyle())
+    off = zlabels(NomogramStyle(; avoid_isopleths = false))
+    @test 3.0 in off
+    @test !(3.0 in on)
+    @test length(on) == length(off) - 1
+
+    # The tick mark stays; only its number goes.
+    d = drawing(quad; isopleths = isos)
+    zd = only(sd for sd in d.scales if sd.name === :z)
+    @test any(t -> t.value == 3.0, zd.ticks)
+
+    # With no line to run through anything, nothing is lost.
+    bare = [
+        t.value for
+        t in only(sd for sd in drawing(quad).scales if sd.name === :z).ticks if
+        !isnothing(t.label)
+    ]
+    @test 3.0 in bare
+    @test bare == off
+end
+
+@testitem "the overhang does not cost labels" tags = [:unit] begin
+    # The line is drawn past the outermost scales as a flourish, and that flourish falls
+    # exactly where those scales' labels are -- including the label for the value being
+    # read. Only the span between the crossings counts.
+    nom = additive_nomogram(
+        Variable(:a; domain = (0, 10)),
+        Variable(:b; domain = (0, 10)),
+        Variable(:s),
+    )
+    d = drawing(nom; isopleths = [isopleth(nom; a = 4, b = 6)])
+    kept(n) = [
+        t.value for
+        t in only(sd for sd in d.scales if sd.name === n).ticks if !isnothing(t.label)
+    ]
+    @test 4.0 in kept(:a)
+    @test 6.0 in kept(:b)
+end

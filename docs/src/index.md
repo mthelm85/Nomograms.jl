@@ -319,6 +319,13 @@ tick labels, then minor ones, and a label that cannot fit is dropped while its t
 stays. Isopleth labels are nudged along the perpendicular until they are clear instead,
 since the caller asked for those by name.
 
+Collisions are not only label against label. An alignment line drawn straight through a
+number makes it just as unreadable, so [`segment_hits_box`](@ref Nomograms.segment_hits_box)
+tests each label against the lines too and a struck label is dropped, tick mark intact.
+Only the span between the outermost crossings counts: the overhang past them is a flourish,
+and it falls exactly where the outer scales' labels sit -- including the label for the value
+being read. Set `avoid_isopleths = false` to keep every label regardless.
+
 Two related details fall out of the same geometry:
 
 - [`align_for`](@ref Nomograms.align_for) uses *both* components of the direction a label
