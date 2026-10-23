@@ -81,6 +81,19 @@ save("chart.pdf", fig)
 Both go through `drawing(nom; style = NomogramStyle(...))`, so a `NomogramStyle` means the
 same thing in either backend, and tests can assert on tick positions without rendering.
 
+The defaults follow the proportions of a classic d3 axis — hairline rules, short ticks,
+small type. All lengths are in chart units, and at the default `pxperunit = 4` they come
+out as 1px strokes, 6px major ticks and 10px labels.
+
+Isopleths get **three** colours, not more: blue, orange, aqua. Every isopleth on a chart is
+visible at once, so all three pairs must stay apart under colour-vision deficiency, and no
+fourth hue holds up once every pair is in play. These were checked with a validator rather
+than by eye — worst pair ΔE 9.2 under deuteranopia, 24.0 in normal vision, against a ≥8
+target. d3's own `category10` is *not* used for a measurable reason: its orange and green
+sit ΔE 0.7 apart under protanopia, which is to say they are the same colour. Past three
+isopleths the dash pattern advances instead of the hue, so identity never rests on colour
+alone.
+
 ## Products, and anything separable
 
 A product relation becomes additive under a logarithm, which

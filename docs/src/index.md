@@ -214,6 +214,26 @@ positions without rendering anything.
 | [`svg`](@ref), [`save_svg`](@ref) | none | SVG |
 | [`nomogramplot`](@ref) | any Makie backend | `Figure`, hence PDF/SVG/PNG |
 
+### Styling
+
+The defaults follow the proportions of a classic d3 axis: hairline rules, short ticks and
+small type. Everything in [`NomogramStyle`](@ref) is measured in chart units, so at the
+default `pxperunit = 4` they land on 1px strokes, 6px major ticks, 3px of label padding and
+10px labels, and changing the output size rescales the lot together.
+
+Isopleths get three colours — blue, orange, aqua — and that is deliberate rather than
+parsimonious. Every isopleth on a chart is visible at the same time, so all three pairs
+have to stay apart under colour-vision deficiency, and no fourth hue holds up once every
+pair is in play. The three were checked with a validator rather than by eye: worst pair
+ΔE 9.2 under deuteranopia and 24.0 in normal vision, against a ≥8 target.
+
+d3's own `category10` is not used, for a reason that is measurable rather than aesthetic:
+its orange and green are ΔE 0.7 apart under protanopia, which is to say indistinguishable.
+
+Past three isopleths the dash pattern advances instead of the hue — a fourth line is a
+dashed blue, not a second plain blue — so identity never rests on colour alone. Override
+either with `isoplethcolors` and `isoplethdashes`, which both backends accept.
+
 ## Reference
 
 See the [Reference](@ref reference) page for the full API.

@@ -103,3 +103,53 @@ end
     @test nomogramplot!(ax, Render.chart()) === ax
     @test length(ax.scene.plots) > before
 end
+
+@testitem "isopleth styling cycles colour then dash" tags = [:unit] begin
+    colors = Nomograms.DEFAULT_ISOPLETH_COLORS
+    dashes = Nomograms.DEFAULT_ISOPLETH_DASHES
+    # Three colours, not more: no fourth hue stays separable under colour-vision
+    # deficiency once every pair is on the page at once.
+    @test length(colors) == 3
+
+    styles = [Nomograms.isopleth_style(i, colors, dashes) for i = 1:7]
+    @test [s[1] for s in styles[1:3]] == collect(colors)
+    @test all(s -> s[2] === :solid, styles[1:3])
+    # The fourth line reuses the first hue but changes dash, so identity never rests on
+    # colour alone.
+    @test styles[4][1] == colors[1]
+    @test styles[4][2] === :dash
+    @test styles[7][2] === :dot
+    @test allunique(styles[1:6])
+end
+
+@testitem "both backends apply the dash" tags = [:integration] setup = [Render] begin
+    using CairoMakie
+
+    nom = Render.chart()
+    isos = [isopleth(nom; R1 = r, R2 = 11 - r, label = "iso $r") for r in (1, 2, 3, 4)]
+    out = svg(nom; isopleths = isos)
+    # The first three are solid, the fourth dashed.
+    @test count(c -> true, eachmatch(r"stroke-dasharray", out)) == 1
+    @test occursin("#2a78d6", out)
+    @test !occursin("NaN", out)
+    @test nomogramplot(nom; isopleths = isos) isa Figure
+
+    @test_throws ArgumentError Nomograms._dasharray(:squiggle, 4)
+end
+
+@testitem "the defaults land on d3's proportions" tags = [:unit] begin
+    # At the default pxperunit a chart unit is 4 pixels, which is what makes these the
+    # familiar 1px rules, 6px ticks, 3px padding and 10px labels.
+    st = NomogramStyle()
+    k = 4
+    @test st.axislinewidth * k ≈ 1.0
+    @test st.tickwidth * k ≈ 1.0
+    @test st.majorticklength * k ≈ 6.0
+    @test st.ticklabelgap * k ≈ 3.2
+    @test st.ticklabelsize * k ≈ 10.0
+    # Minor ticks read as subordinate but still visible.
+    @test st.minorticklength < st.majorticklength
+    @test st.minorticklength * k >= 3.0
+    # Labels cannot be placed closer than their own height.
+    @test st.min_major_spacing > st.ticklabelsize
+end

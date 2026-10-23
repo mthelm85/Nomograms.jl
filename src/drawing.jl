@@ -5,6 +5,10 @@ Sizes and thresholds for turning a [`Nomogram`](@ref) into geometry. All lengths
 chart units -- the same units as a nomogram's `width` and `height`, which default to 70 by
 100 -- so one style carries over unchanged between output sizes and backends.
 
+The defaults follow the proportions of a classic d3 axis: hairline rules, short ticks and
+small type. At the default `pxperunit = 4` a chart unit is 4 pixels, so they come out as
+roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
+
 # Keywords
 - `majorticklength`, `minorticklength`: tick mark lengths.
 - `ticklabelgap`: gap between a tick's outer end and its label.
@@ -24,24 +28,24 @@ chart units -- the same units as a nomogram's `width` and `height`, which defaul
 - `markersize`: radius of the dot where an isopleth meets a scale.
 """
 Base.@kwdef struct NomogramStyle
-    majorticklength::Float64 = 3.0
-    minorticklength::Float64 = 1.6
-    ticklabelgap::Float64 = 1.2
-    ticklabelsize::Float64 = 3.2
-    titlesize::Float64 = 4.4
-    titlegap::Float64 = 4.5
-    min_major_spacing::Float64 = 4.0
-    min_minor_spacing::Float64 = 1.3
+    majorticklength::Float64 = 1.5
+    minorticklength::Float64 = 0.8
+    ticklabelgap::Float64 = 0.8
+    ticklabelsize::Float64 = 2.5
+    titlesize::Float64 = 2.9
+    titlegap::Float64 = 3.0
+    min_major_spacing::Float64 = 3.2
+    min_minor_spacing::Float64 = 1.0
     label_minors::Bool = false
     endpoint_ticks::Bool = true
     ticklabelrotation::Symbol = :horizontal
     resolve_collisions::Bool = true
-    collisionpad::Float64 = 0.4
-    axislinewidth::Float64 = 0.6
-    tickwidth::Float64 = 0.35
-    isoplethwidth::Float64 = 0.5
-    isopleth_overhang::Float64 = 6.0
-    markersize::Float64 = 1.1
+    collisionpad::Float64 = 0.3
+    axislinewidth::Float64 = 0.25
+    tickwidth::Float64 = 0.25
+    isoplethwidth::Float64 = 0.4
+    isopleth_overhang::Float64 = 5.0
+    markersize::Float64 = 0.8
 end
 
 """

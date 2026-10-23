@@ -6,6 +6,7 @@ using Nomograms: Nomograms, Nomogram, NomogramDrawing, NomogramStyle, Isopleth
 using Nomograms: drawing, nomogramplot, nomogramplot!
 
 const DEFAULT_COLORS = Nomograms.DEFAULT_ISOPLETH_COLORS
+const DEFAULT_DASHES = Nomograms.DEFAULT_ISOPLETH_DASHES
 
 _p(p) = Point2f(p[1], p[2])
 
@@ -20,11 +21,12 @@ function Nomograms.nomogramplot!(
     ax::Axis,
     d::NomogramDrawing;
     pxperunit::Real = 4.0,
-    axiscolor = :black,
-    textcolor = :black,
+    axiscolor = "#333333",
+    textcolor = "#1a1a1a",
     isoplethcolors = DEFAULT_COLORS,
+    isoplethdashes = DEFAULT_DASHES,
     font = Makie.automatic,
-    titlefont = Makie.automatic,
+    titlefont = :bold,
 )
     st = d.style
     k = float(pxperunit)
@@ -82,15 +84,20 @@ function Nomograms.nomogramplot!(
             fontsize = st.titlesize * k,
             align = sd.titlealign,
             color = textcolor,
-            font = titlefont,
+            font = font,
         )
     end
 
-    colors = collect(isoplethcolors)
     for (i, iso) in enumerate(d.isopleths)
-        c = colors[mod1(i, length(colors))]
+        c, dash = Nomograms.isopleth_style(i, isoplethcolors, isoplethdashes)
         a, b = iso.segment
-        lines!(ax, [_p(a), _p(b)]; color = c, linewidth = st.isoplethwidth * k)
+        lines!(
+            ax,
+            [_p(a), _p(b)];
+            color = c,
+            linewidth = st.isoplethwidth * k,
+            linestyle = dash,
+        )
         scatter!(
             ax,
             [_p(p) for p in iso.points];
