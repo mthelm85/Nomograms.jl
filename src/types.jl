@@ -21,10 +21,20 @@ One variable of a nomogram, before it has been placed on the page.
   variable of a construction, whose range is then derived from the other two.
 - `label`: axis title; defaults to `string(name)`.
 - `ticks`, `minorticks`: explicit tick values, bypassing automatic selection.
-- `tickformat`: `value -> String`.
-- `tickstyle`: `:linear` or `:log` to choose how automatic tick values are picked, or
-  `:auto` to take it from the transform. A construction may override `:auto` when it knows
-  better: an N-chart's ratio axis gets logarithmic ticks when it spans a decade or more.
+- `tickformat`: `value -> String`. Defaults to [`fractionformat`](@ref) for
+  `tickstyle = :fraction` and to plain numbers otherwise.
+- `tickstyle`: how automatic tick values are picked.
+  - `:linear` or `:log` for round decimals spaced evenly or by decade;
+  - `:integer` for whole numbers only, for a count such as gear teeth or turns;
+  - `:fraction` for fractions whose denominator divides `maxden` -- halves, quarters,
+    eighths, sixteenths by default -- labelled as such: `1 3/8`, not `1.375`;
+  - `:auto` to take it from the transform. A construction may override `:auto` when it
+    knows better: an N-chart's ratio axis gets logarithmic ticks when it spans a decade or
+    more.
+  Whichever is chosen, ticks are thinned by distance on the page, roundest first.
+- `maxden = 16`: for `tickstyle = :fraction`, the finest fraction offered; every
+  denominator dividing it is used. 16 gives halves to sixteenths, 12 gives halves, thirds,
+  quarters, sixths and twelfths.
 - `side`: `:left`, `:right`, or `:auto` (the construction chooses).
 - `titleend`: which end of the scale the title sits off — `:start` or `:stop` for the low
   or high end of the domain, or `:auto` for whichever is higher on the page. Worth setting
@@ -42,6 +52,7 @@ struct Variable
     tickstyle::Symbol
     side::Symbol
     titleend::Symbol
+    maxden::Int
 end
 
 function Variable(
@@ -51,15 +62,23 @@ function Variable(
     label::AbstractString = string(name),
     ticks = nothing,
     minorticks = nothing,
-    tickformat::Function = default_tickformat,
+    tickformat::Union{Nothing,Function} = nothing,
     tickstyle::Symbol = :auto,
     side::Symbol = :auto,
     titleend::Symbol = :auto,
+    maxden::Integer = 16,
 )
     side in (:left, :right, :auto) ||
         throw(ArgumentError("side must be :left, :right or :auto, got :$side"))
-    tickstyle in (:auto, :linear, :log) ||
-        throw(ArgumentError("tickstyle must be :auto, :linear or :log, got :$tickstyle"))
+    tickstyle in (:auto, :linear, :log, :integer, :fraction) || throw(
+        ArgumentError(
+            "tickstyle must be :auto, :linear, :log, :integer or :fraction, got :$tickstyle",
+        ),
+    )
+    maxden >= 1 || throw(ArgumentError("maxden must be at least 1, got $maxden"))
+    if isnothing(tickformat)
+        tickformat = tickstyle === :fraction ? fractionformat(maxden) : default_tickformat
+    end
     titleend in (:auto, :start, :stop) ||
         throw(ArgumentError("titleend must be :auto, :start or :stop, got :$titleend"))
     dom = isnothing(domain) ? nothing : (float(domain[1]), float(domain[2]))
@@ -77,6 +96,7 @@ function Variable(
         tickstyle,
         side,
         titleend,
+        Int(maxden),
     )
 end
 

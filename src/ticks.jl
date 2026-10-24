@@ -148,6 +148,97 @@ function log_ticks(lo::Real, hi::Real)
     return (majors, minors)
 end
 
+# Whole numbers by roundness -- multiples of 100 before 50 before 10 before 5 -- so on any
+# shape of axis the thinning keeps the round ones where it is crowded and fills in where
+# it has room. A log-shaped axis gets that from the 1-2-5 order of its mantissas.
+function integer_ticks(lo::Real, hi::Real; logshaped::Bool = false)
+    lo, hi = float(lo), float(hi)
+    keep(xs) = filter(x -> abs(x - round(x)) <= 1e-9 * max(1, abs(x)), xs)
+    if logshaped && lo > 0
+        majors, minors = log_ticks(lo, hi)
+        majors, minors = keep(majors), keep(minors)
+        # Halfway values between the leading digits -- 15, 25 between 10, 20, 30 -- are
+        # offered after them, so a roomy axis labels them too. Only the 5s: offering every
+        # whole number lets the thinning label whichever happen to fit, and 22, 28, 32 in
+        # place of 25, 30, 35 reads as noise.
+        between = [
+            x for
+            x in minors if !any(m -> isapprox(m, x), majors) && _roundness(x, 1.0) >= 5
+        ]
+        sort!(between; by = x -> (-_roundness(x, 1.0), x))
+        return ([majors; between], minors)
+    end
+    i0, i1 = ceil(Int, lo - 1e-9), floor(Int, hi + 1e-9)
+    i1 >= i0 || return (Float64[], Float64[])
+    # Keep the candidate list bounded on a wide range: a step that is itself a whole number.
+    step = max(1, round(Int, nicestep((i1 - i0) / 1000)))
+    vals = Float64[k for k = i0:i1 if k % step == 0]
+    majors = sort(vals; by = v -> (-_roundness(v, Float64(step)), abs(v)))
+    return (majors, vals)
+end
+
+"""
+    fraction_ticks(lo, hi; maxden = 16) -> (majors, minors)
+
+Every fraction in `[lo, hi]` whose denominator divides `maxden`, offered whole numbers
+first (roundest first), then halves, quarters and so on: the order a crowded axis should
+give them up, so it keeps `1/2` before `3/8`. Every one is also a minor, so a fraction
+whose label is dropped keeps its mark, as on a ruler.
+"""
+function fraction_ticks(lo::Real, hi::Real; maxden::Integer = 16)
+    lo, hi = float(lo), float(hi)
+    dens = [d for d = 1:maxden if maxden % d == 0]
+    # A range too long for the finest fractions keeps the coarser ones only.
+    while length(dens) > 1 && (hi - lo) * dens[end] > 4000
+        pop!(dens)
+    end
+    den = dens[end]
+    (hi - lo) * den > 4000 && return integer_ticks(lo, hi)
+    n0, n1 = ceil(Int, lo * den - 1e-9), floor(Int, hi * den + 1e-9)
+    vals = Float64[n / den for n = n0:n1]
+    reduced(v) = denominator(rationalize(Int, v; tol = 0.5 / den^2))
+    wholes = [v for v in vals if reduced(v) == 1]
+    step =
+        isempty(wholes) ? 1.0 : Float64(max(1, round(Int, nicestep(length(wholes) / 1000))))
+    majors = sort(vals; by = v -> (reduced(v), -_roundness(v, step), abs(v)))
+    return (majors, vals)
+end
+
+"""
+    fractionformat(maxden = 16; mixed = true) -> (value -> String)
+
+A tick label format for fractions: `1 3/8` (or `11/8` with `mixed = false`), `3/4`, `2`.
+A value that is not a whole number of `1/maxden`ths falls back to plain decimals, so an
+axis end at 0.3 still reads correctly. The default label format for
+`tickstyle = :fraction`; pass it as `tickformat` to label any axis this way.
+"""
+function fractionformat(maxden::Integer = 16; mixed::Bool = true)
+    maxden >= 1 || throw(ArgumentError("maxden must be at least 1, got $maxden"))
+    return function (x::Real)
+        x = float(x)
+        n = round(Int, x * maxden)
+        abs(x - n / maxden) <= 1e-9 * max(1, abs(x)) || return default_tickformat(x)
+        g = gcd(n, maxden)
+        num, den = abs(n) ÷ g, maxden ÷ g
+        sign = n < 0 ? "-" : ""
+        den == 1 && return sign * string(num)
+        whole, part = divrem(num, den)
+        (mixed && whole > 0) && return "$sign$whole $part/$den"
+        return "$sign$num/$den"
+    end
+end
+
+# Whether a value may stand as an axis end's label under the variable's tick style: a
+# whole number on an integer axis, a fraction on a fraction axis.
+function _style_allows(v::Variable, x::Real)
+    if v.tickstyle === :integer
+        return abs(x - round(x)) <= 1e-9 * max(1, abs(x))
+    elseif v.tickstyle === :fraction
+        return abs(x * v.maxden - round(x * v.maxden)) <= 1e-9 * max(1, abs(x * v.maxden))
+    end
+    return true
+end
+
 """
     candidate_ticks(v::Variable, domain) -> (majors, minors)
 
@@ -166,7 +257,13 @@ function candidate_ticks(v::Variable, dom::Tuple{Float64,Float64})
         minors = isnothing(v.minorticks) ? Float64[] : filter(inside, v.minorticks)
         return (majors, minors)
     end
-    if resolved_tickstyle(v) === :log && lo > 0
+    style = resolved_tickstyle(v)
+    if style === :integer
+        logshaped = tickstyle(v.transform) === :log || _log_shaped(v.transform, dom)
+        majors, minors = integer_ticks(lo, hi; logshaped)
+    elseif style === :fraction
+        majors, minors = fraction_ticks(lo, hi; maxden = v.maxden)
+    elseif style === :log && lo > 0
         majors, minors = log_ticks(lo, hi)
     else
         majors, minors = linear_ticks(lo, hi)

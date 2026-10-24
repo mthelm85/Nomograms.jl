@@ -16,6 +16,7 @@ function rebuild(
         tickstyle,
         side = v.side,
         titleend = v.titleend,
+        maxden = v.maxden,
     )
 end
 

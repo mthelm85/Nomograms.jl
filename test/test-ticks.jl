@@ -107,3 +107,104 @@ end
     @test Nomograms.default_tickformat(2.4) == "2.4"
     @test Nomograms.default_tickformat(1 / 3) == "0.3333"
 end
+
+@testitem "fraction labels" tags = [:unit] begin
+    f = fractionformat()
+    @test f.([0, 0.5, 0.375, 1.375, -1.25, 2, 3.0625]) ==
+          ["0", "1/2", "3/8", "1 3/8", "-1 1/4", "2", "3 1/16"]
+    # Not a whole number of sixteenths: plain decimals rather than a wrong fraction.
+    @test f(0.3) == "0.3"
+    @test fractionformat(16; mixed = false)(1.375) == "11/8"
+    @test fractionformat(12)(1 / 3) == "1/3"
+    @test_throws ArgumentError fractionformat(0)
+end
+
+@testitem "fraction candidates come coarsest first" tags = [:unit] begin
+    majors, minors = Nomograms.fraction_ticks(0, 2)
+    # Wholes, then halves, then quarters...
+    @test majors[1:3] == [0.0, 1.0, 2.0] ||
+          majors[1:3] == [2.0, 0.0, 1.0] ||
+          Set(majors[1:3]) == Set([0.0, 1.0, 2.0])
+    @test Set(majors[4:5]) == Set([0.5, 1.5])
+    @test all(x -> x * 16 ≈ round(x * 16), majors)
+    @test issorted(minors) && length(minors) == 33
+    # maxden = 12 brings thirds and sixths, and no eighths.
+    m12, _ = Nomograms.fraction_ticks(0, 1; maxden = 12)
+    @test any(x -> x ≈ 1 / 3, m12) && any(x -> x ≈ 1 / 6, m12)
+    @test !any(x -> x ≈ 1 / 8, m12)
+    # A long range drops the finest fractions rather than offering thousands.
+    big, _ = Nomograms.fraction_ticks(0, 1000)
+    @test length(big) <= 4001
+end
+
+@testitem "integer and fraction axes label only what they allow" tags = [:unit] begin
+    labels(nom, n) = [
+        t.label for sd in drawing(nom).scales if sd.name === n for
+        t in sd.ticks if !isnothing(t.label)
+    ]
+    isint(s) = occursin(r"^-?\d+$", s)
+    isfrac(s) = occursin(r"^-?(\d+|\d+/\d+|\d+ \d+/\d+)$", s)
+
+    # A count: no 2.5 teeth, and a fractional end of the domain goes unlabelled.
+    gear = multiplicative_nomogram(
+        Variable(:ratio; domain = (0.5, 4)),
+        Variable(:driver; domain = (9.5, 40), tickstyle = :integer),
+        Variable(:driven; tickstyle = :integer),
+    )
+    for n in (:driver, :driven)
+        @test !isempty(labels(gear, n))
+        @test all(isint, labels(gear, n))
+    end
+    @test "15" in labels(gear, :driver) && "25" in labels(gear, :driver)
+    small = additive_nomogram(
+        Variable(:a; domain = (0, 5), tickstyle = :integer),
+        Variable(:b; domain = (0, 5)),
+        Variable(:s),
+    )
+    @test labels(small, :a) == string.(0:5)
+
+    # Inches: fractions, including an end like 1 5/16 that is five figures as a decimal.
+    bolt = additive_nomogram(
+        Variable(:grip; domain = (0.25, 1 + 5 / 16), tickstyle = :fraction),
+        Variable(:nut; domain = (0.125, 0.75), tickstyle = :fraction),
+        Variable(:length; tickstyle = :fraction),
+    )
+    for n in (:grip, :nut, :length)
+        @test all(isfrac, labels(bolt, n))
+    end
+    @test "1 5/16" in labels(bolt, :grip)
+    @test "1/2" in labels(bolt, :nut)
+    # The answers are untouched: tick styles change what is drawn, not what is computed.
+    @test evaluate(bolt; grip = 1.25, nut = 0.375).length ≈ 1.625
+end
+
+@testitem "tick styles survive every construction" tags = [:unit] begin
+    v = Variable(:x; domain = (1, 10), tickstyle = :fraction, maxden = 8)
+    @test v.maxden == 8
+    w = Nomograms.rebuild(v; transform = LogScale())
+    @test w.tickstyle === :fraction && w.maxden == 8 && w.tickformat(1.125) == "1 1/8"
+    # auto_nomogram keeps a tick style it is given rather than choosing its own.
+    a = auto_nomogram(
+        (n, k) -> n * k,
+        Variable(:n; domain = (1, 20), tickstyle = :integer),
+        :k => (1, 3),
+        :p,
+    )
+    @test a[:n].variable.tickstyle === :integer
+    # Net strands are labelled in the variable's own style.
+    gq = net_nomogram(
+        Net(
+            Variable(:x; domain = (0.5, 2)),
+            Variable(:c; domain = (0, 1), tickstyle = :fraction, maxden = 4),
+            (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
+        ),
+        Variable(:a; domain = (0.5, 3)) => a -> (0.0, a),
+        Variable(:b; domain = (-6, 0)) => b -> (1.0, b);
+        relation = (x, c, a, b) -> a * x^2 + b * x + c,
+    )
+    strandlabels = [s.variable.label for s in gq.scales if s.kind === :grid]
+    @test "1/2" in strandlabels || "1/4" in strandlabels
+
+    @test_throws ArgumentError Variable(:x; tickstyle = :roman)
+    @test_throws ArgumentError Variable(:x; tickstyle = :fraction, maxden = 0)
+end

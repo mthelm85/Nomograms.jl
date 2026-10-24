@@ -303,7 +303,7 @@ function thin_ticks(
     blank = !isnothing(v.ticks) && isempty(v.ticks)
     if style.endpoint_ticks && !blank
         for value in s.domain
-            _readable_end(value) && tryplace(value, 1)
+            _readable_end(v, value) && tryplace(value, 1)
         end
     end
     for value in majors
@@ -323,6 +323,14 @@ end
 function _readable_end(x::Real)
     (iszero(x) || !isfinite(x)) && return true
     return isapprox(round(x; sigdigits = 3), x; rtol = 1e-9)
+end
+
+# On an integer or fraction axis the test is the style's own: 1 5/16 is a fine end for a
+# ruler in sixteenths though it takes five figures as a decimal, and 2.5 is no end for a
+# count however round it looks.
+function _readable_end(v::Variable, x::Real)
+    v.tickstyle in (:integer, :fraction) && return _style_allows(v, x)
+    return _readable_end(x)
 end
 
 _unlabel(t::TickMark) = TickMark(

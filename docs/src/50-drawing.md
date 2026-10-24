@@ -85,6 +85,42 @@ tick mark.
 Where an axis compresses so hard that automatic selection has nothing to work with, pass
 `ticks = [...]` to the [`Variable`](@ref); anything that will not fit is still dropped.
 
+### Counts and fractions
+
+Some quantities are not decimals. Gear teeth are counted, so an axis offering 12.5 teeth
+is wrong however round the number; `tickstyle = :integer` offers whole numbers only:
+
+```@example draw
+gears = multiplicative_nomogram(
+    Variable(:ratio; domain = (0.5, 4), label = "gear ratio"),
+    Variable(:driver; domain = (10, 40), tickstyle = :integer, label = "driver teeth"),
+    Variable(:driven; tickstyle = :integer, label = "driven teeth");
+    title = "Gear train",
+)
+drawing(gears; isopleths = [isopleth(gears; ratio = 2.5, driver = 16, label = "40 teeth")])
+```
+
+Lengths in inches are read in fractions. `tickstyle = :fraction` offers fractions whose
+denominator divides `maxden` — sixteenths by default, `maxden = 12` for thirds and
+sixths — and labels them the way a ruler does, with [`fractionformat`](@ref):
+
+```@example draw
+bolt = additive_nomogram(
+    Variable(:grip; domain = (1 / 4, 3), tickstyle = :fraction, label = "grip (in)"),
+    Variable(:nut; domain = (1 / 8, 3 / 4), tickstyle = :fraction, label = "nut + washers (in)"),
+    Variable(:length; tickstyle = :fraction, label = "bolt length (in)");
+    title = "Bolt length",
+)
+drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label = "1 5/8 in")])
+```
+
+Both work the same way as the decimal styles. Candidates are offered roundest first —
+multiples of 10 before 5s; wholes, then halves, then quarters — and thinned by distance
+on the page, so a crowded stretch of axis gives up sixteenths before eighths. An axis end
+is labelled only if it is a value the style allows. Neither style changes what the chart
+computes: readings come back as ordinary numbers, and an answer of 37.4 turns is reported
+as 37.4, not rounded to a count that would not satisfy the relation.
+
 ## Placing the labels
 
 Thinning compares a scale only against itself, which is all a parallel layout needs. Bring

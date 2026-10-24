@@ -223,12 +223,21 @@ _as_variable(s::Symbol) = Variable(s)
 # And if so, does it actually label better? Shape alone is not enough: over 100 to 200 the
 # whole log mantissas are only the two ends. So both styles are thinned onto a nominal axis
 # and the one that lands more labels wins, ties going to the log.
-function _auto_tickstyle(t::ScaleTransform, dom::Tuple{Float64,Float64})
+# Whether a transform spreads a domain logarithmically: the geometric mean lands nearer
+# the middle of the axis than the arithmetic mean does.
+function _log_shaped(t::ScaleTransform, dom::Tuple{Float64,Float64})
     lo, hi = dom
-    lo > 0 || return :linear
+    lo > 0 || return false
     f0, f1 = transform(t, lo), transform(t, hi)
     frac(v) = (transform(t, v) - f0) / (f1 - f0)
-    abs(frac(sqrt(lo * hi)) - 0.5) < abs(frac((lo + hi) / 2) - 0.5) || return :linear
+    return abs(frac(sqrt(lo * hi)) - 0.5) < abs(frac((lo + hi) / 2) - 0.5)
+end
+
+function _auto_tickstyle(t::ScaleTransform, dom::Tuple{Float64,Float64})
+    lo, hi = dom
+    _log_shaped(t, dom) || return :linear
+    f0, f1 = transform(t, lo), transform(t, hi)
+    frac(v) = (transform(t, v) - f0) / (f1 - f0)
     probe = Scale(Variable(:_probe; domain = dom), dom, v -> (0.0, 100 * frac(v)), :left)
     labelled((majors, minors)) =
         count(k -> !isnothing(k.label), thin_ticks(probe, majors, minors, NomogramStyle()))

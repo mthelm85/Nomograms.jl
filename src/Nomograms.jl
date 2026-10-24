@@ -94,6 +94,7 @@ export
     max_relation_residual,
     # rendering
     NomogramStyle,
+    fractionformat,
     NomogramDrawing,
     drawing,
     svg,
