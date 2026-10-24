@@ -74,7 +74,7 @@ A pivot works only when the first two variables collapse into a single intermedi
 they do not, one of the three points an alignment line crosses must carry two variables at
 once. That is a [`Net`](@ref): a two-parameter surface `(u, v) -> (x, y)`, drawn as a mesh —
 the grid nomogram of the classic texts, which goes back to d'Ocagne and which Doerfler builds
-from determinants (see [References](96-references.md)).
+from determinants (see the [Bibliography](96-references.md)).
 
 Deriving one follows the same pattern as a curved scale. With `a` on `x = 0` at height
 `f(a)` and `b` on `x = 1` at height `g(b)`, a net point is crossed exactly when

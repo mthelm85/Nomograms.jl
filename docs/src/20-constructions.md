@@ -68,7 +68,7 @@ drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = "\$90"
 Not every relation wants parallel scales. [`ratio_nomogram`](@ref) builds an N-chart (also
 called a Z-chart) for `f₁(u) / f₂(v) = f₃(w)`: two vertical scales joined by a diagonal,
 with the result read off the diagonal. Doerfler's "The Lost Art of Nomography" derives the
-classic construction (see [References](96-references.md)).
+classic construction (see the [Bibliography](96-references.md)).
 
 ```@example build
 speed = ratio_nomogram(

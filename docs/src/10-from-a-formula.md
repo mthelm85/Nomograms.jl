@@ -50,8 +50,8 @@ so ``\ln|F_x / F_y|`` must split into a function of ``x`` plus a function of ``y
 converse holds too: if it splits, take ``f'`` and ``g'`` from the two parts; then
 ``\nabla(f + g)`` is everywhere parallel to ``\nabla F``, so ``f + g`` is constant exactly
 where ``F`` is, which makes it a function of ``F`` — and that function is ``h``. The test
-goes back to Saint-Robert in 1871 (see [References](96-references.md)); the argument above
-is self-contained, and is all the package relies on.
+goes back to Saint-Robert in 1871 (see the [Bibliography](96-references.md)); the argument
+above is self-contained, and is all the package relies on.
 
 [`separability_defect`](@ref) applies it numerically. Rather than take a mixed second
 derivative of a logarithm, which is noisy, it checks the equivalent identity

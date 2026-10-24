@@ -2,7 +2,7 @@
 CurrentModule = Nomograms
 ```
 
-# References
+# Bibliography
 
 Nomography is a nineteenth-century subject with a long textbook tradition. These are the
 works this documentation leans on, and where to go for more.
