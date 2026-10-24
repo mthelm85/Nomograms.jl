@@ -90,7 +90,8 @@ function solve_on(s::Scale, p::Point, q::Point)
             "the alignment line crosses :$(name(s)) at $(length(roots)) values " *
             "($(join(default_tickformat.(roots), ", "))), so there is no single " *
             "answer to return. Use `evaluate_all` / `solve_all_on` to get them all, " *
-            "or narrow the scale's domain to the branch you want.",
+            "or narrow the scale's domain to the branch you want. `isopleth` with the " *
+            "same values draws the line with every crossing marked.",
         ),
     )
 end
@@ -211,12 +212,16 @@ end
 The alignment line for one solution of the relation: records where the line meets every
 scale so it can be drawn.
 
-The first form solves for the missing variable with [`evaluate`](@ref). The second takes a
-solution you already have, which is how to draw a chart whose scales a line can cross more
-than once:
+The first form solves for the missing variable. When the line crosses its scale more than
+once -- a curved scale can be met twice -- every crossing is a solution and all of them lie
+on this one line, so that is what comes back: the line, with each crossing marked. Its
+`values` then hold only the values that fix the line, since the unknown has several; get
+those from [`evaluate_all`](@ref).
+
+The second form takes a solution you already have, to draw one reading on its own:
 
 ```julia
-isos = [isopleth(nom, sol) for sol in evaluate_all(nom; u = 20, v = 20)]
+isos = [isopleth(nom, sol; label = "z = \$(sol.z)") for sol in evaluate_all(nom; p = -3, q = 2)]
 ```
 """
 function isopleth(
@@ -239,7 +244,23 @@ function isopleth(
 end
 
 function isopleth(nom::Nomogram; label::AbstractString = "", group::Int = 0, values...)
-    return isopleth(nom, evaluate(nom; values...); label, group)
+    sols = evaluate_all(nom; values...)
+    length(sols) == 1 && return isopleth(nom, only(sols); label, group)
+    at(sol) = [point(s, sol[name(s)]) for s in nom.scales]
+    return _isopleth_of_all(sols, variablenames(nom), at, label, group)
+end
+
+# One line marking every crossing. The values that fix the line are shared by all its
+# readings; the unknown takes a different value at each crossing, so it is left out.
+function _isopleth_of_all(sols, names, at, label::AbstractString, group::Int)
+    pts = Point[]
+    for sol in sols, p in at(sol)
+        seen = any(q -> hypot(p[1] - q[1], p[2] - q[2]) <= 1e-9 * (1 + hypot(q...)), pts)
+        seen || push!(pts, p)
+    end
+    shared(n) = all(sol -> isapprox(sol[n], sols[1][n]; rtol = 1e-12, atol = 1e-12), sols)
+    vals = Dict{Symbol,Float64}(n => float(sols[1][n]) for n in names if shared(n))
+    return Isopleth(vals, pts, String(label), group)
 end
 
 """

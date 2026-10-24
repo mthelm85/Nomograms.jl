@@ -319,3 +319,137 @@ end
     @test 4.0 in kept(:a)
     @test 6.0 in kept(:b)
 end
+
+@testmodule Clash begin
+    using Nomograms
+
+    # Nothing in a drawing may overlap: titles against titles, any text against another
+    # scale's axis line, tick labels against titles. Returns the offending pairs.
+    function clashes(d)
+        st = d.style
+        pad = st.collisionpad
+        box(pos, text, size, align, rot = 0.0) =
+            Nomograms.label_box(pos, text, size, align, rot)
+        texts = Tuple{Int,NTuple{4,Float64},String}[]
+        for (j, sd) in enumerate(d.scales)
+            isempty(sd.label) || push!(
+                texts,
+                (j, box(sd.titlepos, sd.label, st.titlesize, sd.titlealign), sd.label),
+            )
+            for t in sd.ticks
+                isnothing(t.label) && continue
+                push!(
+                    texts,
+                    (
+                        j,
+                        box(t.labelpos, t.label, st.ticklabelsize, t.align, t.rotation),
+                        t.label,
+                    ),
+                )
+            end
+        end
+        bad = String[]
+        for a = 1:length(texts), b = (a+1):length(texts)
+            Nomograms._overlaps(texts[a][2], texts[b][2], pad) &&
+                push!(bad, "$(texts[a][3]) / $(texts[b][3])")
+        end
+        for (j, bx, txt) in texts, (k, sd) in enumerate(d.scales)
+            (k == j || sd.kind !== :scale) && continue
+            for i = 1:(length(sd.path)-1)
+                if Nomograms.segment_hits_box(sd.path[i], sd.path[i+1], bx, pad)
+                    push!(bad, "$txt across axis $(sd.name)")
+                    break
+                end
+            end
+        end
+        return bad
+    end
+end
+
+@testitem "titles never overlap, however close the axes" tags = [:unit] setup = [Clash] begin
+    # The chart this was reported on: a compound whose second stage puts its result 2.4
+    # units from the turning line, with titles a good deal wider than that.
+    stage1 = multiplicative_nomogram(
+        Variable(:watts; domain = (5.0, 200.0), label = "Appliance Watts"),
+        Variable(:hours; domain = (0.5, 12.0), label = "Daily Runtime (h)"),
+        Variable(
+            :wh;
+            domain = (2.5, 2400.0),
+            ticks = Float64[],
+            label = "Turning Line (Watt-Hours)",
+        ),
+    )
+    stage2 = multiplicative_nomogram(
+        Variable(
+            :wh;
+            domain = (2.5, 2400.0),
+            ticks = Float64[],
+            label = "Turning Line (Watt-Hours)",
+        ),
+        Variable(
+            :inv_volts;
+            domain = (1 / 14.0, 1 / 11.0),
+            label = "System Voltage Factor",
+        ),
+        Variable(:ah; label = "Daily Amp-Hours (Ah)"),
+    )
+    solar = compound(stage1, stage2)
+    isos =
+        isopleth(solar; watts = 50.0, hours = 4.0, inv_volts = 1 / 12.0, label = "16.7 Ah")
+    d = drawing(solar; isopleths = isos)
+    @test isempty(Clash.clashes(d))
+    # Every title still sits at an end of its own axis rather than drifting sideways.
+    for sd in d.scales
+        isempty(sd.label) && continue
+        @test abs(sd.titlepos[1] - sd.path[1][1]) < 1e-9
+    end
+
+    # Worse still: five long titles on axes 3 units apart, which no single row can hold.
+    v(x, n) = Scale(
+        Variable(n; domain = (0, 100), label = "A rather long title for $(n)"),
+        (0.0, 100.0),
+        y -> (x, y),
+        :right,
+    )
+    packed = Nomogram([v(3.0 * k, Symbol(:s, k)) for k = 0:4]; width = 12, height = 100)
+    @test isempty(Clash.clashes(drawing(packed)))
+
+    # Curved and diagonal scales, whose titles leave along their own direction.
+    quad = determinant_nomogram(
+        Variable(:p; domain = (-6, 0), label = "the linear coefficient") =>
+            p -> (0.0, p),
+        Variable(:q; domain = (0, 6), label = "the constant term") => q -> (1.0, q),
+        Variable(:z; domain = (0.2, 5), label = "a root of the quadratic") =>
+            z -> (1 / (1 + z), -z^2 / (1 + z));
+        relation = (p, q, z) -> z^2 + p * z + q,
+    )
+    @test isempty(Clash.clashes(drawing(quad)))
+    speed = ratio_nomogram(
+        Variable(:distance; domain = (1, 10), label = "distance travelled (km)"),
+        Variable(:time; domain = (1, 10), label = "time taken (h)"),
+        Variable(:speed; label = "average speed (km/h)"),
+    )
+    @test isempty(Clash.clashes(drawing(speed)))
+end
+
+@testitem "nudged labels never settle on an overlap" tags = [:unit] begin
+    # Far more labels wanting one spot than a few nudges can separate.
+    st = NomogramStyle()
+    occupied = NTuple{4,Float64}[]
+    for k = 1:40
+        Nomograms.nudge_clear(
+            "label $k",
+            (0.0, 0.0),
+            (0.0, 1.0),
+            st.ticklabelsize,
+            (:left, :center),
+            st,
+            occupied,
+        )
+    end
+    @test length(occupied) == 40
+    @test !any(
+        Nomograms._overlaps(occupied[i], occupied[j], st.collisionpad) for
+        i in eachindex(occupied) for j = (i+1):lastindex(occupied)
+    )
+end

@@ -349,7 +349,9 @@ function evaluate(nn::NetNomogram; values...)
                 "the alignment line crosses the net at $(length(sols)) values of " *
                 ":$target ($(join(default_tickformat.(sol[target] for sol in sols), ", ")))" *
                 ", so there is no single answer to return. Use `evaluate_all` to get " *
-                "them all, or narrow that variable's domain to the branch you want.",
+                "them all, or narrow that variable's domain to the branch you want. " *
+                "`isopleth` with the same values draws the line with every crossing " *
+                "marked.",
             ),
         )
     end
@@ -368,7 +370,9 @@ evaluate_all(nn::NetNomogram; values...) =
     isopleth(nn::NetNomogram, solution::NamedTuple; label = "", group = 0) -> Isopleth
     isopleth(nn::NetNomogram; label = "", group = 0, values...) -> Isopleth
 
-The alignment line for one reading: it meets scale `a`, the net, and scale `b`.
+The alignment line for one reading: it meets scale `a`, the net, and scale `b`. When the
+line crosses the known strand more than once, the keyword form returns that one line with
+every crossing marked, as for a [`Nomogram`](@ref); see [`isopleth`](@ref).
 """
 function isopleth(
     nn::NetNomogram,
@@ -391,7 +395,16 @@ function isopleth(
 end
 
 function isopleth(nn::NetNomogram; label::AbstractString = "", group::Int = 0, values...)
-    return isopleth(nn, evaluate(nn; values...); label, group)
+    sols = evaluate_all(nn; values...)
+    isempty(sols) && return isopleth(nn, evaluate(nn; values...); label, group)
+    length(sols) == 1 && return isopleth(nn, only(sols); label, group)
+    un, vn = variablenames(nn)[1:2]
+    at(sol) = Point[
+        point(nn.a, sol[name(nn.a)]),
+        netpoint(nn, sol[un], sol[vn]),
+        point(nn.b, sol[name(nn.b)]),
+    ]
+    return _isopleth_of_all(sols, variablenames(nn), at, label, group)
 end
 
 function Base.show(io::IO, nn::NetNomogram)

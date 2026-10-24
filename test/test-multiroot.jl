@@ -51,6 +51,7 @@ end
     end
     @test err isa ArgumentError
     @test occursin("crosses :w at 2 values", err.msg)
+    @test occursin("`isopleth` with the same values", err.msg)
     @test occursin("evaluate_all", err.msg)
     # The values it cannot choose between are named, so the message is actionable.
     @test occursin("0.8536", err.msg)
@@ -145,4 +146,45 @@ end
     )
     @test evaluate(add; x = 0, y = 0).s ≈ 0 atol = 1e-12
     @test evaluate(add; x = 10, y = 10).s ≈ 20
+end
+
+@testitem "isopleth draws one line through every crossing" tags = [:unit] begin
+    quad = determinant_nomogram(
+        Variable(:p; domain = (-6, 0)) => p -> (0.0, p),
+        Variable(:q; domain = (0, 6)) => q -> (1.0, q),
+        Variable(:z; domain = (0.2, 5)) => z -> (1 / (1 + z), -z^2 / (1 + z));
+        relation = (p, q, z) -> z^2 + p * z + q,
+    )
+    # z² - 3z + 2 = 0 has both roots on the scale. evaluate still will not choose...
+    @test_throws ArgumentError evaluate(quad; p = -3, q = 2)
+    # ...but the line is the same for both, so isopleth draws it, marking each crossing.
+    iso = isopleth(quad; p = -3, q = 2, label = "two roots")
+    @test length(iso.points) == 4
+    @test iso[:p] == -3 && iso[:q] == 2
+    @test !haskey(iso.values, :z)
+    for sol in evaluate_all(quad; p = -3, q = 2)
+        @test any(
+            pt -> all(isapprox.(pt, Nomograms.point(quad[:z], sol.z); atol = 1e-9)),
+            iso.points,
+        )
+    end
+    @test !occursin("NaN", svg(quad; isopleths = [iso]))
+    # A single crossing is unchanged.
+    one = isopleth(quad; p = -1, q = 0.25)
+    @test one[:z] ≈ 0.5 rtol = 1e-6
+
+    net = net_nomogram(
+        Net(
+            Variable(:x; domain = (0.5, 5)),
+            Variable(:c; domain = (0, 4)),
+            (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
+        ),
+        Variable(:a; domain = (0.5, 3)) => a -> (0.0, a),
+        Variable(:b; domain = (-6, 0)) => b -> (1.0, b);
+        relation = (x, c, a, b) -> a * x^2 + b * x + c,
+    )
+    iso = isopleth(net; a = 1, b = -3, c = 2)
+    @test length(iso.points) == 4
+    @test !haskey(iso.values, :x)
+    @test !occursin("NaN", svg(net; isopleths = [iso]))
 end

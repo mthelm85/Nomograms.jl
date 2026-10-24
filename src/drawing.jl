@@ -351,30 +351,34 @@ function _path(s::Scale; nsamples::Int = 129)
     return pts
 end
 
-# Where a scale's title goes: off the end of the axis, continuing in the direction the
+# Where a scale's title can go: off an end of the axis, continuing in the direction the
 # curve was already heading. For a vertical axis that is straight up from the top, which
 # is what it has always been; for a diagonal or a curve it follows the scale instead of
-# jumping to whatever point happens to be highest.
-function _title_anchor(s::Scale, path::Vector{Point}, style::NomogramStyle)
-    lo, hi = s.domain
+# jumping to whatever point happens to be highest. Both ends are offered, preferred first,
+# unless `titleend` names one.
+function _title_ends(s::Scale, path::Vector{Point}, style::NomogramStyle)
     ends = (
-        (lo, path[1], _sub(path[1], path[min(2, end)])),
-        (hi, path[end], _sub(path[end], path[max(end - 1, 1)])),
+        (path[1], _sub(path[1], path[min(2, end)])),
+        (path[end], _sub(path[end], path[max(end - 1, 1)])),
     )
-    if s.variable.titleend === :start
-        chosen = ends[1]
-    elseif s.variable.titleend === :stop
-        chosen = ends[2]
-    else
-        # Prefer the higher end, breaking ties on the left so the choice is deterministic.
-        chosen =
-            ends[1][2][2] > ends[2][2][2] + 1e-12 ? ends[1] :
-            ends[2][2][2] > ends[1][2][2] + 1e-12 ? ends[2] :
-            ends[1][2][1] <= ends[2][2][1] ? ends[1] : ends[2]
+    # Prefer the higher end, breaking ties on the left so the choice is deterministic.
+    first =
+        ends[1][1][2] > ends[2][1][2] + 1e-12 ? 1 :
+        ends[2][1][2] > ends[1][1][2] + 1e-12 ? 2 : ends[1][1][1] <= ends[2][1][1] ? 1 : 2
+    order =
+        s.variable.titleend === :start ? (1,) :
+        s.variable.titleend === :stop ? (2,) : (first, 3 - first)
+    return map(order) do k
+        at, dir = ends[k]
+        away = _unit(dir)
+        (_offset(at, away, style.titlegap), align_for(away), away)
     end
-    away = _unit(chosen[3])
-    pos = _offset(chosen[2], away, style.titlegap)
-    return (pos, align_for(away), away)
+end
+
+# Where a scale's title goes when nothing is in the way: its preferred end.
+function _title_anchor(s::Scale, path::Vector{Point}, style::NomogramStyle)
+    pos, align, away = first(_title_ends(s, path, style))
+    return (pos, align, away)
 end
 
 function _expand_box!(bb::Vector{Float64}, box::NTuple{4,Float64})
@@ -406,8 +410,7 @@ function nudge_clear(
     size::Real,
     align::NTuple{2,Symbol},
     style::NomogramStyle,
-    occupied::Vector{NTuple{4,Float64}};
-    maxsteps::Int = 6,
+    occupied::Vector{NTuple{4,Float64}},
 )
     if !style.resolve_collisions
         box = label_box(anchor, text, size, align, 0.0)
@@ -415,7 +418,10 @@ function nudge_clear(
         return (anchor, box)
     end
     step = float(size) * 1.25
-    for k = 0:maxsteps, sgn in (k == 0 ? (1,) : (1, -1))
+    # Far enough out along `dir` is clear of everything, so this always ends with a place
+    # that overlaps nothing -- never with the least bad overlap.
+    kmax = _steps_clear(label_box(anchor, text, size, align, 0.0), occupied, step)
+    for k = 0:kmax, sgn in (k == 0 ? (1,) : (1, -1))
         pos = _offset(anchor, dir, sgn * step * k)
         box = label_box(pos, text, size, align, 0.0)
         if !any(b -> _overlaps(box, b, style.collisionpad), occupied)
@@ -423,29 +429,110 @@ function nudge_clear(
             return (pos, box)
         end
     end
-    pos = _offset(anchor, dir, step * (maxsteps + 1))
-    box = label_box(pos, text, size, align, 0.0)
-    push!(occupied, box)
-    return (pos, box)
+    error("unreachable: a label $(kmax) steps out still overlapped something")
+end
+
+# How many steps of `step` move `box` clear of everything in `boxes` and `points`,
+# whichever way it goes: enough to cross the whole extent of both.
+function _steps_clear(box, boxes, step; points = Point[])
+    xs = Float64[box[1], box[3]]
+    ys = Float64[box[2], box[4]]
+    for b in boxes
+        push!(xs, b[1], b[3])
+        push!(ys, b[2], b[4])
+    end
+    for p in points
+        push!(xs, p[1])
+        push!(ys, p[2])
+    end
+    extent = hypot(maximum(xs) - minimum(xs), maximum(ys) - minimum(ys))
+    return ceil(Int, extent / step) + 2
+end
+
+# Titles go down before anything else, against each other and against the axis lines of
+# every other scale a reader takes values from. Each tries its preferred end, then the
+# other end, then rows further out from either, until one is clear -- which far enough out
+# is guaranteed, so a title is never drawn overlapping another or across an axis. Moving
+# outward along the axis keeps a vertical axis's title centred over it, where sliding
+# sideways would leave a wide title closer to a neighbour's axis than its own.
+function _place_titles(
+    nom::AbstractNomogram,
+    paths::Vector{Vector{Point}},
+    style::NomogramStyle,
+    occupied::Vector{NTuple{4,Float64}},
+)
+    walls = [
+        (i, (path[k], path[k+1])) for
+        (i, (s, path)) in enumerate(zip(nom.scales, paths)) if s.kind === :scale for
+        k = 1:(length(path)-1)
+    ]
+    placed = Tuple{Point,NTuple{2,Symbol}}[]
+    for (i, s) in enumerate(nom.scales)
+        ends = _title_ends(s, paths[i], style)
+        text = s.variable.label
+        if isempty(text) || !style.resolve_collisions
+            pos, align, _ = ends[1]
+            isempty(text) ||
+                push!(occupied, label_box(pos, text, style.titlesize, align, 0.0))
+            push!(placed, (pos, align))
+            continue
+        end
+        clear(box) =
+            !any(b -> _overlaps(box, b, style.collisionpad), occupied) &&
+            !any(
+                w ->
+                    w[1] != i &&
+                    segment_hits_box(w[2][1], w[2][2], box, style.collisionpad),
+                walls,
+            )
+        step = style.titlesize * 1.3
+        kmax = _steps_clear(
+            label_box(ends[1][1], text, style.titlesize, ends[1][2], 0.0),
+            occupied,
+            step;
+            points = [p for (_, seg) in walls for p in seg],
+        )
+        spot = nothing
+        for k = 0:kmax, (anchor, align, away) in ends
+            pos = _offset(anchor, away, k * step)
+            box = label_box(pos, text, style.titlesize, align, 0.0)
+            if clear(box)
+                spot = (pos, align, box)
+                break
+            end
+        end
+        isnothing(spot) && error("unreachable: title :$(name(s)) found no clear place")
+        push!(occupied, spot[3])
+        push!(placed, (spot[1], spot[2]))
+    end
+    return placed
 end
 
 # Tick labels are thinned per scale by distance along their own axis, which says nothing
 # about labels belonging to other scales. Non-parallel layouts bring scales together, so
 # compare the actual text boxes across the whole chart: titles come first, then major
 # labels, then minor ones, and a label that cannot fit is dropped while its tick mark
-# stays. `occupied` already holds the titles, which were nudged clear of each other.
+# stays. `occupied` already holds the titles, which were placed clear of each other. A
+# label is struck, and dropped the same way, by an alignment line in `segments` or by the
+# axis line of another scale -- scales brought close together put one's labels across the
+# other's axis.
 function _resolve_tick_collisions!(
     scaledrawings::Vector{ScaleDrawing},
     style::NomogramStyle,
     occupied::Vector{NTuple{4,Float64}},
     segments::Vector{Tuple{Point,Point}},
 )
-    for level in (1, 2), sd in scaledrawings, i in eachindex(sd.ticks)
+    walls = [
+        (j, (sd.path[k], sd.path[k+1])) for
+        (j, sd) in enumerate(scaledrawings) if sd.kind === :scale for
+        k = 1:(length(sd.path)-1)
+    ]
+    for level in (1, 2), (j, sd) in enumerate(scaledrawings), i in eachindex(sd.ticks)
         t = sd.ticks[i]
         (t.level == level && !isnothing(t.label)) || continue
         box = label_box(t.labelpos, t.label, style.ticklabelsize, t.align, t.rotation)
-        struck =
-            any(seg -> segment_hits_box(seg[1], seg[2], box, style.collisionpad), segments)
+        hits(seg) = segment_hits_box(seg[1], seg[2], box, style.collisionpad)
+        struck = any(hits, segments) || any(w -> w[1] != j && hits(w[2]), walls)
         if struck || any(b -> _overlaps(box, b, style.collisionpad), occupied)
             sd.ticks[i] = _unlabel(t)
         else
@@ -475,27 +562,12 @@ function drawing(
     )
 
     occupied = NTuple{4,Float64}[]
+    paths = [_path(s) for s in nom.scales]
+    titles = _place_titles(nom, paths, style, occupied)
     scaledrawings = ScaleDrawing[]
-    for s in nom.scales
+    for (s, path, (titlepos, titlealign)) in zip(nom.scales, paths, titles)
         majors, minors = candidate_ticks(s.variable, s.domain)
         ticks = thin_ticks(s, majors, minors, style)
-        path = _path(s)
-        titlepos, titlealign, away = _title_anchor(s, path, style)
-        if !isempty(s.variable.label)
-            # Two scales that converge can want their titles in the same place -- the end
-            # of an N-chart's diagonal lands on the right-hand axis. Slide along the
-            # perpendicular, which moves the title sideways without pulling it back over
-            # its own scale.
-            titlepos, _ = nudge_clear(
-                s.variable.label,
-                titlepos,
-                (-away[2], away[1]),
-                style.titlesize,
-                titlealign,
-                style,
-                occupied,
-            )
-        end
         push!(
             scaledrawings,
             ScaleDrawing(
