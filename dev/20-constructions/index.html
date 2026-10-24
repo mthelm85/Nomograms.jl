@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=9ed0e90b">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=65bf1e9d">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -73,7 +73,8 @@ x_3 &amp; y_3 &amp; 1
 <div class="md-math md-math-display">
 \[f_1(u) + f_2(v) = f_3(w)\]
 </div>
-<p>Each <code class="md-code-inline">fᵢ</code> is a <a href="../95-reference/#Nomograms.ScaleTransform"><code class="md-code-inline">ScaleTransform</code></a>: <a href="../95-reference/#Nomograms.LinearScale"><code class="md-code-inline">LinearScale</code></a>, <a href="../95-reference/#Nomograms.LogScale"><code class="md-code-inline">LogScale</code></a>, <a href="../95-reference/#Nomograms.ReciprocalScale"><code class="md-code-inline">ReciprocalScale</code></a>, <a href="../95-reference/#Nomograms.PowerScale"><code class="md-code-inline">PowerScale</code></a>, <a href="../95-reference/#Nomograms.ComposedScale"><code class="md-code-inline">ComposedScale</code></a>, or <a href="../95-reference/#Nomograms.FunctionScale"><code class="md-code-inline">FunctionScale</code></a> for anything else. A transform carries its own inverse, which is what lets the result axis be derived exactly instead of searched for. <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> builds the chart; see its docstring for the geometry, including why the middle axis spans exactly the same height as the outer two.</p>
+<p>Each <code class="md-code-inline">fᵢ</code> is a <a href="../95-reference/#Nomograms.ScaleTransform"><code class="md-code-inline">ScaleTransform</code></a>: <a href="../95-reference/#Nomograms.LinearScale"><code class="md-code-inline">LinearScale</code></a>, <a href="../95-reference/#Nomograms.LogScale"><code class="md-code-inline">LogScale</code></a>, <a href="../95-reference/#Nomograms.ReciprocalScale"><code class="md-code-inline">ReciprocalScale</code></a>, <a href="../95-reference/#Nomograms.PowerScale"><code class="md-code-inline">PowerScale</code></a>, <a href="../95-reference/#Nomograms.ComposedScale"><code class="md-code-inline">ComposedScale</code></a>, or <a href="../95-reference/#Nomograms.FunctionScale"><code class="md-code-inline">FunctionScale</code></a> for anything else. A transform carries its own inverse, which is what lets the result axis be derived exactly instead of searched for. <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> builds the chart; see its docstring for the geometry.</p>
+<p>Where the middle axis goes is not a free choice: it falls between the outer two, nearer the one whose transform spans more. When one range is far wider than the other, the middle axis would sit almost on top of that neighbour and its labels would read as the neighbour&#39;s. So the narrower axis is shortened and centred until the middle axis is at least a fifth of the way across. Readings are unchanged, since the middle axis moves with it. Set <code class="md-code-inline">max_modulus_ratio</code> to trade the narrow axis&#39;s length against that spacing, or <code class="md-code-inline">Inf</code> for full-height axes whatever their ranges.</p>
 <p>Product relations separate under a logarithm, which <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a> applies for you:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -215,6 +216,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=9ed0e90b"></script>
+  <script src="../assets/materialdocs.js?v=65bf1e9d"></script>
 </body>
 </html>
