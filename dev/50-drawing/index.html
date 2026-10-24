@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Drawing — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=f7e30dcd">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=b7fd4ec4">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Drawing — Nomograms.jl">
   <meta property="og:title" content="Drawing — Nomograms.jl">
@@ -161,6 +161,7 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label =
 <img src="c85d98b2.svg" alt="Example block output">
 </div>
 </div>
+<p>Writing a domain in <code class="md-code-inline">Rational</code>s says the same thing, so <code class="md-code-inline">domain = (1//8, 3)</code> gives a fraction axis without asking, in eighths: the finest denominator its ends use. A <code class="md-code-inline">tickstyle</code> or <code class="md-code-inline">maxden</code> given explicitly wins.</p>
 <p>Both work the same way as the decimal styles. Candidates are offered roundest first — multiples of 10 before 5s; wholes, then halves, then quarters — and thinned by distance on the page, so a crowded stretch of axis gives up sixteenths before eighths. An axis end is labelled only if it is a value the style allows. Neither style changes what the chart computes: readings come back as ordinary numbers, and an answer of 37.4 turns is reported as 37.4, not rounded to a count that would not satisfy the relation.</p>
 <h2 id="Placing-the-labels" class="md-heading">Placing the labels<a href="#Placing-the-labels" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>Thinning compares a scale only against itself, which is all a parallel layout needs. Bring scales together — a diagonal, a curve, two axes close on the page — and labels from <em>different</em> scales start to overlap, which no amount of per-axis thinning can see.</p>
@@ -196,6 +197,6 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label =
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=f7e30dcd"></script>
+  <script src="../assets/materialdocs.js?v=b7fd4ec4"></script>
 </body>
 </html>
