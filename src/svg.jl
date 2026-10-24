@@ -142,6 +142,15 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
     end
     println(io, """  <g font-family="$(_esc(font))" stroke-linecap="round">""")
 
+    for (i, g) in enumerate(d.guides)
+        pts = join((" $(_num(X(p[1]))),$(_num(Y(p[2])))" for p in g), "")
+        println(
+            io,
+            """    <polyline id="guide-$i" points="$(strip(pts))" fill="none" """ *
+            """stroke="$(_esc(gridcolor))" stroke-width="$(_num(st.gridlinewidth * k))"/>""",
+        )
+    end
+
     if !isempty(d.title)
         _text(
             io,

@@ -44,6 +44,10 @@ function Nomograms.nomogramplot!(
         )
     end
 
+    for g in d.guides
+        lines!(ax, [_p(p) for p in g]; color = gridcolor, linewidth = st.gridlinewidth * k)
+    end
+
     for sd in d.scales
         grid = sd.kind === :grid
         lines!(

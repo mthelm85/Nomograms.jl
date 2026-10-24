@@ -77,6 +77,8 @@ export
     determinant_nomogram,
     project,
     projective_transform,
+    fan,
+    FanNomogram,
     compound,
     net_nomogram,
     netpoint,
@@ -111,6 +113,7 @@ include("auto.jl")
 include("auto_chain.jl")
 include("drawing.jl")
 include("svg.jl")
+include("fan.jl")
 include("precompile.jl")
 
 """

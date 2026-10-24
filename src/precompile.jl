@@ -37,6 +37,7 @@ PrecompileTools.@setup_workload begin
         )
         evaluate(nom; a = 4, b = 6)
         svg(nom; isopleths = [isopleth(nom; a = 4, b = 6)])
+        svg(fan(nom))
 
         prod = multiplicative_nomogram(
             Variable(:a; domain = (1, 10)),
