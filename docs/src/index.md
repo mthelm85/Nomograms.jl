@@ -85,3 +85,5 @@ test can find — curved scales, nets, reshaped layouts. See
 - [Drawing](50-drawing.md) — SVG and Makie output, styling, and how ticks and labels are
   placed.
 - [Reference](95-reference.md) — every exported function and type.
+- [References](96-references.md) — the founding texts and where each classical result comes
+  from.

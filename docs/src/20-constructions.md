@@ -7,7 +7,8 @@ CurrentModule = Nomograms
 ## How it works
 
 A nomogram asserts one thing: that a point taken from each scale lies on a single straight
-line. Written as a determinant, that is d'Ocagne's criterion,
+line. Written as a determinant, that is the criterion Maurice d'Ocagne built the subject on
+in his *Traité de nomographie* (1899),
 
 ```math
 \begin{vmatrix}
@@ -59,7 +60,8 @@ drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = "\$90"
 
 Not every relation wants parallel scales. [`ratio_nomogram`](@ref) builds an N-chart (also
 called a Z-chart) for `f₁(u) / f₂(v) = f₃(w)`: two vertical scales joined by a diagonal,
-with the result read off the diagonal.
+with the result read off the diagonal. Doerfler's "The Lost Art of Nomography" derives the
+classic construction (see [References](96-references.md)).
 
 ```@example build
 speed = ratio_nomogram(
@@ -88,7 +90,9 @@ override.
 
 The two named constructions are particular solutions of the collinearity condition.
 [`determinant_nomogram`](@ref) takes any other one you can write down: give each variable a
-curve, and the combined bounding box is measured and mapped onto the canvas for you.
+curve, and the combined bounding box is measured and mapped onto the canvas for you. This
+is the determinant method of the nomography textbooks; Doerfler's overview is a good
+worked introduction to it.
 
 Deriving a curve is mechanical once the first two scales are fixed. Put `p` on `x = 0` at
 height `p` and `q` on `x = 1` at height `q`; a line between them crosses `x = x₃` at
@@ -119,7 +123,8 @@ drawing(quad; isopleths = [isopleth(quad, roots[1]; label = "z² − 3z + 2 = 0"
 ```
 
 Two answers, because a quadratic has two roots and the chart shows why: one alignment line,
-meeting the curved scale twice.
+meeting the curved scale twice. This curved-scale chart for the quadratic is a classic;
+Doerfler draws it after Adams (1964) and Otto (1963).
 
 Collinearity survives any affine map, so fitting the curves to the canvas cannot change
 what the chart computes — including the anisotropic fit used by default to fill it. Pass
@@ -140,7 +145,8 @@ no input in the grid produced a solution.
 
 An affine map preserves collinearity, which is why fitting curves to the canvas is safe.
 *Projective* maps preserve it too, and they are a much larger family — they can turn
-parallel scales into converging ones and redistribute spacing along an axis.
+parallel scales into converging ones and redistribute spacing along an axis. Nomographers
+have long reshaped charts this way; Doerfler's overview closes with these transformations.
 
 So [`project`](@ref) reshapes a chart without changing a single answer it gives:
 
