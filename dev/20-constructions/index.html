@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=18e2136a">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=2a7e7e16">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -51,6 +51,7 @@
       <a href="../30-more-variables/">Four or more variables</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
+      <a href="../60-how-it-works/">How it works</a>
       <a href="../95-reference/">API</a>
       <a href="../96-references/">Bibliography</a>
     </nav>
@@ -58,16 +59,7 @@
       <article class="md-article">
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/20-constructions.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Building-charts" class="md-heading">Building charts<a href="#Building-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
-<h2 id="How-it-works" class="md-heading">How it works<a href="#How-it-works" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>A nomogram asserts one thing: that a point taken from each scale lies on a single straight line. Written as a determinant, that is the criterion Maurice d&#39;Ocagne built the subject on in his <em>Traité de nomographie</em> (1899),</p>
-<div class="md-math md-math-display">
-\[\begin{vmatrix}
-x_1 &amp; y_1 &amp; 1\\
-x_2 &amp; y_2 &amp; 1\\
-x_3 &amp; y_3 &amp; 1
-\end{vmatrix} = 0\]
-</div>
-<p>so this package stores every scale as a parametric curve <code class="md-code-inline">value -&gt; (x, y)</code> (<a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>) and does all of its arithmetic by asking where a line crosses a curve (<a href="../95-reference/#Nomograms.align_residual-Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">align_residual</code></a>, <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a>). One consequence is that forward and inverse problems are the same operation — any variable may be the unknown. Another is that a layout the built-in constructions do not cover needs no new solver: hand-build the scales and everything downstream still works.</p>
+<p>A nomogram asserts one thing: that a point taken from each scale lies on a single straight line. So every chart in this package is a set of parametric curves <code class="md-code-inline">value -&gt; (x, y)</code> (<a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>), and each construction below is a way of choosing curves that makes that collinearity agree with a relation. <a href="../60-how-it-works/">How it works</a> follows a chart from construction to picture in detail.</p>
 <h2 id="Parallel-scales" class="md-heading">Parallel scales<a href="#Parallel-scales" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>A three-variable relation fits on three parallel scales exactly when it can be separated as</p>
 <div class="md-math md-math-display">
@@ -213,7 +205,6 @@ drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = &quot;4 �
     <aside class="md-toc">
       <div class="md-toc-inner">
         <p class="md-toc-title">On this page</p>
-          <a class="md-toc-link md-toc-h2" href="#How-it-works">How it works</a>
           <a class="md-toc-link md-toc-h2" href="#Parallel-scales">Parallel scales</a>
           <a class="md-toc-link md-toc-h2" href="#Ratios,-and-the-N-chart">Ratios, and the N-chart</a>
           <a class="md-toc-link md-toc-h2" href="#Anything-else,-from-the-determinant">Anything else, from the determinant</a>
@@ -236,6 +227,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=18e2136a"></script>
+  <script src="../assets/materialdocs.js?v=2a7e7e16"></script>
 </body>
 </html>
