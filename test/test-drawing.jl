@@ -135,3 +135,39 @@ end
     @test Nomograms._readable_end(1.01) && !Nomograms._readable_end(237.4)
     @test !Nomograms._readable_end(1.883e6)
 end
+
+@testitem "ticks are graded by importance" tags = [:unit] begin
+    len(d, n) =
+        Dict(t.value => t.length for sd in d.scales if sd.name === n for t in sd.ticks)
+    st = NomogramStyle()
+    bolt = additive_nomogram(
+        Variable(:grip; domain = (0.25, 3), tickstyle = :fraction),
+        Variable(:nut; domain = (0.125, 0.75), tickstyle = :fraction),
+        Variable(:length; tickstyle = :fraction),
+    )
+    g = len(drawing(bolt), :grip)
+    # Wholes, halves, quarters, eighths, sixteenths: each shorter than the last.
+    @test g[2.0] > g[1.5] > g[1.25] > g[1.125] > g[1.0625]
+    @test g[2.0] ≈ st.majorticklength && g[1.0625] ≈ st.minorticklength
+    # Axis ends are drawn in full whatever their tier.
+    @test g[0.25] ≈ st.majorticklength
+    # Labels stay in one column however their ticks are graded.
+    d = drawing(bolt)
+    grip = only(sd for sd in d.scales if sd.name === :grip)
+    xs = [t.labelpos[1] for t in grip.ticks if !isnothing(t.label)]
+    @test maximum(xs) - minimum(xs) < 1e-9
+
+    logs = multiplicative_nomogram(
+        Variable(:a; domain = (1, 100)),
+        Variable(:b; domain = (1, 10)),
+        Variable(:c),
+    )
+    l = len(drawing(logs), :a)
+    @test l[10.0] > l[20.0] > minimum(values(l))
+    @test minimum(values(l)) ≈ st.minorticklength
+
+    # graded_ticks = false gives the two fixed lengths back.
+    flat = len(drawing(bolt; style = NomogramStyle(; graded_ticks = false)), :grip)
+    @test Set(round.(values(flat); digits = 9)) ⊆
+          Set(round.([st.majorticklength, st.minorticklength]; digits = 9))
+end

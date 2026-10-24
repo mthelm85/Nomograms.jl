@@ -11,6 +11,11 @@ roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
 
 # Keywords
 - `majorticklength`, `minorticklength`: tick mark lengths.
+- `graded_ticks`: whether ticks between those lengths are graded by importance, as on a
+  ruler -- wholes longest, then halves, quarters and so on on a fraction axis; 10s, 5s,
+  then the rest on an integer one; decades, whole digits, tenths on a logarithmic one.
+  Labels sit the same distance from the axis whatever their tick's length. `false` gives
+  every labelled tick the major length and every other the minor.
 - `ticklabelgap`: gap between a tick's outer end and its label.
 - `ticklabelsize`, `titlesize`: text heights.
 - `titlegap`: gap between the end of an axis and its title.
@@ -37,6 +42,7 @@ roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
 Base.@kwdef struct NomogramStyle
     majorticklength::Float64 = 1.5
     minorticklength::Float64 = 0.8
+    graded_ticks::Bool = true
     ticklabelgap::Float64 = 0.8
     ticklabelsize::Float64 = 2.5
     titlesize::Float64 = 2.9
@@ -277,15 +283,25 @@ function thin_ticks(
     ticks = TickMark[]
     placed = Point[]
 
-    function tryplace(value, level)
+    function tryplace(value, level; endpoint = false)
         value = float(value)
         p = point(s, value)
         gap = level == 1 ? style.min_major_spacing : style.min_minor_spacing
         all(_dist(p, q) >= gap for q in placed) || return false
         label = (level == 1 || style.label_minors) ? v.tickformat(value) : nothing
-        len = level == 1 ? style.majorticklength : style.minorticklength
+        maj, mnr = style.majorticklength, style.minorticklength
+        len = if !style.graded_ticks || endpoint
+            # An axis end marks where the axis stops, so it is drawn in full.
+            (level == 1 || endpoint) ? maj : mnr
+        else
+            tier, deepest = _tick_tier(v, s.domain, value, level)
+            deepest == 0 ? maj : maj - (maj - mnr) * tier / deepest
+        end
         n = _normal(s, value)
-        labelpos = _offset(p, n, len + style.ticklabelgap)
+        # Labels keep one distance from the axis, so a column of them stays straight
+        # however their ticks are graded.
+        labelpos =
+            _offset(p, n, (isnothing(label) ? len : max(len, maj)) + style.ticklabelgap)
         rotation, align = if style.ticklabelrotation === :tangent
             _tangent_label(n)
         else
@@ -303,7 +319,7 @@ function thin_ticks(
     blank = !isnothing(v.ticks) && isempty(v.ticks)
     if style.endpoint_ticks && !blank
         for value in s.domain
-            _readable_end(v, value) && tryplace(value, 1)
+            _readable_end(v, value) && tryplace(value, 1; endpoint = true)
         end
     end
     for value in majors

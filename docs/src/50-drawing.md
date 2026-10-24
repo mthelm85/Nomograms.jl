@@ -82,6 +82,13 @@ narrow to hold three whole mantissas, such as 100 to 200, has its tenths promote
 instead of being left bare between its ends. A mantissa whose label is dropped still gets a
 tick mark.
 
+Tick lengths are graded the same way, as on a ruler: the more a value matters, the
+longer its mark. A logarithmic axis draws decades longest, then the other whole digits,
+then tenths; an integer axis 10s, 5s, then the rest; a fraction axis wholes, halves,
+quarters and on down. Labels sit the same distance from the axis whatever their tick's
+length, so they still line up. Set `graded_ticks = false` on the
+[`NomogramStyle`](@ref) for just two lengths.
+
 Where an axis compresses so hard that automatic selection has nothing to work with, pass
 `ticks = [...]` to the [`Variable`](@ref); anything that will not fit is still dropped.
 

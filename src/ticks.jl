@@ -239,6 +239,31 @@ function _style_allows(v::Variable, x::Real)
     return true
 end
 
+# How important a tick value is on its axis, as `(tier, deepest)`: tier 0 is the most
+# important, `deepest` the least, so a tick can be drawn longer the more it matters -- the
+# inch, half, quarter of a ruler. The tiers follow the order candidates are offered in.
+function _tick_tier(v::Variable, dom::Tuple{Float64,Float64}, x::Float64, level::Int)
+    isnothing(v.ticks) || return (level == 1 ? 0 : 1, 1)
+    style = resolved_tickstyle(v)
+    lo, hi = dom
+    if style === :fraction
+        dens = [d for d = 1:v.maxden if v.maxden % d == 0]
+        length(dens) == 1 && return (0, 0)
+        d = denominator(rationalize(Int, x; tol = 0.5 / v.maxden^2))
+        i = findfirst(==(d), dens)
+        return (isnothing(i) ? length(dens) - 1 : i - 1, length(dens) - 1)
+    elseif style === :integer
+        r = _roundness(x, 1.0)
+        return (r >= 10 ? 0 : r >= 5 ? 1 : 2, 2)
+    elseif style === :log && lo > 0
+        p = _log_priority(x)
+        return (p == 0 ? 0 : p <= 3 ? 1 : 2, 2)
+    end
+    step = nicestep((hi - lo) / 6)
+    r = x / step
+    return (abs(r - round(r)) <= 1e-9 * max(1, abs(r)) ? 0 : 1, 1)
+end
+
 """
     candidate_ticks(v::Variable, domain) -> (majors, minors)
 
