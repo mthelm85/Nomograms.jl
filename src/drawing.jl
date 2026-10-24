@@ -479,7 +479,7 @@ function _place_titles(
     placed = Tuple{Point,NTuple{2,Symbol}}[]
     for (i, s) in enumerate(nom.scales)
         ends = _title_ends(s, paths[i], style)
-        text = s.variable.label
+        text = axislabel(s.variable)
         if isempty(text) || !style.resolve_collisions
             pos, align, _ = ends[1]
             isempty(text) ||
@@ -581,7 +581,7 @@ function drawing(
             scaledrawings,
             ScaleDrawing(
                 name(s),
-                s.variable.label,
+                axislabel(s.variable),
                 path,
                 ticks,
                 titlepos,

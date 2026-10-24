@@ -76,3 +76,53 @@ was built from, or whatever you passed as `relation`.
 ```@example solve
 max_relation_residual(quad)
 ```
+
+## Units
+
+Load [Unitful](https://github.com/PainterQubits/Unitful.jl) and a variable can carry a
+unit, taken from its domain or given as `unit`. Values going in may then be in any unit
+of the right dimension, answers come back in the axis's own unit, and the unit is printed
+after the axis title:
+
+```@example units
+using Nomograms, Unitful
+
+room = multiplicative_nomogram(
+    Variable(:w; domain = (1u"ft", 20u"ft"), label = "width"),
+    Variable(:l; domain = (1u"ft", 20u"ft"), label = "length"),
+    Variable(:A; unit = u"ft^2", label = "area");
+    title = "Floor area",
+)
+evaluate(room; w = 3u"m", l = 4u"m")
+```
+
+```@example units
+drawing(room; isopleths = [isopleth(room; w = 10u"ft", l = 12u"ft", label = "120 ft²")])
+```
+
+A plain number is read as being in the axis's unit, so `evaluate(room; w = 10, l = 12)`
+means feet. A value of the wrong dimension is refused by name rather than read as
+something else, as is a quantity given to a variable with no unit. Temperatures convert
+through their offsets, so a °C axis takes 68 °F as 20 °C.
+
+Units matter most for [`auto_nomogram`](@ref). The formula is called with real
+quantities, so it may compute in whatever units it likes, and its result is converted to
+the result's unit — taken from the formula itself if you do not give one. That conversion
+checks the formula's dimensions before any chart is built:
+
+```@example units
+try
+    auto_nomogram(
+        (m, h) -> m / h,   # should be m / h^2
+        Variable(:mass; domain = (40u"kg", 150u"kg")),
+        Variable(:height; domain = (1.4u"m", 2.1u"m")),
+        Variable(:BMI; unit = u"kg/m^2"),
+    )
+catch err
+    println(sprint(showerror, err))
+end
+```
+
+Inside, the chart is plain numbers in each variable's unit: ticks are chosen in that unit,
+and the `values` of an [`Isopleth`](@ref) are in it too. Formulas involving temperature
+need kelvin, since Unitful does not multiply °C or °F.

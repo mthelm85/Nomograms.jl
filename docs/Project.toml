@@ -3,6 +3,7 @@ Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 MaterialDocs = "10bdffc8-969c-4dd4-83f3-742518eccd6b"
 Nomograms = "b6901a49-8fc0-5115-9fef-fa1fe4b11763"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [sources]
 Nomograms = {path = ".."}

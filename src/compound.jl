@@ -196,7 +196,9 @@ is usually left to be derived, but it can equally be an input.
 
 Throws, naming what is left, if the values given are not enough to finish.
 """
-function evaluate(cn::CompoundNomogram; values...)
+evaluate(cn::CompoundNomogram; values...) = _with_units(cn, _evaluate(cn; values...))
+
+function _evaluate(cn::CompoundNomogram; values...)
     names = variablenames(cn)
     given = Dict{Symbol,Float64}()
     for (k, v) in pairs(values)
@@ -207,7 +209,7 @@ function evaluate(cn::CompoundNomogram; values...)
                 ")",
             ),
         )
-        given[k] = float(v)
+        given[k] = _number(scale(cn, k).variable, v)
     end
     all(n -> haskey(given, n), names) &&
         throw(ArgumentError("every variable was given, so there is nothing to solve"))
@@ -221,7 +223,7 @@ function evaluate(cn::CompoundNomogram; values...)
             length(missingnames) == 1 || continue
             knownnames = Tuple(n for n in sn if n != missingnames[1])
             args = NamedTuple{knownnames}(Tuple(given[n] for n in knownnames))
-            sol = evaluate(stage; args...)
+            sol = _evaluate(stage; args...)
             given[missingnames[1]] = sol[missingnames[1]]
             progress = true
         end
@@ -278,7 +280,7 @@ function isopleth(
     group::Int = 1,
     values...,
 )
-    return isopleth(cn, evaluate(cn; values...); label, group)
+    return isopleth(cn, _evaluate(cn; values...); label, group)
 end
 
 function Base.show(io::IO, cn::CompoundNomogram)

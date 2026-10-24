@@ -109,7 +109,7 @@ function _alignment(nom::Nomogram, values)
                 ")",
             ),
         )
-        given[k] = float(v)
+        given[k] = _number(scale(nom, k).variable, v)
     end
     missingnames = filter(n -> !haskey(given, n), known)
     if length(missingnames) != 1
@@ -145,6 +145,18 @@ end
 _with_root(known, given, target, root) =
     NamedTuple{Tuple(known)}(Tuple(n === name(target) ? root : given[n] for n in known))
 
+# A solution as the caller sees it: each value in its variable's unit, if it has one.
+# Everything inside the package works on the plain numbers.
+_with_units(nom::AbstractNomogram, sol::NamedTuple) =
+    NamedTuple{keys(sol)}(Tuple(_attach(_variable(nom, n).unit, sol[n]) for n in keys(sol)))
+
+# A solution handed back in, possibly with units, as plain numbers.
+_numbers(nom::AbstractNomogram, sol::NamedTuple) =
+    NamedTuple{keys(sol)}(Tuple(_number(_variable(nom, n), sol[n]) for n in keys(sol)))
+
+# The variable behind a name. A net's own two variables have no scale of their own.
+_variable(nom::AbstractNomogram, n::Symbol) = scale(nom, n).variable
+
 """
     evaluate(nom::Nomogram; values...) -> NamedTuple
 
@@ -170,7 +182,9 @@ julia> round(evaluate(nom; a = 2, s = 9).b; digits = 10)
 7.0
 ```
 """
-function evaluate(nom::Nomogram; values...)
+evaluate(nom::Nomogram; values...) = _with_units(nom, _evaluate(nom; values...))
+
+function _evaluate(nom::Nomogram; values...)
     known, given, target, p, q = _alignment(nom, values)
     return _with_root(known, given, target, solve_on(target, p, q))
 end
@@ -198,7 +212,10 @@ julia> length(evaluate_all(nom; a = 2, b = 3))
 1
 ```
 """
-function evaluate_all(nom::Nomogram; values...)
+evaluate_all(nom::Nomogram; values...) =
+    [_with_units(nom, sol) for sol in _evaluate_all(nom; values...)]
+
+function _evaluate_all(nom::Nomogram; values...)
     known, given, target, p, q = _alignment(nom, values)
     roots = solve_all_on(target, p, q)
     isempty(roots) && throw(_no_solution_error(target))
@@ -238,13 +255,14 @@ function isopleth(
             ),
         )
     end
+    solution = _numbers(nom, solution)
     pts = [point(s, solution[name(s)]) for s in nom.scales]
     values = Dict{Symbol,Float64}(n => float(solution[n]) for n in variablenames(nom))
     return Isopleth(values, pts, String(label), group)
 end
 
 function isopleth(nom::Nomogram; label::AbstractString = "", group::Int = 0, values...)
-    sols = evaluate_all(nom; values...)
+    sols = _evaluate_all(nom; values...)
     length(sols) == 1 && return isopleth(nom, only(sols); label, group)
     at(sol) = [point(s, sol[name(s)]) for s in nom.scales]
     return _isopleth_of_all(sols, variablenames(nom), at, label, group)
@@ -274,6 +292,7 @@ Returns `NaN` for nomograms built directly from scales, which carry no algebraic
 """
 function relation_residual(nom::Nomogram, values::NamedTuple)
     isnothing(nom.relation) && return NaN
+    values = _numbers(nom, values)
     args = (values[name(s)] for s in nom.scales)
     return float(nom.relation(args...))
 end

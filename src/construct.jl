@@ -4,6 +4,7 @@ function rebuild(
     transform::ScaleTransform = v.transform,
     domain = v.domain,
     tickstyle::Symbol = v.tickstyle,
+    unit = v.unit,
 )
     return Variable(
         v.name,
@@ -17,6 +18,8 @@ function rebuild(
         side = v.side,
         titleend = v.titleend,
         maxden = v.maxden,
+        unit,
+        unitlabel = v.unitlabel,
     )
 end
 
@@ -578,7 +581,7 @@ function max_relation_residual(nom::Nomogram; n::Int = 9)
     for u in range(a.domain...; length = n), v in range(b.domain...; length = n)
         sols = nothing
         try
-            sols = evaluate_all(nom; NamedTuple{(name(a), name(b))}((u, v))...)
+            sols = _evaluate_all(nom; NamedTuple{(name(a), name(b))}((u, v))...)
         catch err
             # An alignment line that misses the third scale says nothing about whether
             # the formula and the curves agree.

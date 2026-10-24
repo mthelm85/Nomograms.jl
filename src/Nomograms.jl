@@ -70,6 +70,7 @@ export
     Isopleth,
     point,
     variablenames,
+    axislabel,
     # construction
     additive_nomogram,
     multiplicative_nomogram,

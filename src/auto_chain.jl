@@ -282,7 +282,7 @@ function _auto_chain(F, vs::Vector{Variable}, vz::Variable; width, height, title
     names = Tuple(v.name for v in vs)
     worst = 0.0
     for vals in Iterators.product((range(v.domain...; length = 4) for v in vs)...)
-        got = evaluate(nom; NamedTuple{names}(vals)...)[vz.name]
+        got = _evaluate(nom; NamedTuple{names}(vals)...)[vz.name]
         worst = max(worst, abs(got - float(F(vals...))) / zspan)
     end
     worst <= rtol || throw(

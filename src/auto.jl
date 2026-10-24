@@ -377,6 +377,7 @@ function auto_nomogram(
         isnothing(v.domain) &&
             throw(ArgumentError("input variable :$(v.name) must declare a domain"))
     end
+    F, vz = _with_dimensions(F, vs, vz)
     F = _Formula(F, length(vs))
     names = [v.name for v in vs]
     allunique([names; vz.name]) ||
@@ -384,6 +385,31 @@ function auto_nomogram(
     width = float(something(width, 35.0 * max(length(vs) - 1, 2)))
     length(vs) == 2 && return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
     return _auto_chain(F, vs, vz; width, height, title, rtol)
+end
+
+# With units, the formula is called with quantities -- so it may compute in whatever
+# units it likes -- and its result converted to the result variable's unit, which is
+# taken from the formula's own result if not given. That conversion is a dimension check
+# on the formula, made once here, before anything is built; everything after works on
+# plain numbers in each variable's unit.
+function _with_dimensions(F, vs::Vector{Variable}, vz::Variable)
+    all(v -> isnothing(v.unit), vs) && isnothing(vz.unit) && return (F, vz)
+    Fq = (xs...) -> F((_attach(v.unit, x) for (v, x) in zip(vs, xs))...)
+    out = Fq(((v.domain[1] + v.domain[2]) / 2 for v in vs)...)
+    isnothing(vz.unit) && (vz = rebuild(vz; unit = _infer_unit(out)))
+    try
+        _strip(vz.unit, out, vz.name)
+    catch err
+        err isa ArgumentError || rethrow()
+        names = join(string.(getfield.(vs, :name)), ", ")
+        throw(
+            ArgumentError(
+                "$(vz.name) = F($names) does not come out in the units of " *
+                ":$(vz.name): $(err.msg)",
+            ),
+        )
+    end
+    return ((xs...) -> _strip(vz.unit, Fq(xs...), vz.name), vz)
 end
 
 function _auto_two(
@@ -484,7 +510,7 @@ function _auto_two(
     worst = 0.0
     names = (vx.name, vy.name)
     for a in range(xd...; length = 9), b in range(yd...; length = 9)
-        got = evaluate(nom; NamedTuple{names}((a, b))...)[vz.name]
+        got = _evaluate(nom; NamedTuple{names}((a, b))...)[vz.name]
         worst = max(worst, abs(got - Fc(a, b)) / zspan)
     end
     worst <= rtol || throw(

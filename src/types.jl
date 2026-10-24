@@ -18,8 +18,14 @@ One variable of a nomogram, before it has been placed on the page.
 
 # Keywords
 - `domain`: `(lo, hi)` in the variable's own units. May be `nothing` for the *result*
-  variable of a construction, whose range is then derived from the other two.
-- `label`: axis title; defaults to `string(name)`.
+  variable of a construction, whose range is then derived from the other two. With
+  Unitful loaded the ends may be quantities, `(1u"ft", 10u"ft")`, which also sets `unit`.
+- `unit`: the unit the axis is drawn in, such as `u"ft"` (needs Unitful). Values passed
+  to [`evaluate`](@ref) and [`isopleth`](@ref) may then be quantities in any unit of the
+  same dimension, results come back as quantities, and a plain number is read as being in
+  this unit. Defaults to the unit of the domain's ends, if they have one.
+- `label`: axis title; defaults to `string(name)`. The unit is drawn after it,
+  `length (ft)`, unless `unitlabel = false`.
 - `ticks`, `minorticks`: explicit tick values, bypassing automatic selection.
 - `tickformat`: `value -> String`. Defaults to [`fractionformat`](@ref) for
   `tickstyle = :fraction` and to plain numbers otherwise.
@@ -53,6 +59,34 @@ struct Variable
     side::Symbol
     titleend::Symbol
     maxden::Int
+    unit::Any
+    unitlabel::Bool
+end
+
+# Units are handled by an extension, so the core only ever sees these four hooks. With
+# no unit they do nothing: plain numbers in, plain numbers out.
+
+# A value for a variable as a plain number in its display unit. A plain number is taken to
+# be in that unit already; a quantity is converted, or refused if its dimension is wrong.
+_strip(::Any, x::Real, name::Symbol) = float(x)
+_strip(::Any, x, name::Symbol) =
+    throw(ArgumentError("the value for :$name must be a number, got $(repr(x))"))
+_attach(::Nothing, x) = x
+_infer_unit(::Any) = nothing
+_unitstring(::Nothing) = ""
+_unitstring(u) = string(u)
+
+_number(v::Variable, x) = _strip(v.unit, x, v.name)
+
+"""
+    axislabel(v::Variable) -> String
+
+The title drawn for a variable's axis: its `label`, followed by its unit in brackets when
+it has one and `unitlabel` is on.
+"""
+function axislabel(v::Variable)
+    (isempty(v.label) || isnothing(v.unit) || !v.unitlabel) && return v.label
+    return "$(v.label) ($(_unitstring(v.unit)))"
 end
 
 function Variable(
@@ -67,6 +101,8 @@ function Variable(
     side::Symbol = :auto,
     titleend::Symbol = :auto,
     maxden::Integer = 16,
+    unit = nothing,
+    unitlabel::Bool = true,
 )
     side in (:left, :right, :auto) ||
         throw(ArgumentError("side must be :left, :right or :auto, got :$side"))
@@ -81,7 +117,11 @@ function Variable(
     end
     titleend in (:auto, :start, :stop) ||
         throw(ArgumentError("titleend must be :auto, :start or :stop, got :$titleend"))
-    dom = isnothing(domain) ? nothing : (float(domain[1]), float(domain[2]))
+    if isnothing(unit) && !isnothing(domain)
+        unit = something(_infer_unit(domain[1]), _infer_unit(domain[2]), Some(nothing))
+    end
+    num(x) = _strip(unit, x, name)
+    dom = isnothing(domain) ? nothing : (num(domain[1]), num(domain[2]))
     if !isnothing(dom) && !(dom[1] < dom[2])
         throw(ArgumentError("domain of :$name must be increasing, got $dom"))
     end
@@ -90,13 +130,15 @@ function Variable(
         transform,
         dom,
         String(label),
-        isnothing(ticks) ? nothing : collect(float.(ticks)),
-        isnothing(minorticks) ? nothing : collect(float.(minorticks)),
+        isnothing(ticks) ? nothing : Float64[num(t) for t in ticks],
+        isnothing(minorticks) ? nothing : Float64[num(t) for t in minorticks],
         tickformat,
         tickstyle,
         side,
         titleend,
         Int(maxden),
+        unit,
+        unitlabel,
     )
 end
 
@@ -257,7 +299,9 @@ function Base.show(io::IO, ::MIME"text/plain", nom::AbstractNomogram)
             default_tickformat(lo),
             ", ",
             default_tickformat(hi),
-            "]  at x = ",
+            "]",
+            isnothing(s.variable.unit) ? "" : " " * _unitstring(s.variable.unit),
+            "  at x = ",
             default_tickformat(p[1]),
         )
     end

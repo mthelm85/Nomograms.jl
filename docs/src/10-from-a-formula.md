@@ -147,6 +147,10 @@ end
 
 ## Nothing on trust
 
+If the inputs carry [units](40-solving.md#Units), the formula's dimensions are checked
+first: a formula for a result in kg/m² that comes out in kg/m is refused before anything
+is built.
+
 The finished chart is *solved* over a grid of inputs and every answer compared with your
 function. A chart that disagrees by more than `rtol` of the result's range is not returned —
 the call throws instead, quoting the disagreement it measured. For two inputs the chart's

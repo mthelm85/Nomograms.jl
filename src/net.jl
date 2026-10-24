@@ -286,7 +286,7 @@ function _net_solutions(nn::NetNomogram, values)
                 ")",
             ),
         )
-        given[k] = float(x)
+        given[k] = _number(_variable(nn, k), x)
     end
     missingnames = [n for n in names if !haskey(given, n)]
     if length(missingnames) != 1
@@ -340,7 +340,9 @@ line crosses the strand for the known net variable — a curve, which a line may
 than once. As elsewhere, [`evaluate`](@ref) refuses to choose between several and
 [`evaluate_all`](@ref) returns them.
 """
-function evaluate(nn::NetNomogram; values...)
+evaluate(nn::NetNomogram; values...) = _with_units(nn, _evaluate(nn; values...))
+
+function _evaluate(nn::NetNomogram; values...)
     sols = _net_solutions(nn, values)
     if length(sols) > 1
         target = only(n for n in variablenames(nn) if !haskey(values, n))
@@ -364,7 +366,16 @@ end
 Every solution consistent with the three values given. See [`evaluate`](@ref).
 """
 evaluate_all(nn::NetNomogram; values...) =
+    [_with_units(nn, sol) for sol in _evaluate_all(nn; values...)]
+
+_evaluate_all(nn::NetNomogram; values...) =
     [_as_namedtuple(nn, d) for d in _net_solutions(nn, values)]
+
+function _variable(nn::NetNomogram, n::Symbol)
+    n === nn.net.u.name && return nn.net.u
+    n === nn.net.v.name && return nn.net.v
+    return scale(nn, n).variable
+end
 
 """
     isopleth(nn::NetNomogram, solution::NamedTuple; label = "", group = 0) -> Isopleth
@@ -384,6 +395,7 @@ function isopleth(
     for n in names
         haskey(solution, n) || throw(ArgumentError("solution is missing a value for :$n"))
     end
+    solution = _numbers(nn, solution)
     un, vn = names[1], names[2]
     pts = Point[
         point(nn.a, solution[name(nn.a)]),
@@ -395,8 +407,8 @@ function isopleth(
 end
 
 function isopleth(nn::NetNomogram; label::AbstractString = "", group::Int = 0, values...)
-    sols = evaluate_all(nn; values...)
-    isempty(sols) && return isopleth(nn, evaluate(nn; values...); label, group)
+    sols = _evaluate_all(nn; values...)
+    isempty(sols) && return isopleth(nn, _evaluate(nn; values...); label, group)
     length(sols) == 1 && return isopleth(nn, only(sols); label, group)
     un, vn = variablenames(nn)[1:2]
     at(sol) = Point[
@@ -434,7 +446,7 @@ function max_relation_residual(nn::NetNomogram; n::Int = 7)
 
         sols = nothing
         try
-            sols = evaluate_all(nn; NamedTuple{(un, vn, an)}((u, v, a))...)
+            sols = _evaluate_all(nn; NamedTuple{(un, vn, an)}((u, v, a))...)
         catch err
             err isa ArgumentError || rethrow()
         end
