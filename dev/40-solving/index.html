@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Solving — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=b03bde98">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=f9608a5f">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Solving — Nomograms.jl">
   <meta property="og:title" content="Solving — Nomograms.jl">
@@ -109,7 +109,7 @@ catch err
     println(sprint(showerror, err))
 end</code></pre>
 </div>
-<pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: the alignment line crosses :z at 2 values (1, 2), so there is no single answer to return. Use `evaluate_all` / `solve_all_on` to get them all, or narrow the scale&#39;s domain to the branch you want.</code></pre>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: the alignment line crosses :z at 2 values (1, 2), so there is no single answer to return. Use `evaluate_all` / `solve_all_on` to get them all, or narrow the scale&#39;s domain to the branch you want. `isopleth` with the same values draws the line with every crossing marked.</code></pre>
 </div>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -149,6 +149,6 @@ end</code></pre>
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=b03bde98"></script>
+  <script src="../assets/materialdocs.js?v=f9608a5f"></script>
 </body>
 </html>

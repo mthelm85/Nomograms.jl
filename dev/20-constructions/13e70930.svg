@@ -119,7 +119,7 @@
       <line x1="77.48" y1="387.61" x2="74.38" y2="386.82" stroke="#333333" stroke-width="1.00"/>
       <line x1="75.87" y1="394.09" x2="70.03" y2="392.69" stroke="#333333" stroke-width="1.00"/>
       <text x="66.92" y="391.94" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">5</text>
-      <text x="274.51" y="255.62" font-size="11.60" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">root z</text>
+      <text x="73.05" y="405.75" font-size="11.60" text-anchor="middle" dominant-baseline="hanging" fill="#1a1a1a">root z</text>
     </g>
     <g id="isopleth-1">
       <line x1="12.01" y1="365.43" x2="326.39" y2="178.30" stroke="#2a78d6" stroke-width="1.60"/>

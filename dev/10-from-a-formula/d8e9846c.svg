@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="457.60" height="468.20" viewBox="0 0 457.60 468.20">
+<svg xmlns="http://www.w3.org/2000/svg" width="442.85" height="486.80" viewBox="0 0 442.85 486.80">
   <rect width="100%" height="100%" fill="white"/>
   <g font-family="Helvetica, Arial, system-ui, sans-serif" stroke-linecap="round">
     <text x="210.53" y="19.60" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a" font-weight="600">Ideal gas</text>
@@ -207,7 +207,7 @@
       <text x="304.02" y="76.75" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">390</text>
       <line x1="294.82" y1="55.20" x2="300.82" y2="55.20" stroke="#333333" stroke-width="1.00"/>
       <text x="304.02" y="55.20" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">400</text>
-      <text x="323.82" y="43.20" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a">temperature (K)</text>
+      <text x="294.82" y="467.20" font-size="11.60" text-anchor="middle" dominant-baseline="hanging" fill="#1a1a1a">temperature (K)</text>
     </g>
     <g id="scale-V">
       <polyline points="371.30,55.20 371.30,455.20" fill="none" stroke="#333333" stroke-width="1.00"/>
@@ -280,7 +280,7 @@
       <line x1="371.30" y1="448.11" x2="374.50" y2="448.11" stroke="#333333" stroke-width="1.00"/>
       <line x1="371.30" y1="455.20" x2="377.30" y2="455.20" stroke="#333333" stroke-width="1.00"/>
       <text x="380.50" y="455.20" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">100</text>
-      <text x="414.80" y="43.20" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a">volume (L)</text>
+      <text x="371.30" y="43.20" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a">volume (L)</text>
     </g>
     <g id="isopleth-1">
       <line x1="72.96" y1="336.86" x2="389.65" y2="199.32" stroke="#2a78d6" stroke-width="1.60"/>
