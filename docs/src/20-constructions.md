@@ -4,26 +4,11 @@ CurrentModule = Nomograms
 
 # Building charts
 
-## How it works
-
 A nomogram asserts one thing: that a point taken from each scale lies on a single straight
-line. Written as a determinant, that is the criterion Maurice d'Ocagne built the subject on
-in his *Traité de nomographie* (1899),
-
-```math
-\begin{vmatrix}
-x_1 & y_1 & 1\\
-x_2 & y_2 & 1\\
-x_3 & y_3 & 1
-\end{vmatrix} = 0
-```
-
-so this package stores every scale as a parametric curve `value -> (x, y)` ([`Scale`](@ref))
-and does all of its arithmetic by asking where a line crosses a curve
-([`align_residual`](@ref), [`evaluate`](@ref)). One consequence is that forward and inverse
-problems are the same operation — any variable may be the unknown. Another is that a
-layout the built-in constructions do not cover needs no new solver: hand-build the scales
-and everything downstream still works.
+line. So every chart in this package is a set of parametric curves `value -> (x, y)`
+([`Scale`](@ref)), and each construction below is a way of choosing curves that makes that
+collinearity agree with a relation. [How it works](60-how-it-works.md) follows a chart
+from construction to picture in detail.
 
 ## Parallel scales
 
