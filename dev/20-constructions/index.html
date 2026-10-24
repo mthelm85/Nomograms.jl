@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=9f295bc7">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=7e810f25">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -52,13 +52,14 @@
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../95-reference/">Reference</a>
+      <a href="../96-references/">References</a>
     </nav>
     <main class="md-content">
       <article class="md-article">
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/20-constructions.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Building-charts" class="md-heading">Building charts<a href="#Building-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
 <h2 id="How-it-works" class="md-heading">How it works<a href="#How-it-works" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>A nomogram asserts one thing: that a point taken from each scale lies on a single straight line. Written as a determinant, that is d&#39;Ocagne&#39;s criterion,</p>
+<p>A nomogram asserts one thing: that a point taken from each scale lies on a single straight line. Written as a determinant, that is the criterion Maurice d&#39;Ocagne built the subject on in his <em>Traité de nomographie</em> (1899),</p>
 <div class="md-math md-math-display">
 \[\begin{vmatrix}
 x_1 &amp; y_1 &amp; 1\\
@@ -92,7 +93,7 @@ drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = &quot;
 </div>
 </div>
 <h2 id="Ratios,-and-the-N-chart" class="md-heading">Ratios, and the N-chart<a href="#Ratios,-and-the-N-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Not every relation wants parallel scales. <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> builds an N-chart (also called a Z-chart) for <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w)</code>: two vertical scales joined by a diagonal, with the result read off the diagonal.</p>
+<p>Not every relation wants parallel scales. <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> builds an N-chart (also called a Z-chart) for <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w)</code>: two vertical scales joined by a diagonal, with the result read off the diagonal. Doerfler&#39;s &quot;The Lost Art of Nomography&quot; derives the classic construction (see <a href="../96-references/">References</a>).</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -111,7 +112,7 @@ drawing(speed; isopleths = [isopleth(speed; distance = 6, time = 3, label = &quo
 <p><code class="md-code-inline">multiplicative_nomogram</code> charts ratios as well, by way of logarithms. The N-chart earns its place by needing none: the outer scales stay <em>linear</em>, so precision is even along them and a reader can interpolate between ticks by eye.</p>
 <p>Two details are worth knowing. The textbook derivation gives both outer scales the same scale factor so that the ratio falls out directly; here the diagonal&#39;s own scale absorbs the ratio of the two factors instead, so each outer axis is fitted to the canvas on its own. And the diagonal is a <em>projective</em> scale, <code class="md-code-inline">s = k·r / (k·r + 1)</code>, so a ratio spanning decades is spread across it roughly logarithmically — which is why the result axis takes decade-based tick values in that case. Picking them linearly would offer nothing between 0.1 and 2, most of the diagonal. Pass <code class="md-code-inline">tickstyle = :linear</code> on the <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> to override.</p>
 <h2 id="Anything-else,-from-the-determinant" class="md-heading">Anything else, from the determinant<a href="#Anything-else,-from-the-determinant" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>The two named constructions are particular solutions of the collinearity condition. <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> takes any other one you can write down: give each variable a curve, and the combined bounding box is measured and mapped onto the canvas for you.</p>
+<p>The two named constructions are particular solutions of the collinearity condition. <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> takes any other one you can write down: give each variable a curve, and the combined bounding box is measured and mapped onto the canvas for you. This is the determinant method of the nomography textbooks; Doerfler&#39;s overview is a good worked introduction to it.</p>
 <p>Deriving a curve is mechanical once the first two scales are fixed. Put <code class="md-code-inline">p</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">p</code> and <code class="md-code-inline">q</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">q</code>; a line between them crosses <code class="md-code-inline">x = x₃</code> at <code class="md-code-inline">p + x₃(q - p)</code>, so a third scale is met exactly when <code class="md-code-inline">(1 - x₃)·p + x₃·q = y₃</code>. To make that say <code class="md-code-inline">z·p + q + z² = 0</code>, match coefficients:</p>
 <div class="md-math md-math-display">
 \[\frac{1 - x_3}{z} = \frac{x_3}{1} = \frac{-y_3}{z^2}\]
@@ -143,7 +144,7 @@ drawing(quad; isopleths = [isopleth(quad, roots[1]; label = &quot;z² − 3z + 2
  0.9999999999999999
  1.9999999999999998</code></pre>
 </div>
-<p>Two answers, because a quadratic has two roots and the chart shows why: one alignment line, meeting the curved scale twice.</p>
+<p>Two answers, because a quadratic has two roots and the chart shows why: one alignment line, meeting the curved scale twice. This curved-scale chart for the quadratic is a classic; Doerfler draws it after Adams (1964) and Otto (1963).</p>
 <p>Collinearity survives any affine map, so fitting the curves to the canvas cannot change what the chart computes — including the anisotropic fit used by default to fill it. Pass <code class="md-code-inline">preserve_aspect = true</code> to scale both axes alike and centre the result.</p>
 <p>Getting a determinant form right is the hard part of designing a chart by hand, and a chart that is subtly wrong still draws perfectly well. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves on the geometry over a grid of inputs and checks each answer against the algebra:</p>
 <div class="md-multi-output">
@@ -155,7 +156,7 @@ drawing(quad; isopleths = [isopleth(quad, roots[1]; label = &quot;z² − 3z + 2
 </div>
 <p>It returns <code class="md-code-inline">NaN</code> rather than a flattering zero when there is no relation to check, or when no input in the grid produced a solution.</p>
 <h2 id="Reshaping,-for-free" class="md-heading">Reshaping, for free<a href="#Reshaping,-for-free" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>An affine map preserves collinearity, which is why fitting curves to the canvas is safe. <em>Projective</em> maps preserve it too, and they are a much larger family — they can turn parallel scales into converging ones and redistribute spacing along an axis.</p>
+<p>An affine map preserves collinearity, which is why fitting curves to the canvas is safe. <em>Projective</em> maps preserve it too, and they are a much larger family — they can turn parallel scales into converging ones and redistribute spacing along an axis. Nomographers have long reshaped charts this way; Doerfler&#39;s overview closes with these transformations.</p>
 <p>So <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> reshapes a chart without changing a single answer it gives:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -214,6 +215,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=9f295bc7"></script>
+  <script src="../assets/materialdocs.js?v=7e810f25"></script>
 </body>
 </html>

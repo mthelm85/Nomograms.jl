@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From a formula — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=1f68cfab">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=8cd8c8cc">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="From a formula — Nomograms.jl">
   <meta property="og:title" content="From a formula — Nomograms.jl">
@@ -52,6 +52,7 @@
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../95-reference/">Reference</a>
+      <a href="../96-references/">References</a>
     </nav>
     <main class="md-content">
       <article class="md-article">
@@ -93,7 +94,7 @@ evaluate(angle; y = 1, x = 1).angle ≈ π / 4</code></pre>
 \quad\Longrightarrow\quad
 \frac{F_x}{F_y} = \frac{f&#39;(x)}{g&#39;(y)}\]
 </div>
-<p>so <span class="md-math md-math-inline">\(\ln|F_x / F_y|\)</span> must split into a function of <span class="md-math md-math-inline">\(x\)</span> plus a function of <span class="md-math md-math-inline">\(y\)</span>. The converse holds too: if it splits, take <span class="md-math md-math-inline">\(f&#39;\)</span> and <span class="md-math md-math-inline">\(g&#39;\)</span> from the two parts; then <span class="md-math md-math-inline">\(\nabla(f + g)\)</span> is everywhere parallel to <span class="md-math md-math-inline">\(\nabla F\)</span>, so <span class="md-math md-math-inline">\(f + g\)</span> is constant exactly where <span class="md-math md-math-inline">\(F\)</span> is, which makes it a function of <span class="md-math md-math-inline">\(F\)</span> — and that function is <span class="md-math md-math-inline">\(h\)</span>. The test is classical in nomography, but the argument above is all it rests on here.</p>
+<p>so <span class="md-math md-math-inline">\(\ln|F_x / F_y|\)</span> must split into a function of <span class="md-math md-math-inline">\(x\)</span> plus a function of <span class="md-math md-math-inline">\(y\)</span>. The converse holds too: if it splits, take <span class="md-math md-math-inline">\(f&#39;\)</span> and <span class="md-math md-math-inline">\(g&#39;\)</span> from the two parts; then <span class="md-math md-math-inline">\(\nabla(f + g)\)</span> is everywhere parallel to <span class="md-math md-math-inline">\(\nabla F\)</span>, so <span class="md-math md-math-inline">\(f + g\)</span> is constant exactly where <span class="md-math md-math-inline">\(F\)</span> is, which makes it a function of <span class="md-math md-math-inline">\(F\)</span> — and that function is <span class="md-math md-math-inline">\(h\)</span>. The test goes back to Saint-Robert in 1871 (see <a href="../96-references/">References</a>); the argument above is self-contained, and is all the package relies on.</p>
 <p><a href="../95-reference/#Nomograms.separability_defect-Tuple{Any, Any, Any}"><code class="md-code-inline">separability_defect</code></a> applies it numerically. Rather than take a mixed second derivative of a logarithm, which is noisy, it checks the equivalent identity</p>
 <div class="md-math md-math-display">
 \[L(x, y) - L(x, y_0) - L(x_0, y) + L(x_0, y_0) = 0, \qquad L = \ln|F_x / F_y|\]
@@ -204,6 +205,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=1f68cfab"></script>
+  <script src="../assets/materialdocs.js?v=8cd8c8cc"></script>
 </body>
 </html>

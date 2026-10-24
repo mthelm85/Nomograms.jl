@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>References — Nomograms.jl</title>
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=37614848">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <meta name="title" content="References — Nomograms.jl">
+  <meta property="og:title" content="References — Nomograms.jl">
+  <meta property="twitter:title" content="References — Nomograms.jl">
+  <meta name="description" content="Documentation for Nomograms.jl.">
+  <meta property="og:description" content="Documentation for Nomograms.jl.">
+  <meta property="twitter:description" content="Documentation for Nomograms.jl.">
+  <meta property="og:url" content="https://mthelm85.github.io/Nomograms.jl/96-references/">
+  <meta property="twitter:url" content="https://mthelm85.github.io/Nomograms.jl/96-references/">
+  <link rel="canonical" href="https://mthelm85.github.io/Nomograms.jl/96-references/">
+  <script>
+    (function(){
+      document.documentElement.classList.add('no-transition');
+      var t=localStorage.getItem('md-theme');if(t)document.documentElement.setAttribute('data-theme',t);
+      window.addEventListener('load',function(){setTimeout(function(){document.documentElement.classList.remove('no-transition');},50);});
+    })()
+  </script>
+</head>
+<body data-warn-outdated>
+  <header class="md-navbar">
+    <button id="md-hamburger" class="md-icon-btn md-hamburger" aria-label="Toggle navigation" aria-expanded="false"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <span class="md-navbar-title">Nomograms.jl</span>
+    <span class="md-navbar-spacer"></span>
+    <button id="md-search-btn" class="md-search-bar" aria-label="Search documentation" aria-expanded="false">
+      <svg class="md-icon md-search-bar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span class="md-search-bar-label">Search docs</span>
+      <kbd class="md-search-bar-kbd">Ctrl K</kbd>
+    </button>
+    <div id="md-version" class="md-version" hidden>
+      <button id="md-version-btn" class="md-version-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select documentation version">
+        <span id="md-version-current" class="md-version-current"></span>
+        <svg class="md-icon md-version-caret" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <ul id="md-version-menu" class="md-version-menu" role="listbox" hidden></ul>
+    </div>
+    <a class="md-icon-btn md-repo-link" href="https://github.com/mthelm85/Nomograms.jl" title="View the repository on GitHub" aria-label="View the repository on GitHub" rel="noopener" target="_blank"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0012 .3z"/></svg><span class="md-repo-label">GitHub</span></a>
+    <button id="md-theme-toggle" class="md-icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode"><svg class="md-icon md-icon-light" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg><svg class="md-icon md-icon-dark" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+  </header>
+  <div class="md-layout">
+    <nav class="md-sidebar">
+      <a href="../">Nomograms.jl</a>
+      <a href="../10-from-a-formula/">From a formula</a>
+      <a href="../20-constructions/">Building charts</a>
+      <a href="../30-more-variables/">Four or more variables</a>
+      <a href="../40-solving/">Solving</a>
+      <a href="../50-drawing/">Drawing</a>
+      <a href="../95-reference/">Reference</a>
+      <a href="../96-references/" class="md-nav-active">References</a>
+    </nav>
+    <main class="md-content">
+      <article class="md-article">
+      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/96-references.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
+<h1 id="References" class="md-heading">References<a href="#References" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
+<p>Nomography is a nineteenth-century subject with a long textbook tradition. These are the works this documentation leans on, and where to go for more.</p>
+<h2 id="The-founding-text" class="md-heading">The founding text<a href="#The-founding-text" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p>Maurice d&#39;Ocagne. <em>Traité de nomographie. Théorie des abaques, applications pratiques.</em> Paris: Gauthier-Villars, 1899. A public-domain scan is on the <a href="https://archive.org/details/traitdenomograp00ocaggoog">Internet Archive</a>.</p>
+<p>The alignment method — three points on one straight line, written as a vanishing determinant — is d&#39;Ocagne&#39;s, and every chart in this package rests on it.</p>
+</li>
+</ul>
+<h2 id="Textbooks" class="md-heading">Textbooks<a href="#Textbooks" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<ul class="md-list-tight">
+<li><p>L. Ivan Epstein. <em>Nomography.</em> New York: Interscience, 1958.</p>
+</li>
+<li><p>Edward Otto. <em>Nomography.</em> New York: Macmillan, 1963. Discusses the criterion of Saint-Robert and Massau&#39;s method for deciding when an equation can be charted.</p>
+</li>
+<li><p>Douglas P. Adams. <em>Nomography: Theory and Application.</em> Hamden, CT: Archon, 1964.</p>
+</li>
+</ul>
+<h2 id="A-modern-overview" class="md-heading">A modern overview<a href="#A-modern-overview" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p>Ron Doerfler. &quot;On Jargon: The Lost Art of Nomography.&quot; <em>The UMAP Journal</em> 30(4), 2009, pp. 457–493. The author posts a <a href="https://deadreckonings.com/wp-content/uploads/2010/04/the_lost_art_of_nomography.pdf">free PDF</a>.</p>
+<p>The best single introduction. It derives the parallel-scale chart, the N-chart and the determinant method, works the curved-scale chart for the quadratic <code class="md-code-inline">w² + uw + v = 0</code> (after Adams and Otto), builds grid nomograms from determinants, and reshapes charts by projective transformation.</p>
+</li>
+</ul>
+<h2 id="When-a-formula-has-a-chart" class="md-heading">When a formula has a chart<a href="#When-a-formula-has-a-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p>P. de Saint-Robert. &quot;De la résolution de certaines équations à trois variables par le moyen d&#39;une règle glissante.&quot; <em>Memorie della Reale Accademia delle Scienze di Torino</em> XXV, 1871, pp. 53–72. Presented in 1867.</p>
+<p>The test that <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> applies — that <span class="md-math md-math-inline">\(z = F(x, y)\)</span> can be put in the form <span class="md-math md-math-inline">\(h(z) = f(x) + g(y)\)</span> exactly when <span class="md-math md-math-inline">\(\partial^2 \ln(F_x / F_y) / \partial x \, \partial y = 0\)</span> — is attributed to Saint-Robert by V. A. Esaulov, <a href="https://kartsci.org/kocomu/computer-history/the-art-of-nomography/">&quot;The Art of Nomography&quot;</a>, and by <a href="https://images.math.cnrs.fr/freeze/Geometrie-Anamorphique-II.html">&quot;Géométrie anamorphique II&quot;</a> in <em>Images des mathématiques</em> (CNRS), which notes it has been rediscovered many times since. We follow those two accounts; the 1871 paper itself was not consulted.</p>
+<p>The more general problem — which equations can be brought into a chartable form at all — was taken up by J. Massau, &quot;Mémoire sur l&#39;intégration graphique et ses applications&quot;, <em>Annales de l&#39;Association des ingénieurs sortis des écoles spéciales de Gand</em> 7, 1884, pp. 53–132, and independently by Léon Lecornu, &quot;Sur le problème de l&#39;anamorphose&quot;, <em>Comptes rendus de l&#39;Académie des sciences</em> 102, 1886, pp. 813–816.</p>
+</li>
+</ul>
+<h2 id="Related-software" class="md-heading">Related software<a href="#Related-software" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<ul class="md-list-tight">
+<li><p><a href="http://www.pynomo.org">PyNomo</a>, by Leif Roschier, builds nomograms in Python from a description of each scale. P. Martínez-Pagán and L. Roschier collect PyNomo scripts for common engineering formulas in <em>Data in Brief</em>, 2022, <a href="https://doi.org/10.1016/j.dib.2022.108661">doi:10.1016/j.dib.2022.108661</a>. Nomograms.jl is an independent implementation and borrows no code from it.</p>
+</li>
+</ul>
+<h2 id="What-is-original-here" class="md-heading">What is original here<a href="#What-is-original-here" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>The derivations in these pages were written for this package, starting from the collinearity condition, rather than taken from the sources above; where a result is classical, the sources above are where it comes from. Specific to this package:</p>
+<ul class="md-list-tight">
+<li><p>the test that a formula of three or more inputs splits into a chain — that it depends on a pair of inputs only through one combination of them exactly when <span class="md-math md-math-inline">\(F_x / F_y\)</span> does not depend on the rest — and the recovery of every transform numerically from the formula itself;</p>
+</li>
+<li><p>how a chain&#39;s stages are paired, mirrored and sized so that no axis lands on another;</p>
+</li>
+<li><p>how ticks are chosen and thinned, and how labels are kept clear of each other and of the alignment lines;</p>
+</li>
+<li><p>the isopleth palette, whose colour-difference figures come from the package&#39;s own check against colour-vision deficiency rather than from a published source.</p>
+</li>
+</ul>
+      </article>
+      <footer class="md-footer">
+<p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
+      </footer>
+    </main>
+    <aside class="md-toc">
+      <div class="md-toc-inner">
+        <p class="md-toc-title">On this page</p>
+          <a class="md-toc-link md-toc-h2" href="#The-founding-text">The founding text</a>
+          <a class="md-toc-link md-toc-h2" href="#Textbooks">Textbooks</a>
+          <a class="md-toc-link md-toc-h2" href="#A-modern-overview">A modern overview</a>
+          <a class="md-toc-link md-toc-h2" href="#When-a-formula-has-a-chart">When a formula has a chart</a>
+          <a class="md-toc-link md-toc-h2" href="#Related-software">Related software</a>
+          <a class="md-toc-link md-toc-h2" href="#What-is-original-here">What is original here</a>
+      </div>
+    </aside>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia-repl.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.js"></script>
+  <script>var MD_KATEX_OPTIONS = {};
+document.querySelectorAll('.md-math').forEach(function (el) {
+  var tex = el.textContent.trim().replace(/^\\[\[(]/, '').replace(/\\[\])]$/, '');
+  katex.render(tex, el, Object.assign({ throwOnError: false }, MD_KATEX_OPTIONS,
+    { displayMode: el.classList.contains('md-math-display') }));
+});</script>
+  <script src="../siteinfo.js"></script>
+  <script src="../../versions.js"></script>
+  <script src="../assets/materialdocs.js?v=37614848"></script>
+</body>
+</html>
