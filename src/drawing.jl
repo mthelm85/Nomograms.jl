@@ -115,9 +115,6 @@ A complete, backend-independent description of a rendered nomogram: everything a
 needs, and nothing about how to draw it. [`svg`](@ref) and the Makie extension are both
 thin walks over this structure, and tests can assert on tick positions without rendering
 anything.
-
-`guides` are polylines drawn lightly behind the chart and read by nobody: the rings
-around a [`fan`](@ref), say. Labels keep clear of them as they do of axis lines.
 """
 struct NomogramDrawing
     scales::Vector{ScaleDrawing}
@@ -127,23 +124,7 @@ struct NomogramDrawing
     titlealign::NTuple{2,Symbol}
     bbox::NTuple{4,Float64}
     style::NomogramStyle
-    guides::Vector{Vector{Point}}
 end
-
-NomogramDrawing(scales, isopleths, title, titlepos, titlealign, bbox, style) =
-    NomogramDrawing(
-        scales,
-        isopleths,
-        title,
-        titlepos,
-        titlealign,
-        bbox,
-        style,
-        Vector{Point}[],
-    )
-
-# Decoration a chart carries for its drawing. Only a fan has any.
-_guides(::AbstractNomogram) = Vector{Point}[]
 
 _segments(path::Vector{Point}) = [(path[k], path[k+1]) for k = 1:(length(path)-1)]
 
@@ -481,16 +462,11 @@ function _place_titles(
     paths::Vector{Vector{Point}},
     style::NomogramStyle,
     occupied::Vector{NTuple{4,Float64}},
-    guides::Vector{Vector{Point}} = Vector{Point}[],
 )
-    # Guides belong to no scale, so they wall off every title; index 0 marks that.
     walls = [
-        [
-            (i, seg) for
-            (i, (s, path)) in enumerate(zip(nom.scales, paths)) if s.kind === :scale for
-            seg in _segments(path)
-        ]
-        [(0, seg) for g in guides for seg in _segments(g)]
+        (i, seg) for
+        (i, (s, path)) in enumerate(zip(nom.scales, paths)) if s.kind === :scale for
+        seg in _segments(path)
     ]
     placed = Tuple{Point,NTuple{2,Symbol}}[]
     for (i, s) in enumerate(nom.scales)
@@ -547,14 +523,10 @@ function _resolve_tick_collisions!(
     style::NomogramStyle,
     occupied::Vector{NTuple{4,Float64}},
     segments::Vector{Tuple{Point,Point}},
-    guides::Vector{Vector{Point}} = Vector{Point}[],
 )
     walls = [
-        [
-            (j, seg) for (j, sd) in enumerate(scaledrawings) if sd.kind === :scale for
-            seg in _segments(sd.path)
-        ]
-        [(0, seg) for g in guides for seg in _segments(g)]
+        (j, seg) for (j, sd) in enumerate(scaledrawings) if sd.kind === :scale for
+        seg in _segments(sd.path)
     ]
     for level in (1, 2), (j, sd) in enumerate(scaledrawings), i in eachindex(sd.ticks)
         t = sd.ticks[i]
@@ -591,9 +563,8 @@ function drawing(
     )
 
     occupied = NTuple{4,Float64}[]
-    guides = _guides(nom)
     paths = [_path(s) for s in nom.scales]
-    titles = _place_titles(nom, paths, style, occupied, guides)
+    titles = _place_titles(nom, paths, style, occupied)
     scaledrawings = ScaleDrawing[]
     for (s, path, (titlepos, titlealign)) in zip(nom.scales, paths, titles)
         majors, minors = candidate_ticks(s.variable, s.domain)
@@ -636,14 +607,10 @@ function drawing(
             style,
             occupied,
             style.avoid_isopleths ? strikes : Tuple{Point,Point}[],
-            guides,
         )
     end
 
     bb = [Inf, Inf, -Inf, -Inf]
-    for g in guides, p in g
-        _expand!(bb, p)
-    end
     for sd in scaledrawings
         for p in sd.path
             _expand!(bb, p)
@@ -704,6 +671,5 @@ function drawing(
         titlealign,
         (bb[1], bb[2], bb[3], bb[4]),
         style,
-        guides,
     )
 end

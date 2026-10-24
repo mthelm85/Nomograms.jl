@@ -41,7 +41,8 @@ end
 @testitem "a fan gives the same answers" tags = [:unit] setup = [Fans] begin
     par = Fans.resistors()
     f = fan(par)
-    @test f isa FanNomogram
+    # The same kind of chart comes back, just reshaped.
+    @test f isa Nomogram
     @test variablenames(f) == variablenames(par)
     for a = 1:1.5:10, b = 1:1.5:10
         @test evaluate(f; R1 = a, R2 = b).R ≈ evaluate(par; R1 = a, R2 = b).R rtol = 1e-9
@@ -52,6 +53,7 @@ end
     # A compound chart: its turning line is fanned with the rest.
     solar = Fans.solar()
     fs = fan(solar)
+    @test fs isa CompoundNomogram
     for w in (5, 50, 200), t in (0.5, 4, 12), v in (1 / 14, 1 / 12, 1 / 11)
         @test evaluate(fs; watts = w, hours = t, inv_volts = v).ah ≈ w * t * v rtol = 1e-9
     end
@@ -69,6 +71,7 @@ end
         relation = (x, c, a, b) -> a * x^2 + b * x + c,
     )
     fq = fan(gq)
+    @test fq isa NetNomogram
     @test [s.x for s in evaluate_all(fq; a = 1, b = -3, c = 2)] ≈ [1, 2] rtol = 1e-6
     @test max_relation_residual(fq) < 1e-6
 end
@@ -105,36 +108,11 @@ end
     @test hubo(1) > hubo(10)
 end
 
-@testitem "a fan's labels clear its rings and each other" tags = [:unit] setup =
+@testitem "a fan's labels clear each other and every axis" tags = [:unit] setup =
     [Fans, Clash] begin
     for chart in (Fans.resistors(), Fans.solar()), spread in (60, 90, 120)
-        f = fan(chart; spread)
-        d = drawing(f)
-        @test length(d.guides) == 3
-        @test isempty(Clash.clashes(d))
-        st = d.style
-        for sd in d.scales, t in sd.ticks
-            isnothing(t.label) && continue
-            box = Nomograms.label_box(
-                t.labelpos,
-                t.label,
-                st.ticklabelsize,
-                t.align,
-                t.rotation,
-            )
-            @test !any(
-                Nomograms.segment_hits_box(a, b, box, st.collisionpad) for g in d.guides for
-                (a, b) in Nomograms._segments(g)
-            )
-        end
-        # The canvas holds the rings.
-        xmin, ymin, xmax, ymax = d.bbox
-        @test all(
-            xmin - 1e-9 <= p[1] <= xmax + 1e-9 && ymin - 1e-9 <= p[2] <= ymax + 1e-9 for
-            g in d.guides for p in g
-        )
+        @test isempty(Clash.clashes(drawing(fan(chart; spread))))
     end
-    @test isempty(drawing(fan(Fans.resistors(); rings = false)).guides)
 end
 
 @testitem "fans render in both backends" tags = [:integration] setup = [Fans] begin
@@ -143,11 +121,9 @@ end
     f = fan(Fans.resistors())
     iso = isopleth(f; R1 = 4, R2 = 6, label = "2.4")
     out = svg(f; isopleths = [iso])
-    @test occursin("id=\"guide-1\"", out)
     @test !occursin("NaN", out)
-    @test showable(MIME"image/svg+xml"(), f)
+    @test !occursin("<path", out) && !occursin("guide", out)
     @test nomogramplot(f; isopleths = [iso]) isa Figure
-    @test occursin("FanNomogram(", sprint(show, f))
 end
 
 @testitem "fan argument errors" tags = [:unit, :validation] setup = [Fans] begin
@@ -157,5 +133,4 @@ end
     @test_throws ArgumentError fan(par; hub = 1)
     @test_throws ArgumentError fan(par; radius = -5)
     @test_throws ArgumentError fan(par; inward = :sideways)
-    @test_throws ArgumentError fan(fan(par))
 end

@@ -78,7 +78,6 @@ export
     project,
     projective_transform,
     fan,
-    FanNomogram,
     compound,
     net_nomogram,
     netpoint,

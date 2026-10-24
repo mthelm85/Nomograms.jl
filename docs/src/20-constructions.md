@@ -190,26 +190,26 @@ The one thing to watch for is the map's vanishing line, where the denominator go
 zero. If it crosses a scale's domain, points there go to infinity; that is reported
 against the scale it affects rather than producing a chart full of `Inf`.
 
-## Fans, for the wall
+## Fans
 
 Parallel lines meet at a point at infinity, and a projective map can bring that point onto
 the page. Every axis then runs through it, and the chart becomes a fan of spokes —
-[`fan`](@ref) does this, and draws a pair of rings around the result:
+[`fan`](@ref) does this:
 
 ```@example build
 title = "Resistors in parallel"
-wall = fan(additive_nomogram(
+fanned = fan(additive_nomogram(
     Variable(:R1, ReciprocalScale(); domain = (1, 10), label = "R₁ (Ω)"),
     Variable(:R2, ReciprocalScale(); domain = (1, 10), label = "R₂ (Ω)"),
     Variable(:R, ReciprocalScale(); label = "R (Ω)");
     title,
 ))
-drawing(wall; isopleths = [isopleth(wall; R1 = 4, R2 = 6, label = "4 ∥ 6 = 2.4")])
+drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = "4 ∥ 6 = 2.4")])
 ```
 
 It is the same chart, reading the same answers, and works on compound charts and nets too.
 Two things follow from the geometry. Straight lines stay straight, so the spokes end on a
 straight chord rather than an arc: at the default 90° spread the tips line up level, and
-wider fans leave the middle spokes short of the ring. And the map squeezes whatever lies
+wider fans leave the middle spokes shorter than the outer ones. And the map squeezes whatever lies
 near the hub, so `fan` lays the chart out both ways round and keeps whichever labels more
 values. Here the reciprocal scales' crowded ends — 4 to 10 — went to the rim.
