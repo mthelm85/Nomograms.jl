@@ -3,7 +3,9 @@
 
 Build, solve and render nomograms (alignment charts).
 
-A nomogram is a graphical calculator: three or more scales drawn so that any straight line
+A nomogram is an analog computer printed on paper. Lay a straightedge through the values
+you know, and it crosses the remaining scale at the answer — no power, no keystrokes, just
+geometry. It works because its three or more scales are drawn so that any straight line
 crossing them picks out a solution of an equation. The entire geometric content is
 d'Ocagne's collinearity criterion,
 

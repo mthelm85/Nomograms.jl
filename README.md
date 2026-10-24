@@ -8,8 +8,10 @@
 [![Docs workflow Status](https://github.com/mthelm85/Nomograms.jl/actions/workflows/Docs.yml/badge.svg?branch=main)](https://github.com/mthelm85/Nomograms.jl/actions/workflows/Docs.yml?query=branch%3Amain)
 [![BestieTemplate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/JuliaBesties/BestieTemplate.jl/main/docs/src/assets/badge.json)](https://github.com/JuliaBesties/BestieTemplate.jl)
 
-Build, solve and render **nomograms** — alignment charts that turn an equation into a
-graphical calculator, where any straight line laid across the scales picks out a solution.
+A **nomogram** is an analog computer printed on paper. Lay a straightedge through the values
+you know, and it crosses the remaining scale at the answer — no power, no keystrokes, just
+geometry. Nomograms.jl builds them from the formulas you already use, solves them
+numerically, and draws them as SVG or with Makie.
 
 ```julia
 using Nomograms

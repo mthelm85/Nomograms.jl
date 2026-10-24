@@ -4,9 +4,10 @@ CurrentModule = Nomograms
 
 # Nomograms.jl
 
-Build, solve and render **nomograms** — alignment charts that turn an equation into a
-graphical calculator. Lay a straight edge across the scales, and where it crosses the last
-one is the answer.
+A **nomogram** is an analog computer printed on paper. Lay a straightedge through the values
+you know, and it crosses the remaining scale at the answer — no power, no keystrokes, just
+geometry. Nomograms.jl builds them from the formulas you already use, solves them
+numerically, and draws them as SVG or with Makie.
 
 ```@example home
 using Nomograms
