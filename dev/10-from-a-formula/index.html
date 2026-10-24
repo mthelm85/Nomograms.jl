@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From a formula — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=2e249efb">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=38ebb3a5">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="From a formula — Nomograms.jl">
   <meta property="og:title" content="From a formula — Nomograms.jl">
@@ -162,6 +162,7 @@ end</code></pre>
   • :b with :c — the result does not depend on them through a single combination of the two (defect 1.04)</code></pre>
 </div>
 <h2 id="Nothing-on-trust" class="md-heading">Nothing on trust<a href="#Nothing-on-trust" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>If the inputs carry <a href="../40-solving/#Units">units</a>, the formula&#39;s dimensions are checked first: a formula for a result in kg/m² that comes out in kg/m is refused before anything is built.</p>
 <p>The finished chart is <em>solved</em> over a grid of inputs and every answer compared with your function. A chart that disagrees by more than <code class="md-code-inline">rtol</code> of the result&#39;s range is not returned — the call throws instead, quoting the disagreement it measured. For two inputs the chart&#39;s <code class="md-code-inline">relation</code> is your function, so <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> measures it against what you wrote rather than anything derived along the way:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -206,6 +207,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=2e249efb"></script>
+  <script src="../assets/materialdocs.js?v=38ebb3a5"></script>
 </body>
 </html>

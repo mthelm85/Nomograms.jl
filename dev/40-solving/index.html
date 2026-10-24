@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Solving — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=5c3401b4">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=b74ad140">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Solving — Nomograms.jl">
   <meta property="og:title" content="Solving — Nomograms.jl">
@@ -131,6 +131,51 @@ end</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">7.105427357601002e-15</code></pre>
 </div>
+<h2 id="Units" class="md-heading">Units<a href="#Units" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Load <a href="https://github.com/PainterQubits/Unitful.jl">Unitful</a> and a variable can carry a unit, taken from its domain or given as <code class="md-code-inline">unit</code>. Values going in may then be in any unit of the right dimension, answers come back in the axis&#39;s own unit, and the unit is printed after the axis title:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Nomograms, Unitful
+
+room = multiplicative_nomogram(
+    Variable(:w; domain = (1u&quot;ft&quot;, 20u&quot;ft&quot;), label = &quot;width&quot;),
+    Variable(:l; domain = (1u&quot;ft&quot;, 20u&quot;ft&quot;), label = &quot;length&quot;),
+    Variable(:A; unit = u&quot;ft^2&quot;, label = &quot;area&quot;);
+    title = &quot;Floor area&quot;,
+)
+evaluate(room; w = 3u&quot;m&quot;, l = 4u&quot;m&quot;)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(w = 9.84251968503937 ft, l = 13.123359580052494 ft, A = 129.16692500051673 ft^2)</code></pre>
+</div>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">drawing(room; isopleths = [isopleth(room; w = 10u&quot;ft&quot;, l = 12u&quot;ft&quot;, label = &quot;120 ft²&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="414a3e20.svg" alt="Example block output">
+</div>
+</div>
+<p>A plain number is read as being in the axis&#39;s unit, so <code class="md-code-inline">evaluate(room; w = 10, l = 12)</code> means feet. A value of the wrong dimension is refused by name rather than read as something else, as is a quantity given to a variable with no unit. Temperatures convert through their offsets, so a °C axis takes 68 °F as 20 °C.</p>
+<p>Units matter most for <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a>. The formula is called with real quantities, so it may compute in whatever units it likes, and its result is converted to the result&#39;s unit — taken from the formula itself if you do not give one. That conversion checks the formula&#39;s dimensions before any chart is built:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">try
+    auto_nomogram(
+        (m, h) -&gt; m / h,   # should be m / h^2
+        Variable(:mass; domain = (40u&quot;kg&quot;, 150u&quot;kg&quot;)),
+        Variable(:height; domain = (1.4u&quot;m&quot;, 2.1u&quot;m&quot;)),
+        Variable(:BMI; unit = u&quot;kg/m^2&quot;),
+    )
+catch err
+    println(sprint(showerror, err))
+end</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: BMI = F(mass, height) does not come out in the units of :BMI: :BMI is in kg m^-2, a unit of 𝐌 𝐋^-2, so 54.285714285714285 kg m^-1 cannot be converted to it</code></pre>
+</div>
+<p>Inside, the chart is plain numbers in each variable&#39;s unit: ticks are chosen in that unit, and the <code class="md-code-inline">values</code> of an <a href="../95-reference/#Nomograms.Isopleth"><code class="md-code-inline">Isopleth</code></a> are in it too. Formulas involving temperature need kelvin, since Unitful does not multiply °C or °F.</p>
       </article>
       <footer class="md-footer">
 <p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
@@ -141,6 +186,7 @@ end</code></pre>
         <p class="md-toc-title">On this page</p>
           <a class="md-toc-link md-toc-h2" href="#More-than-one-crossing">More than one crossing</a>
           <a class="md-toc-link md-toc-h2" href="#Checking-a-chart">Checking a chart</a>
+          <a class="md-toc-link md-toc-h2" href="#Units">Units</a>
       </div>
     </aside>
   </div>
@@ -150,6 +196,6 @@ end</code></pre>
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=5c3401b4"></script>
+  <script src="../assets/materialdocs.js?v=b74ad140"></script>
 </body>
 </html>
