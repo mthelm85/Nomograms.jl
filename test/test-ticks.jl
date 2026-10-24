@@ -208,3 +208,32 @@ end
     @test_throws ArgumentError Variable(:x; tickstyle = :roman)
     @test_throws ArgumentError Variable(:x; tickstyle = :fraction, maxden = 0)
 end
+
+@testitem "a domain written in Rationals gets fraction ticks" tags = [:unit] begin
+    style(v) = (v.tickstyle, v.maxden)
+    @test style(Variable(:a; domain = (1 // 10, 10 // 10))) == (:fraction, 10)
+    @test style(Variable(:b; domain = (1 // 4, 3))) == (:fraction, 4)
+    @test Nomograms._fraction_denominator((1 // 3, 3 // 4)) == 12
+    # All whole, but written as Rationals: still fractions, in sixteenths.
+    @test style(Variable(:d; domain = (0 // 1, 3 // 1))) == (:fraction, 16)
+    # A float end, plain integers, or an explicit choice: no inference.
+    @test Variable(:e; domain = (1 // 3, 0.5)).tickstyle === :auto
+    @test Variable(:f; domain = (1, 10)).tickstyle === :auto
+    @test Variable(:g; domain = (1 // 10, 1 // 1), tickstyle = :linear).tickstyle ===
+          :linear
+    @test style(Variable(:h; domain = (1 // 10, 1 // 1), maxden = 20)) == (:fraction, 20)
+
+    # Through auto_nomogram's shorthand, as a reader would write it.
+    nom = auto_nomogram(
+        (original, scale) -> original * scale,
+        :original => (1 // 10, 10 // 10),
+        :scale => (0.1, 5.0),
+        :adjusted,
+    )
+    labels = [
+        t.label for sd in drawing(nom).scales if sd.name === :original for
+        t in sd.ticks if !isnothing(t.label)
+    ]
+    @test "3/10" in labels && "1/2" in labels
+    @test !any(l -> occursin(".", l), labels)
+end

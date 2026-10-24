@@ -33,6 +33,8 @@ Nomograms._strip(::Nothing, x::AbstractQuantity, name::Symbol) = throw(
 )
 
 Nomograms._attach(u::Units, x::Real) = x * u
+# `(1//2)u"inch"` is a fraction of an inch.
+Nomograms._rational_parts(x::AbstractQuantity) = Nomograms._rational_parts(ustrip(x))
 Nomograms._infer_unit(x::AbstractQuantity) = unit(x)
 Nomograms._unitstring(u::Units) = string(u)
 

@@ -12,6 +12,9 @@
     @test Variable(:L; domain = (1u"m", 2u"m"), ticks = [100u"cm", 1.5u"m"]).ticks ==
           [1.0, 1.5]
     @test_throws ArgumentError Variable(:L; domain = (1u"m", 2u"s"))
+    # A fraction of an inch is still a fraction.
+    q = Variable(:L; domain = ((1 // 2)u"inch", 3u"inch"))
+    @test q.tickstyle === :fraction && q.maxden == 2 && q.unit == u"inch"
     # A unit survives every rebuild a construction makes.
     @test Nomograms.rebuild(v; transform = LogScale()).unit == u"ft"
 end

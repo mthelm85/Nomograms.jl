@@ -41,6 +41,11 @@ One variable of a nomogram, before it has been placed on the page.
 - `maxden = 16`: for `tickstyle = :fraction`, the finest fraction offered; every
   denominator dividing it is used. 16 gives halves to sixteenths, 12 gives halves, thirds,
   quarters, sixths and twelfths.
+
+A domain written with `Rational` ends, such as `(1//10, 1//1)`, makes a variable left on
+`tickstyle = :auto` a `:fraction` one, with `maxden` the least common multiple of the
+ends' denominators -- 10 here -- or 16 if they are all whole. A `tickstyle` or `maxden`
+given explicitly wins, and a floating-point end turns the inference off.
 - `side`: `:left`, `:right`, or `:auto` (the construction chooses).
 - `titleend`: which end of the scale the title sits off — `:start` or `:stop` for the low
   or high end of the domain, or `:auto` for whichever is higher on the page. Worth setting
@@ -78,6 +83,23 @@ _unitstring(u) = string(u)
 
 _number(v::Variable, x) = _strip(v.unit, x, v.name)
 
+# Whether a value was written as a fraction, and its denominator: `(true, 3)` for 2//3,
+# `(false, 1)` for a whole number, `(false, nothing)` for anything else.
+_rational_parts(x::Rational) = (true, Int(denominator(x)))
+_rational_parts(x::Integer) = (false, 1)
+_rational_parts(::Any) = (false, nothing)
+
+# The finest fraction a domain's ends call for, if it was written in Rationals: the least
+# common multiple of their denominators. Ends that are all whole -- `(0//1, 3//1)` --
+# still say "fractions", and get sixteenths. A floating-point end means no inference.
+function _fraction_denominator(domain)
+    parts = [_rational_parts(x) for x in domain]
+    any(p -> isnothing(p[2]), parts) && return nothing
+    any(first, parts) || return nothing
+    d = lcm([p[2] for p in parts]...)
+    return d == 1 ? 16 : d
+end
+
 """
     axislabel(v::Variable) -> String
 
@@ -100,7 +122,7 @@ function Variable(
     tickstyle::Symbol = :auto,
     side::Symbol = :auto,
     titleend::Symbol = :auto,
-    maxden::Integer = 16,
+    maxden::Union{Nothing,Integer} = nothing,
     unit = nothing,
     unitlabel::Bool = true,
 )
@@ -111,6 +133,15 @@ function Variable(
             "tickstyle must be :auto, :linear, :log, :integer or :fraction, got :$tickstyle",
         ),
     )
+    # A domain written in Rationals says the variable is thought of in fractions.
+    if tickstyle === :auto && !isnothing(domain)
+        den = _fraction_denominator(domain)
+        if !isnothing(den)
+            tickstyle = :fraction
+            maxden = something(maxden, den)
+        end
+    end
+    maxden = something(maxden, 16)
     maxden >= 1 || throw(ArgumentError("maxden must be at least 1, got $maxden"))
     if isnothing(tickformat)
         tickformat = tickstyle === :fraction ? fractionformat(maxden) : default_tickformat

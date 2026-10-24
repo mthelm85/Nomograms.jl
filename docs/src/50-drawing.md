@@ -114,6 +114,10 @@ bolt = additive_nomogram(
 drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label = "1 5/8 in")])
 ```
 
+Writing a domain in `Rational`s says the same thing, so `domain = (1//8, 3)` gives a
+fraction axis without asking, in eighths: the finest denominator its ends use. A
+`tickstyle` or `maxden` given explicitly wins.
+
 Both work the same way as the decimal styles. Candidates are offered roundest first —
 multiples of 10 before 5s; wholes, then halves, then quarters — and thinned by distance
 on the page, so a crowded stretch of axis gives up sixteenths before eighths. An axis end
