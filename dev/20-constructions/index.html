@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=65bf1e9d">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=1ec360d2">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -186,6 +186,25 @@ drawing(skew; isopleths = [isopleth(skew; R1 = 4, R2 = 6, label = &quot;2.4&quot
 <p>The result is re-fitted to the canvas, since a projective map takes the bounding box somewhere arbitrary; composing that affine fit with the projective map leaves it projective, so the guarantee is unaffected.</p>
 <p>This is what makes reshaping a design tool rather than a risk. A region where the ticks pile up can be pulled open and nothing needs re-deriving — and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> will confirm it on the reshaped chart.</p>
 <p>The one thing to watch for is the map&#39;s vanishing line, where the denominator goes to zero. If it crosses a scale&#39;s domain, points there go to infinity; that is reported against the scale it affects rather than producing a chart full of <code class="md-code-inline">Inf</code>.</p>
+<h2 id="Fans,-for-the-wall" class="md-heading">Fans, for the wall<a href="#Fans,-for-the-wall" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Parallel lines meet at a point at infinity, and a projective map can bring that point onto the page. Every axis then runs through it, and the chart becomes a fan of spokes — <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> does this, and draws a pair of rings around the result:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">title = &quot;Resistors in parallel&quot;
+wall = fan(additive_nomogram(
+    Variable(:R1, ReciprocalScale(); domain = (1, 10), label = &quot;R₁ (Ω)&quot;),
+    Variable(:R2, ReciprocalScale(); domain = (1, 10), label = &quot;R₂ (Ω)&quot;),
+    Variable(:R, ReciprocalScale(); label = &quot;R (Ω)&quot;);
+    title,
+))
+drawing(wall; isopleths = [isopleth(wall; R1 = 4, R2 = 6, label = &quot;4 ∥ 6 = 2.4&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="9ebba9ba.svg" alt="Example block output">
+</div>
+</div>
+<p>It is the same chart, reading the same answers, and works on compound charts and nets too. Two things follow from the geometry. Straight lines stay straight, so the spokes end on a straight chord rather than an arc: at the default 90° spread the tips line up level, and wider fans leave the middle spokes short of the ring. And the map squeezes whatever lies near the hub, so <code class="md-code-inline">fan</code> lays the chart out both ways round and keeps whichever labels more values. Here the reciprocal scales&#39; crowded ends — 4 to 10 — went to the rim.</p>
       </article>
       <footer class="md-footer">
 <p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
@@ -199,6 +218,7 @@ drawing(skew; isopleths = [isopleth(skew; R1 = 4, R2 = 6, label = &quot;2.4&quot
           <a class="md-toc-link md-toc-h2" href="#Ratios,-and-the-N-chart">Ratios, and the N-chart</a>
           <a class="md-toc-link md-toc-h2" href="#Anything-else,-from-the-determinant">Anything else, from the determinant</a>
           <a class="md-toc-link md-toc-h2" href="#Reshaping,-for-free">Reshaping, for free</a>
+          <a class="md-toc-link md-toc-h2" href="#Fans,-for-the-wall">Fans, for the wall</a>
       </div>
     </aside>
   </div>
@@ -216,6 +236,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=65bf1e9d"></script>
+  <script src="../assets/materialdocs.js?v=1ec360d2"></script>
 </body>
 </html>
