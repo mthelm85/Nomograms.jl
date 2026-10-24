@@ -38,8 +38,15 @@ Each `fᵢ` is a [`ScaleTransform`](@ref): [`LinearScale`](@ref), [`LogScale`](@
 [`ReciprocalScale`](@ref), [`PowerScale`](@ref), [`ComposedScale`](@ref), or
 [`FunctionScale`](@ref) for anything else. A transform carries its own inverse, which is
 what lets the result axis be derived exactly instead of searched for.
-[`additive_nomogram`](@ref) builds the chart; see its docstring for the geometry, including
-why the middle axis spans exactly the same height as the outer two.
+[`additive_nomogram`](@ref) builds the chart; see its docstring for the geometry.
+
+Where the middle axis goes is not a free choice: it falls between the outer two, nearer the
+one whose transform spans more. When one range is far wider than the other, the middle axis
+would sit almost on top of that neighbour and its labels would read as the neighbour's. So
+the narrower axis is shortened and centred until the middle axis is at least a fifth of the
+way across. Readings are unchanged, since the middle axis moves with it. Set
+`max_modulus_ratio` to trade the narrow axis's length against that spacing, or `Inf` for
+full-height axes whatever their ranges.
 
 Product relations separate under a logarithm, which [`multiplicative_nomogram`](@ref)
 applies for you:

@@ -124,3 +124,50 @@ end
     )
     @test evaluate(sq; r = 3, h = 4).v ≈ 36.0 rtol = 1e-9
 end
+
+@testitem "the middle axis keeps clear of lopsided neighbours" tags = [:unit] begin
+    # wh spans three decades, the voltage factor a tenth of one: left to fill the height
+    # alike, the result axis would sit 3% of the way across.
+    mk(ratio) = multiplicative_nomogram(
+        Variable(:wh; domain = (2.5, 2400.0)),
+        Variable(:inv_volts; domain = (1 / 14, 1 / 11)),
+        Variable(:ah);
+        max_modulus_ratio = ratio,
+    )
+    capped, full = mk(4), mk(Inf)
+    x(nom, n) = Nomograms.point(nom[n], nom[n].domain[1])[1]
+    W = capped.width
+    @test x(full, :ah) / W < 0.05
+    @test x(capped, :ah) >= W / 5 - 1e-9
+    @test W - x(capped, :ah) >= W / 5 - 1e-9
+
+    # The narrow axis is the one shortened, centred, and still on the canvas.
+    y(nom, n, v) = Nomograms.point(nom[n], v)[2]
+    lo, hi = y(capped, :inv_volts, 1 / 14), y(capped, :inv_volts, 1 / 11)
+    @test abs(hi - lo) < capped.height / 4
+    @test (lo + hi) / 2 ≈ capped.height / 2
+    @test abs(y(capped, :wh, 2400.0) - y(capped, :wh, 2.5)) ≈ capped.height
+
+    # Same chart, same answers.
+    for wh in (3.0, 50.0, 2000.0), v in (1 / 13.5, 1 / 12, 1 / 11.2)
+        @test evaluate(capped; wh, inv_volts = v).ah ≈ evaluate(full; wh, inv_volts = v).ah rtol =
+            1e-9
+        @test evaluate(capped; wh, inv_volts = v).ah ≈ wh * v rtol = 1e-9
+    end
+    @test max_relation_residual(capped) < 1e-9
+
+    # Balanced ranges are untouched, and nonsense is refused.
+    even = additive_nomogram(
+        Variable(:a; domain = (0, 10)),
+        Variable(:b; domain = (0, 20)),
+        Variable(:s),
+    )
+    @test Nomograms.point(even[:a], 10.0)[2] ≈ even.height
+    @test Nomograms.point(even[:b], 20.0)[2] ≈ even.height
+    @test_throws ArgumentError additive_nomogram(
+        Variable(:a; domain = (0, 10)),
+        Variable(:b; domain = (0, 10)),
+        Variable(:s);
+        max_modulus_ratio = 0.5,
+    )
+end

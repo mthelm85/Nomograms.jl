@@ -77,7 +77,7 @@ function _result_domain(v::Variable, reachable::Tuple{Float64,Float64})
 end
 
 """
-    additive_nomogram(v1, v2, v3; width = 70, height = 100, title = "")
+    additive_nomogram(v1, v2, v3; width = 70, height = 100, title = "", max_modulus_ratio = 4)
 
 A three-parallel-axis nomogram for the separable relation
 
@@ -112,6 +112,20 @@ the middle axis therefore solves the relation. Because `a3 * (1/a1 + 1/a2) == 1`
 middle axis spans the same `[0, H]` as the outer two: its height and position are
 *consequences* of the outer scales, not free parameters.
 
+# Keeping the middle axis clear
+
+The middle axis sits at `L = a1 / (a1 + a2)` of the way across, so it hugs whichever outer
+axis has the smaller gradient -- the one whose `f` spans more. Over `[1, 1000]` against
+`[11, 14]` on logarithmic scales the gradients differ about 28-fold, and the middle axis
+lands 3% of the way across, nearly on top of its neighbour. So the steeper gradient is
+capped at `max_modulus_ratio` times the other, by shortening that axis and centring it
+vertically. An outer axis shifted by `d` shifts the line's crossing of the middle one by
+`d` times that axis's share, `L` or `1 - L`, so the middle axis is shifted to match and
+every reading is unchanged. The middle axis then lies at least `1/(1 + max_modulus_ratio)`
+of the width from either outer axis: a fifth, by default. The shortened axis loses only
+resolution it had to spare -- it was the one stretched furthest. Pass
+`max_modulus_ratio = Inf` for full-height outer axes whatever their ranges.
+
 # Example
 
 ```jldoctest
@@ -135,9 +149,12 @@ function additive_nomogram(
     width::Real = 70.0,
     height::Real = 100.0,
     title::AbstractString = "",
+    max_modulus_ratio::Real = 4.0,
 )
     width > 0 || throw(ArgumentError("width must be positive, got $width"))
     height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    max_modulus_ratio >= 1 ||
+        throw(ArgumentError("max_modulus_ratio must be at least 1, got $max_modulus_ratio"))
     for v in (v1, v2)
         isnothing(v.domain) && throw(
             ArgumentError(
@@ -150,18 +167,23 @@ function additive_nomogram(
 
     p0, p1 = frange(v1.transform, v1.domain)
     q0, q1 = frange(v2.transform, v2.domain)
-    a1 = H / (p1 - p0)
-    a2 = H / (q1 - q0)
+    R = float(max_modulus_ratio)
+    a1 = min(H / (p1 - p0), R * H / (q1 - q0))
+    a2 = min(H / (q1 - q0), R * H / (p1 - p0))
+    # A shortened axis is centred; the middle axis moves by each one's share of the shift.
+    d1 = (H - a1 * (p1 - p0)) / 2
+    d2 = (H - a2 * (q1 - q0)) / 2
     lam = a1 / (a1 + a2)
     a3 = a1 * a2 / (a1 + a2)
+    d3 = (1 - lam) * d1 + lam * d2
     r0, r1 = p0 + q0, p1 + q1
     dom3 = _result_domain(v3, (r0, r1))
 
     t1, t2, t3 = v1.transform, v2.transform, v3.transform
     x3 = lam * W
-    c1 = v -> (0.0, a1 * (transform(t1, v) - p0))
-    c2 = v -> (W, a2 * (transform(t2, v) - q0))
-    c3 = v -> (x3, a3 * (transform(t3, v) - r0))
+    c1 = v -> (0.0, a1 * (transform(t1, v) - p0) + d1)
+    c2 = v -> (W, a2 * (transform(t2, v) - q0) + d2)
+    c3 = v -> (x3, a3 * (transform(t3, v) - r0) + d3)
 
     side1 = v1.side === :auto ? :left : v1.side
     side2 = v2.side === :auto ? :right : v2.side
@@ -177,7 +199,7 @@ function additive_nomogram(
 end
 
 """
-    multiplicative_nomogram(v1, v2, v3; width = 70, height = 100, title = "")
+    multiplicative_nomogram(v1, v2, v3; width = 70, height = 100, title = "", max_modulus_ratio = 4)
 
 A three-parallel-axis nomogram for the product relation
 
@@ -286,9 +308,12 @@ function ratio_nomogram(
     width::Real = 70.0,
     height::Real = 100.0,
     title::AbstractString = "",
+    max_modulus_ratio::Real = 4.0,
 )
     width > 0 || throw(ArgumentError("width must be positive, got $width"))
     height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    max_modulus_ratio >= 1 ||
+        throw(ArgumentError("max_modulus_ratio must be at least 1, got $max_modulus_ratio"))
     for v in (v1, v2)
         isnothing(v.domain) && throw(
             ArgumentError(
