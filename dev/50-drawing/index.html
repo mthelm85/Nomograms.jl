@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Drawing — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=610de280">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=57482e49">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Drawing — Nomograms.jl">
   <meta property="og:title" content="Drawing — Nomograms.jl">
@@ -128,6 +128,40 @@ nom = additive_nomogram(
 <p>Tick values are chosen to be round numbers <em>in the variable</em>, then thinned by distance <em>on the page</em> (<a href="../95-reference/#Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}"><code class="md-code-inline">thin_ticks</code></a>). That split is what keeps a non-uniform axis readable: a reciprocal or logarithmic scale keeps its labels where it is stretched and drops them where it is compressed, and the numbers that survive are still round ones. Axis endpoints and decade boundaries are placed first, so a crowded axis gives up <code class="md-code-inline">9</code> before it gives up <code class="md-code-inline">10</code>.</p>
 <p>A logarithmic axis is offered every whole mantissa in every decade, in the order it should give them up — decades, then 5s, then 2s, then the rest — with no rule counting decades to decide in advance. One candidate set then serves every length of axis: eight decades settles on the classic 1-2-5 sequence, two decades labels every mantissa, and a range too narrow to hold three whole mantissas, such as 100 to 200, has its tenths promoted to labels instead of being left bare between its ends. A mantissa whose label is dropped still gets a tick mark.</p>
 <p>Where an axis compresses so hard that automatic selection has nothing to work with, pass <code class="md-code-inline">ticks = [...]</code> to the <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>; anything that will not fit is still dropped.</p>
+<h3 id="Counts-and-fractions" class="md-heading">Counts and fractions<a href="#Counts-and-fractions" class="md-heading-anchor" aria-label="Link to this section">#</a></h3>
+<p>Some quantities are not decimals. Gear teeth are counted, so an axis offering 12.5 teeth is wrong however round the number; <code class="md-code-inline">tickstyle = :integer</code> offers whole numbers only:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">gears = multiplicative_nomogram(
+    Variable(:ratio; domain = (0.5, 4), label = &quot;gear ratio&quot;),
+    Variable(:driver; domain = (10, 40), tickstyle = :integer, label = &quot;driver teeth&quot;),
+    Variable(:driven; tickstyle = :integer, label = &quot;driven teeth&quot;);
+    title = &quot;Gear train&quot;,
+)
+drawing(gears; isopleths = [isopleth(gears; ratio = 2.5, driver = 16, label = &quot;40 teeth&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="51c74ad2.svg" alt="Example block output">
+</div>
+</div>
+<p>Lengths in inches are read in fractions. <code class="md-code-inline">tickstyle = :fraction</code> offers fractions whose denominator divides <code class="md-code-inline">maxden</code> — sixteenths by default, <code class="md-code-inline">maxden = 12</code> for thirds and sixths — and labels them the way a ruler does, with <a href="../95-reference/#Nomograms.fractionformat"><code class="md-code-inline">fractionformat</code></a>:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">bolt = additive_nomogram(
+    Variable(:grip; domain = (1 / 4, 3), tickstyle = :fraction, label = &quot;grip (in)&quot;),
+    Variable(:nut; domain = (1 / 8, 3 / 4), tickstyle = :fraction, label = &quot;nut + washers (in)&quot;),
+    Variable(:length; tickstyle = :fraction, label = &quot;bolt length (in)&quot;);
+    title = &quot;Bolt length&quot;,
+)
+drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label = &quot;1 5/8 in&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="c85d98b2.svg" alt="Example block output">
+</div>
+</div>
+<p>Both work the same way as the decimal styles. Candidates are offered roundest first — multiples of 10 before 5s; wholes, then halves, then quarters — and thinned by distance on the page, so a crowded stretch of axis gives up sixteenths before eighths. An axis end is labelled only if it is a value the style allows. Neither style changes what the chart computes: readings come back as ordinary numbers, and an answer of 37.4 turns is reported as 37.4, not rounded to a count that would not satisfy the relation.</p>
 <h2 id="Placing-the-labels" class="md-heading">Placing the labels<a href="#Placing-the-labels" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>Thinning compares a scale only against itself, which is all a parallel layout needs. Bring scales together — a diagonal, a curve, two axes close on the page — and labels from <em>different</em> scales start to overlap, which no amount of per-axis thinning can see.</p>
 <p>So each label carries its anchor point, alignment and rotation, and <a href="../95-reference/#Nomograms.label_box-Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}"><code class="md-code-inline">label_box</code></a> turns those into the box it actually occupies. The layout then makes one pass over the whole chart: axis titles are reserved first, then major tick labels, then minor ones, and a label that cannot fit is dropped while its tick mark stays. Isopleth labels are nudged along the perpendicular until they are clear instead, since the caller asked for those by name.</p>
@@ -151,6 +185,7 @@ nom = additive_nomogram(
           <a class="md-toc-link md-toc-h2" href="#Rendering">Rendering</a>
           <a class="md-toc-link md-toc-h2" href="#Styling">Styling</a>
           <a class="md-toc-link md-toc-h2" href="#Ticks">Ticks</a>
+            <a class="md-toc-link md-toc-h3" href="#Counts-and-fractions">Counts and fractions</a>
           <a class="md-toc-link md-toc-h2" href="#Placing-the-labels">Placing the labels</a>
       </div>
     </aside>
@@ -161,6 +196,6 @@ nom = additive_nomogram(
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=610de280"></script>
+  <script src="../assets/materialdocs.js?v=57482e49"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>API — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=375c24ec">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=3491e720">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="API — Nomograms.jl">
   <meta property="og:title" content="API — Nomograms.jl">
@@ -105,19 +105,21 @@
 <li><a href="#Nomograms.default_tickformat-Tuple{Real}"><code>Nomograms.default_tickformat</code></a></li>
 <li><a href="#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code>Nomograms.determinant_nomogram</code></a></li>
 <li><a href="#Nomograms.drawing-Tuple{AbstractNomogram}"><code>Nomograms.drawing</code></a></li>
-<li><a href="#Nomograms.evaluate-Tuple{NetNomogram}"><code>Nomograms.evaluate</code></a></li>
 <li><a href="#Nomograms.evaluate-Tuple{CompoundNomogram}"><code>Nomograms.evaluate</code></a></li>
 <li><a href="#Nomograms.evaluate-Tuple{Nomogram}"><code>Nomograms.evaluate</code></a></li>
+<li><a href="#Nomograms.evaluate-Tuple{NetNomogram}"><code>Nomograms.evaluate</code></a></li>
 <li><a href="#Nomograms.evaluate_all-Tuple{NetNomogram}"><code>Nomograms.evaluate_all</code></a></li>
 <li><a href="#Nomograms.evaluate_all-Tuple{Nomogram}"><code>Nomograms.evaluate_all</code></a></li>
 <li><a href="#Nomograms.fan-Tuple{AbstractNomogram}"><code>Nomograms.fan</code></a></li>
+<li><a href="#Nomograms.fraction_ticks-Tuple{Real, Real}"><code>Nomograms.fraction_ticks</code></a></li>
+<li><a href="#Nomograms.fractionformat"><code>Nomograms.fractionformat</code></a></li>
 <li><a href="#Nomograms.frange-Tuple{ScaleTransform, Tuple{Real, Real}}"><code>Nomograms.frange</code></a></li>
 <li><a href="#Nomograms.hasinverse-Tuple{ScaleTransform}"><code>Nomograms.hasinverse</code></a></li>
 <li><a href="#Nomograms.invert-Tuple{ScaleTransform, Any, Tuple{Real, Real}}"><code>Nomograms.invert</code></a></li>
 <li><a href="#Nomograms.invtransform"><code>Nomograms.invtransform</code></a></li>
 <li><a href="#Nomograms.isopleth-Tuple{Nomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
-<li><a href="#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
 <li><a href="#Nomograms.isopleth-Tuple{NetNomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
+<li><a href="#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
 <li><a href="#Nomograms.isopleth_style-Tuple{Integer, Any, Any}"><code>Nomograms.isopleth_style</code></a></li>
 <li><a href="#Nomograms.label_box-Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}"><code>Nomograms.label_box</code></a></li>
 <li><a href="#Nomograms.linear_ticks-Tuple{Real, Real}"><code>Nomograms.linear_ticks</code></a></li>
@@ -154,7 +156,7 @@
 <div class="md-docstring" id="Nomograms.Nomograms">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Nomograms</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/Nomograms.jl#L1-L41" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/Nomograms.jl#L1-L41" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -191,7 +193,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.DEFAULT_ISOPLETH_COLORS">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.DEFAULT_ISOPLETH_COLORS</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/svg.jl#L1-L11" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/svg.jl#L1-L11" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -205,7 +207,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.DEFAULT_ISOPLETH_DASHES">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.DEFAULT_ISOPLETH_DASHES</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/svg.jl#L14-L20" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/svg.jl#L14-L20" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -218,7 +220,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.AbstractNomogram">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.AbstractNomogram</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L126-L134" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L146-L154" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -231,7 +233,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.ComposedScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.ComposedScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L112-L118" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L112-L118" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -244,7 +246,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.CompoundNomogram">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.CompoundNomogram</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/compound.jl#L1-L16" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/compound.jl#L1-L16" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -259,7 +261,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.FunctionScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.FunctionScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L96-L102" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L96-L102" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -272,7 +274,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Isopleth">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Isopleth</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L193-L203" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L213-L223" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -294,7 +296,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.IsoplethDrawing">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.IsoplethDrawing</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L96-L101" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L96-L101" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -307,7 +309,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.LinearScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.LinearScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L48-L52" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L48-L52" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -320,7 +322,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.LogScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.LogScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L62-L66" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L62-L66" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -333,7 +335,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Net">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Net</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L1-L29" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L1-L29" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -355,7 +357,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.NetNomogram">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.NetNomogram</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L38-L46" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L38-L46" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -369,7 +371,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Nomogram">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Nomogram</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L137-L146" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L157-L166" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -383,7 +385,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.NomogramDrawing">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.NomogramDrawing</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L111-L118" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L111-L118" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -396,7 +398,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.NomogramStyle">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.NomogramStyle</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L1-L36" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L1-L36" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -441,7 +443,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Point">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Point</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L1-L5" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L1-L5" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -454,7 +456,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.PowerScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.PowerScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L85-L89" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L85-L89" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -467,7 +469,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.ReciprocalScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.ReciprocalScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L75-L80" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L75-L80" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -480,7 +482,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Scale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Scale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L92-L98" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L112-L118" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -493,7 +495,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Scale-Tuple{Variable, Any, Any, Symbol}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Scale</code> — <span class="md-docstring-sig">Tuple{Variable, Any, Any, Symbol}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L107-L113" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L127-L133" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -506,7 +508,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.ScaleDrawing">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.ScaleDrawing</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L81-L85" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L81-L85" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -519,7 +521,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.ScaleTransform">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.ScaleTransform</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L1-L15" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L1-L15" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -534,7 +536,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.TabulatedScale">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.TabulatedScale</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/auto.jl#L1-L12" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/auto.jl#L1-L12" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -548,7 +550,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.TickMark">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.TickMark</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L60-L68" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L60-L68" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -562,7 +564,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.Variable">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.Variable</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L8-L33" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L8-L43" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -585,9 +587,22 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 </li>
 <li><p><code class="md-code-inline">ticks</code>, <code class="md-code-inline">minorticks</code>: explicit tick values, bypassing automatic selection.</p>
 </li>
-<li><p><code class="md-code-inline">tickformat</code>: <code class="md-code-inline">value -&gt; String</code>.</p>
+<li><p><code class="md-code-inline">tickformat</code>: <code class="md-code-inline">value -&gt; String</code>. Defaults to <a href="../95-reference/#Nomograms.fractionformat"><code class="md-code-inline">fractionformat</code></a> for <code class="md-code-inline">tickstyle = :fraction</code> and to plain numbers otherwise.</p>
 </li>
-<li><p><code class="md-code-inline">tickstyle</code>: <code class="md-code-inline">:linear</code> or <code class="md-code-inline">:log</code> to choose how automatic tick values are picked, or <code class="md-code-inline">:auto</code> to take it from the transform. A construction may override <code class="md-code-inline">:auto</code> when it knows better: an N-chart&#39;s ratio axis gets logarithmic ticks when it spans a decade or more.</p>
+<li><p><code class="md-code-inline">tickstyle</code>: how automatic tick values are picked.</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">:linear</code> or <code class="md-code-inline">:log</code> for round decimals spaced evenly or by decade;</p>
+</li>
+<li><p><code class="md-code-inline">:integer</code> for whole numbers only, for a count such as gear teeth or turns;</p>
+</li>
+<li><p><code class="md-code-inline">:fraction</code> for fractions whose denominator divides <code class="md-code-inline">maxden</code> – halves, quarters, eighths, sixteenths by default – labelled as such: <code class="md-code-inline">1 3/8</code>, not <code class="md-code-inline">1.375</code>;</p>
+</li>
+<li><p><code class="md-code-inline">:auto</code> to take it from the transform. A construction may override <code class="md-code-inline">:auto</code> when it knows better: an N-chart&#39;s ratio axis gets logarithmic ticks when it spans a decade or more.</p>
+</li>
+</ul>
+<p>Whichever is chosen, ticks are thinned by distance on the page, roundest first.</p>
+</li>
+<li><p><code class="md-code-inline">maxden = 16</code>: for <code class="md-code-inline">tickstyle = :fraction</code>, the finest fraction offered; every denominator dividing it is used. 16 gives halves to sixteenths, 12 gives halves, thirds, quarters, sixths and twelfths.</p>
 </li>
 <li><p><code class="md-code-inline">side</code>: <code class="md-code-inline">:left</code>, <code class="md-code-inline">:right</code>, or <code class="md-code-inline">:auto</code> (the construction chooses).</p>
 </li>
@@ -599,7 +614,7 @@ save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 
 <div class="md-docstring" id="Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.additive_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L79-L144" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L80-L145" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -647,7 +662,7 @@ julia&gt; round(evaluate(nom; a = 3, b = 4).total; digits = 10)
 <div class="md-docstring" id="Nomograms.align_for-Tuple{Tuple{Float64, Float64}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.align_for</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L168-L177" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L168-L177" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -661,7 +676,7 @@ julia&gt; round(evaluate(nom; a = 3, b = 4).total; digits = 10)
 <div class="md-docstring" id="Nomograms.align_residual-Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.align_residual</code> — <span class="md-docstring-sig">Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L4-L13" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L4-L13" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -675,7 +690,7 @@ julia&gt; round(evaluate(nom; a = 3, b = 4).total; digits = 10)
 <div class="md-docstring" id="Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.auto_nomogram</code> — <span class="md-docstring-sig">Tuple{Any, Vararg{Any}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/auto.jl#L276-L353" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/auto.jl#L285-L362" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -716,7 +731,7 @@ auto_nomogram(F, x, y, w, ..., z; kwargs...) -&gt; CompoundNomogram</code></pre>
 <div class="md-docstring" id="Nomograms.candidate_ticks-Tuple{Variable, Tuple{Float64, Float64}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.candidate_ticks</code> — <span class="md-docstring-sig">Tuple{Variable, Tuple{Float64, Float64}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/ticks.jl#L151-L157" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L242-L248" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -729,7 +744,7 @@ auto_nomogram(F, x, y, w, ..., z; kwargs...) -&gt; CompoundNomogram</code></pre>
 <div class="md-docstring" id="Nomograms.compound-Tuple{Vararg{Nomogram}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.compound</code> — <span class="md-docstring-sig">Tuple{Vararg{Nomogram}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/compound.jl#L91-L116" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/compound.jl#L91-L116" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -751,7 +766,7 @@ chart = compound(first, second)</code></pre>
 <div class="md-docstring" id="Nomograms.default_tickformat-Tuple{Real}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.default_tickformat</code> — <span class="md-docstring-sig">Tuple{Real}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/ticks.jl#L1-L6" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L1-L6" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -764,7 +779,7 @@ chart = compound(first, second)</code></pre>
 <div class="md-docstring" id="Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.determinant_nomogram</code> — <span class="md-docstring-sig">Tuple{Vararg{Pair}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L400-L458" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L401-L459" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -815,7 +830,7 @@ julia&gt; point(nom[:v], 10)
 <div class="md-docstring" id="Nomograms.drawing-Tuple{AbstractNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.drawing</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L546-L552" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L554-L560" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -828,7 +843,7 @@ julia&gt; point(nom[:v], 10)
 <div class="md-docstring" id="Nomograms.evaluate-Tuple{CompoundNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{CompoundNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/compound.jl#L187-L198" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/compound.jl#L187-L198" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -843,7 +858,7 @@ julia&gt; point(nom[:v], 10)
 <div class="md-docstring" id="Nomograms.evaluate-Tuple{NetNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{NetNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L331-L342" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L331-L342" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -857,7 +872,7 @@ julia&gt; point(nom[:v], 10)
 <div class="md-docstring" id="Nomograms.evaluate-Tuple{Nomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{Nomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L148-L172" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L148-L172" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -884,7 +899,7 @@ julia&gt; round(evaluate(nom; a = 2, s = 9).b; digits = 10)
 <div class="md-docstring" id="Nomograms.evaluate_all-Tuple{NetNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.evaluate_all</code> — <span class="md-docstring-sig">Tuple{NetNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L361-L365" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L361-L365" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -897,7 +912,7 @@ julia&gt; round(evaluate(nom; a = 2, s = 9).b; digits = 10)
 <div class="md-docstring" id="Nomograms.evaluate_all-Tuple{Nomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.evaluate_all</code> — <span class="md-docstring-sig">Tuple{Nomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L178-L200" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L178-L200" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -923,7 +938,7 @@ julia&gt; length(evaluate_all(nom; a = 2, b = 3))
 <div class="md-docstring" id="Nomograms.fan-Tuple{AbstractNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.fan</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/fan.jl#L1-L31" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/fan.jl#L1-L31" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -950,10 +965,36 @@ julia&gt; length(evaluate_all(nom; a = 2, b = 3))
 <p>Works on any chart, but it is designed for parallel axes; a diagonal or curved scale is reshaped too, and stays correct, but does not become a spoke.</p>
 </div>
 </div>
+<div class="md-docstring" id="Nomograms.fraction_ticks-Tuple{Real, Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.fraction_ticks</code> — <span class="md-docstring-sig">Tuple{Real, Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L180-L187" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">fraction_ticks(lo, hi; maxden = 16) -&gt; (majors, minors)</code></pre>
+</div>
+<p>Every fraction in <code class="md-code-inline">[lo, hi]</code> whose denominator divides <code class="md-code-inline">maxden</code>, offered whole numbers first (roundest first), then halves, quarters and so on: the order a crowded axis should give them up, so it keeps <code class="md-code-inline">1/2</code> before <code class="md-code-inline">3/8</code>. Every one is also a minor, so a fraction whose label is dropped keeps its mark, as on a ruler.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.fractionformat">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.fractionformat</code> — <span class="md-docstring-sig">Union{Tuple{}, Tuple{Integer}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L207-L214" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">fractionformat(maxden = 16; mixed = true) -&gt; (value -&gt; String)</code></pre>
+</div>
+<p>A tick label format for fractions: <code class="md-code-inline">1 3/8</code> (or <code class="md-code-inline">11/8</code> with <code class="md-code-inline">mixed = false</code>), <code class="md-code-inline">3/4</code>, <code class="md-code-inline">2</code>. A value that is not a whole number of <code class="md-code-inline">1/maxden</code>ths falls back to plain decimals, so an axis end at 0.3 still reads correctly. The default label format for <code class="md-code-inline">tickstyle = :fraction</code>; pass it as <code class="md-code-inline">tickformat</code> to label any axis this way.</p>
+</div>
+</div>
 <div class="md-docstring" id="Nomograms.frange-Tuple{ScaleTransform, Tuple{Real, Real}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.frange</code> — <span class="md-docstring-sig">Tuple{ScaleTransform, Tuple{Real, Real}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L151-L157" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L151-L157" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -966,7 +1007,7 @@ julia&gt; length(evaluate_all(nom; a = 2, b = 3))
 <div class="md-docstring" id="Nomograms.hasinverse-Tuple{ScaleTransform}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.hasinverse</code> — <span class="md-docstring-sig">Tuple{ScaleTransform}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L33-L37" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L33-L37" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -979,7 +1020,7 @@ julia&gt; length(evaluate_all(nom; a = 2, b = 3))
 <div class="md-docstring" id="Nomograms.invert-Tuple{ScaleTransform, Any, Tuple{Real, Real}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.invert</code> — <span class="md-docstring-sig">Tuple{ScaleTransform, Any, Tuple{Real, Real}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L128-L133" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L128-L133" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -992,7 +1033,7 @@ julia&gt; length(evaluate_all(nom; a = 2, b = 3))
 <div class="md-docstring" id="Nomograms.invtransform">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.invtransform</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L25-L30" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L25-L30" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1005,7 +1046,7 @@ julia&gt; length(evaluate_all(nom; a = 2, b = 3))
 <div class="md-docstring" id="Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.isopleth</code> — <span class="md-docstring-sig">Tuple{CompoundNomogram, NamedTuple}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/compound.jl#L242-L254" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/compound.jl#L242-L254" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1020,7 +1061,7 @@ isopleth(cn::CompoundNomogram, solution::NamedTuple; label = &quot;&quot;) -&gt;
 <div class="md-docstring" id="Nomograms.isopleth-Tuple{NetNomogram, NamedTuple}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.isopleth</code> — <span class="md-docstring-sig">Tuple{NetNomogram, NamedTuple}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L369-L376" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L369-L376" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1034,7 +1075,7 @@ isopleth(nn::NetNomogram; label = &quot;&quot;, group = 0, values...) -&gt; Isop
 <div class="md-docstring" id="Nomograms.isopleth-Tuple{Nomogram, NamedTuple}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.isopleth</code> — <span class="md-docstring-sig">Tuple{Nomogram, NamedTuple}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L208-L226" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L208-L226" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1054,7 +1095,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.isopleth_style-Tuple{Integer, Any, Any}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.isopleth_style</code> — <span class="md-docstring-sig">Tuple{Integer, Any, Any}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/svg.jl#L23-L28" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/svg.jl#L23-L28" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1067,7 +1108,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.label_box-Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.label_box</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L198-L203" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L198-L203" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1080,7 +1121,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.linear_ticks-Tuple{Real, Real}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.linear_ticks</code> — <span class="md-docstring-sig">Tuple{Real, Real}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/ticks.jl#L71-L80" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L71-L80" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1094,7 +1135,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.log_ticks-Tuple{Real, Real}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.log_ticks</code> — <span class="md-docstring-sig">Tuple{Real, Real}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/ticks.jl#L108-L124" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L108-L124" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1109,7 +1150,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.max_relation_residual-Tuple{NetNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.max_relation_residual</code> — <span class="md-docstring-sig">Tuple{NetNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L416-L425" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L416-L425" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1123,7 +1164,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.max_relation_residual-Tuple{Nomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.max_relation_residual</code> — <span class="md-docstring-sig">Tuple{Nomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L556-L570" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L557-L571" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1138,7 +1179,7 @@ isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isople
 <div class="md-docstring" id="Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.multiplicative_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L201-L232" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L202-L233" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1172,7 +1213,7 @@ julia&gt; round(evaluate(nom; x = 2, y = 3).z; digits = 10)
 <div class="md-docstring" id="Nomograms.net_nomogram-Tuple{Net, Pair, Pair}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.net_nomogram</code> — <span class="md-docstring-sig">Tuple{Net, Pair, Pair}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L123-L165" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L123-L165" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1217,7 +1258,7 @@ julia&gt; [round(s.x; digits = 8) for s in evaluate_all(nom; a = 1, b = -3, c = 
 <div class="md-docstring" id="Nomograms.netpoint-Tuple{NetNomogram, Any, Any}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.netpoint</code> — <span class="md-docstring-sig">Tuple{NetNomogram, Any, Any}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/net.jl#L247-L251" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/net.jl#L247-L251" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1230,7 +1271,7 @@ julia&gt; [round(s.x; digits = 8) for s in evaluate_all(nom; a = 1, b = -3, c = 
 <div class="md-docstring" id="Nomograms.nicestep-Tuple{Real}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.nicestep</code> — <span class="md-docstring-sig">Tuple{Real}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/ticks.jl#L26-L30" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/ticks.jl#L26-L30" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1243,7 +1284,7 @@ julia&gt; [round(s.x; digits = 8) for s in evaluate_all(nom; a = 1, b = -3, c = 
 <div class="md-docstring" id="Nomograms.nomogramplot!-Tuple">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.nomogramplot!</code> — <span class="md-docstring-sig">Tuple</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/Nomograms.jl#L147-L151" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/Nomograms.jl#L148-L152" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1256,7 +1297,7 @@ julia&gt; [round(s.x; digits = 8) for s in evaluate_all(nom; a = 1, b = -3, c = 
 <div class="md-docstring" id="Nomograms.nomogramplot-Tuple">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.nomogramplot</code> — <span class="md-docstring-sig">Tuple</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/Nomograms.jl#L118-L136" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/Nomograms.jl#L119-L137" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1286,7 +1327,7 @@ save(&quot;chart.pdf&quot;, fig)</code></pre>
 <div class="md-docstring" id="Nomograms.nudge_clear-Tuple{AbstractString, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Real, Tuple{Symbol, Symbol}, NomogramStyle, Vector{NTuple{4, Float64}}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.nudge_clear</code> — <span class="md-docstring-sig">Tuple{AbstractString, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Real, Tuple{Symbol, Symbol}, NomogramStyle, Vector{NTuple{4, Float64}}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L398-L407" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L406-L415" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1300,7 +1341,7 @@ save(&quot;chart.pdf&quot;, fig)</code></pre>
 <div class="md-docstring" id="Nomograms.point-Tuple{Scale, Any}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.point</code> — <span class="md-docstring-sig">Tuple{Scale, Any}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L116-L120" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L136-L140" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1313,7 +1354,7 @@ save(&quot;chart.pdf&quot;, fig)</code></pre>
 <div class="md-docstring" id="Nomograms.project-Tuple{Nomogram, AbstractMatrix}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.project</code> — <span class="md-docstring-sig">Tuple{Nomogram, AbstractMatrix}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L660-L700" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L661-L701" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1354,7 +1395,7 @@ julia&gt; round(evaluate(skew; a = 3, b = 4).s; digits = 10)
 <div class="md-docstring" id="Nomograms.projective_transform-Tuple{Any, Any}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.projective_transform</code> — <span class="md-docstring-sig">Tuple{Any, Any}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L598-L607" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L599-L608" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1368,7 +1409,7 @@ julia&gt; round(evaluate(skew; a = 3, b = 4).s; digits = 10)
 <div class="md-docstring" id="Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.ratio_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/construct.jl#L243-L303" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/construct.jl#L244-L304" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1412,7 +1453,7 @@ julia&gt; round(evaluate(nom; distance = 6, time = 3).speed; digits = 10)
 <div class="md-docstring" id="Nomograms.relation_residual-Tuple{Nomogram, NamedTuple}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.relation_residual</code> — <span class="md-docstring-sig">Tuple{Nomogram, NamedTuple}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L266-L274" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L266-L274" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1426,7 +1467,7 @@ julia&gt; round(evaluate(nom; distance = 6, time = 3).speed; digits = 10)
 <div class="md-docstring" id="Nomograms.resolved_tickstyle-Tuple{Variable}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.resolved_tickstyle</code> — <span class="md-docstring-sig">Tuple{Variable}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L83-L88" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L103-L108" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1439,7 +1480,7 @@ julia&gt; round(evaluate(nom; distance = 6, time = 3).speed; digits = 10)
 <div class="md-docstring" id="Nomograms.save_svg-Tuple{AbstractString, Any}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.save_svg</code> — <span class="md-docstring-sig">Tuple{AbstractString, Any}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/svg.jl#L266-L271" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/svg.jl#L266-L271" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1453,7 +1494,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.scale-Tuple{AbstractNomogram, Symbol}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.scale</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram, Symbol}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L171-L175" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L191-L195" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1466,7 +1507,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.segment_hits_box-Tuple{Tuple{Float64, Float64}, Tuple{Float64, Float64}, NTuple{4, Float64}, Real}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.segment_hits_box</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}, Tuple{Float64, Float64}, NTuple{4, Float64}, Real}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L222-L230" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L222-L230" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1480,7 +1521,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.separability_defect-Tuple{Any, Any, Any}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.separability_defect</code> — <span class="md-docstring-sig">Tuple{Any, Any, Any}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/auto.jl#L137-L154" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/auto.jl#L137-L154" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1499,7 +1540,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.side_normals-Tuple{Tuple{Float64, Float64}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.side_normals</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L151-L155" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L151-L155" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1512,7 +1553,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.solve_all_on</code> — <span class="md-docstring-sig">Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L46-L59" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L46-L59" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1527,7 +1568,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.solve_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.solve_on</code> — <span class="md-docstring-sig">Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/solve.jl#L76-L83" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/solve.jl#L76-L83" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1541,7 +1582,7 @@ save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
 <div class="md-docstring" id="Nomograms.svg-Tuple{NomogramDrawing}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.svg</code> — <span class="md-docstring-sig">Tuple{NomogramDrawing}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/svg.jl#L92-L109" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/svg.jl#L92-L109" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1569,7 +1610,7 @@ svg(d::NomogramDrawing; kwargs...) -&gt; String</code></pre>
 <div class="md-docstring" id="Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.thin_ticks</code> — <span class="md-docstring-sig">Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/drawing.jl#L257-L269" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/drawing.jl#L257-L269" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1584,7 +1625,7 @@ svg(d::NomogramDrawing; kwargs...) -&gt; String</code></pre>
 <div class="md-docstring" id="Nomograms.tickstyle-Tuple{ScaleTransform}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.tickstyle</code> — <span class="md-docstring-sig">Tuple{ScaleTransform}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L40-L45" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L40-L45" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1597,7 +1638,7 @@ svg(d::NomogramDrawing; kwargs...) -&gt; String</code></pre>
 <div class="md-docstring" id="Nomograms.transform">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.transform</code></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/transforms.jl#L18-L22" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/transforms.jl#L18-L22" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1610,7 +1651,7 @@ svg(d::NomogramDrawing; kwargs...) -&gt; String</code></pre>
 <div class="md-docstring" id="Nomograms.variablenames-Tuple{AbstractNomogram}">
 <div class="md-docstring-header">
 <h4 class="md-docstring-binding"><code>Nomograms.variablenames</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram}</span></h4>
-<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/d2beae8f5c43f91770d5d355ab896664dbf4a844/src/types.jl#L188-L190" title="View source">source</a>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/05358b9935bfefa2d6ff4c56a94d8234cfe98994/src/types.jl#L208-L210" title="View source">source</a>
 </div>
 <div class="md-docstring-content">
 <div class="md-code-block">
@@ -1638,6 +1679,6 @@ svg(d::NomogramDrawing; kwargs...) -&gt; String</code></pre>
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=375c24ec"></script>
+  <script src="../assets/materialdocs.js?v=3491e720"></script>
 </body>
 </html>
