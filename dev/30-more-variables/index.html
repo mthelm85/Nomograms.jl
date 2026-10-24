@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Four or more variables — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=65af0bba">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=63904938">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Four or more variables — Nomograms.jl">
   <meta property="og:title" content="Four or more variables — Nomograms.jl">
@@ -51,8 +51,8 @@
       <a href="../30-more-variables/" class="md-nav-active">Four or more variables</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
-      <a href="../95-reference/">Reference</a>
-      <a href="../96-references/">References</a>
+      <a href="../95-reference/">API</a>
+      <a href="../96-references/">Bibliography</a>
     </nav>
     <main class="md-content">
       <article class="md-article">
@@ -104,7 +104,7 @@ drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = &quot;3 × 4
 </div>
 <p>Stages interleave rather than sitting side by side, because a parallel-axis construction puts its result <em>between</em> its inputs: one input of the first stage always lands inside the second. Sizing the stages decides where — here the first is 40 wide and the second 130, so <code class="md-code-inline">width</code> falls between the turning line and <code class="md-code-inline">volume</code> rather than on top of <code class="md-code-inline">volume</code>. <code class="md-code-inline">auto_nomogram</code> makes that choice itself, and <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> will reshape the result if the arrangement is still awkward.</p>
 <h2 id="When-a-pivot-will-not-do:-nets" class="md-heading">When a pivot will not do: nets<a href="#When-a-pivot-will-not-do:-nets" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>A pivot works only when the first two variables collapse into a single intermediate. When they do not, one of the three points an alignment line crosses must carry two variables at once. That is a <a href="../95-reference/#Nomograms.Net"><code class="md-code-inline">Net</code></a>: a two-parameter surface <code class="md-code-inline">(u, v) -&gt; (x, y)</code>, drawn as a mesh — the grid nomogram of the classic texts, which goes back to d&#39;Ocagne and which Doerfler builds from determinants (see <a href="../96-references/">References</a>).</p>
+<p>A pivot works only when the first two variables collapse into a single intermediate. When they do not, one of the three points an alignment line crosses must carry two variables at once. That is a <a href="../95-reference/#Nomograms.Net"><code class="md-code-inline">Net</code></a>: a two-parameter surface <code class="md-code-inline">(u, v) -&gt; (x, y)</code>, drawn as a mesh — the grid nomogram of the classic texts, which goes back to d&#39;Ocagne and which Doerfler builds from determinants (see the <a href="../96-references/">Bibliography</a>).</p>
 <p>Deriving one follows the same pattern as a curved scale. With <code class="md-code-inline">a</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">f(a)</code> and <code class="md-code-inline">b</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">g(b)</code>, a net point is crossed exactly when</p>
 <div class="md-math md-math-display">
 \[\alpha f(a) + \beta g(b) = \gamma, \qquad
@@ -171,6 +171,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=65af0bba"></script>
+  <script src="../assets/materialdocs.js?v=63904938"></script>
 </body>
 </html>

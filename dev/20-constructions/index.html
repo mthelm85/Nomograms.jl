@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=8f488539">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=18e2136a">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -51,8 +51,8 @@
       <a href="../30-more-variables/">Four or more variables</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
-      <a href="../95-reference/">Reference</a>
-      <a href="../96-references/">References</a>
+      <a href="../95-reference/">API</a>
+      <a href="../96-references/">Bibliography</a>
     </nav>
     <main class="md-content">
       <article class="md-article">
@@ -94,7 +94,7 @@ drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = &quot;
 </div>
 </div>
 <h2 id="Ratios,-and-the-N-chart" class="md-heading">Ratios, and the N-chart<a href="#Ratios,-and-the-N-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Not every relation wants parallel scales. <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> builds an N-chart (also called a Z-chart) for <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w)</code>: two vertical scales joined by a diagonal, with the result read off the diagonal. Doerfler&#39;s &quot;The Lost Art of Nomography&quot; derives the classic construction (see <a href="../96-references/">References</a>).</p>
+<p>Not every relation wants parallel scales. <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> builds an N-chart (also called a Z-chart) for <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w)</code>: two vertical scales joined by a diagonal, with the result read off the diagonal. Doerfler&#39;s &quot;The Lost Art of Nomography&quot; derives the classic construction (see the <a href="../96-references/">Bibliography</a>).</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -236,6 +236,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=8f488539"></script>
+  <script src="../assets/materialdocs.js?v=18e2136a"></script>
 </body>
 </html>
