@@ -69,7 +69,7 @@ separability_defect((x, y) -> x^2 + x * y + y, (0.5, 5), (0.5, 5))
 
 The first is separable despite its cross term — it is `(1 + x)(1 + y) − 1` in disguise.
 The second is not, so it has no chart on three straight scales. It does have one with a
-curved scale, which `auto_nomogram` looks for next; see [One curved scale](#One-curved-scale).
+curved scale, which `auto_nomogram` looks for next; see [One curved scale](@ref).
 
 ## Recovering the transforms
 
@@ -227,9 +227,7 @@ straight scale cannot fold back on itself.
     The common paths are compiled when the package is installed, so the first chart of a
     session takes about as long as any other: a fraction of a second for up to four
     inputs, and a couple of seconds for five, most of it spent comparing layouts. The
-    first five-input chart of a session also compiles for several seconds.
-
-    The search for a curved scale runs only when straight scales fail. Automatic
-    differentiation compiles anew for each formula it meets, so the first curved chart
-    from a given function takes a few seconds; building it again takes a fraction of
-    one.
+    first five-input chart of a session also compiles for several seconds. The search
+    for a curved scale runs only when straight scales fail, and its automatic
+    differentiation compiles anew for each formula, so the first curved chart from a
+    given function takes a few seconds; building it again takes a fraction of one.
