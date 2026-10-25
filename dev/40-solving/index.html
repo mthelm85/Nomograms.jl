@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Solving — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=b757ee4e">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=2966c413">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Solving — Nomograms.jl">
   <meta property="og:title" content="Solving — Nomograms.jl">
@@ -60,7 +60,7 @@
       <article class="md-article">
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/40-solving.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Solving" class="md-heading">Solving<a href="#Solving" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
-<p>A chart is also a calculator, and reading it numerically is the same operation as reading it by eye: find the line through the known points, and where it crosses the unknown scale.</p>
+<p>You can read a chart numerically as well as by eye. <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> does what you would do with a straightedge: it finds the line through the known points, and where that line crosses the unknown scale.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -75,7 +75,7 @@ evaluate(nom; R1 = 4, R2 = 6)</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(R1 = 4.0, R2 = 6.0, R = 2.4)</code></pre>
 </div>
-<p>Any variable may be the unknown, so the inverse problem needs nothing new:</p>
+<p>Any variable can be the unknown, so you solve the inverse problem the same way:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -83,7 +83,7 @@ evaluate(nom; R1 = 4, R2 = 6)</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(R1 = 4.0, R2 = 5.999999999999999, R = 2.4)</code></pre>
 </div>
-<p><a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a> takes the same arguments and returns the line itself, ready to draw. Pass it a solution from <code class="md-code-inline">evaluate</code> to draw that reading:</p>
+<p><a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a> takes the same arguments and returns the line itself, ready to draw. To draw a reading, pass it a solution from <code class="md-code-inline">evaluate</code>:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -94,8 +94,8 @@ evaluate(nom; R1 = 4, R2 = 6)</code></pre>
 </div>
 </div>
 <h2 id="More-than-one-crossing" class="md-heading">More than one crossing<a href="#More-than-one-crossing" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>A straight line can meet a <em>curved</em> scale more than once, and each crossing is a genuine solution of the relation. The usual shortcut — checking the sign of the residual at the two ends of the domain and bisecting — gets this wrong twice over: it reports &quot;no solution&quot; for an even number of crossings, because both ends lie on the same side of the line, and it returns an arbitrary one of an odd number without saying so.</p>
-<p>So <a href="../95-reference/#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">solve_all_on</code></a> searches the whole domain. <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> still returns a single answer, but throws rather than choosing when there are several, naming the values it could not choose between; <a href="../95-reference/#Nomograms.evaluate_all-Tuple{NetNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every solution:</p>
+<p>A straight line can meet a <em>curved</em> scale more than once, and each crossing is a valid solution of the relation. The usual shortcut is to check the sign of the residual at the two ends of the domain and bisect. That fails in two ways. With an even number of crossings, both ends lie on the same side of the line, so it reports no solution. With an odd number greater than one, it returns one of them arbitrarily and does not tell you there are others.</p>
+<p>Instead, <a href="../95-reference/#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">solve_all_on</code></a> searches the whole domain. <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> still returns a single answer. When there are several, it throws an error that lists them instead of picking one. <a href="../95-reference/#Nomograms.evaluate_all-Tuple{NetNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every solution:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -122,9 +122,9 @@ end</code></pre>
  1.0000000000000007
  1.9999999999999998</code></pre>
 </div>
-<p>A straight scale makes the residual an affine function of position, hence monotone, so there is always at most one root: parallel-layout nomograms never encounter this. The cost of searching rather than bracketing is around 120 µs per <code class="md-code-inline">evaluate</code> instead of a few, which is immaterial for reading charts.</p>
+<p>On a straight scale the residual is an affine function of position, and so monotone, which means there is at most one root. Charts made only of straight scales never meet this case. Searching the whole domain costs around 120 µs per <code class="md-code-inline">evaluate</code> call, against a few microseconds for bracketing, which makes no practical difference when reading charts.</p>
 <h2 id="Checking-a-chart" class="md-heading">Checking a chart<a href="#Checking-a-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p><a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves on the geometry over a grid of inputs and compares every answer with the chart&#39;s <code class="md-code-inline">relation</code>. For a chart built by <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> the relation is the function you passed in; for the others it is the separable form the chart was built from, or whatever you passed as <code class="md-code-inline">relation</code>.</p>
+<p><a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and compares every answer with the chart&#39;s <code class="md-code-inline">relation</code>. For a chart built by <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a>, the relation is the function you passed in. For other charts, it is the separable form the chart was built from, or whatever you passed as <code class="md-code-inline">relation</code>.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -133,7 +133,7 @@ end</code></pre>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">7.105427357601002e-15</code></pre>
 </div>
 <h2 id="Units" class="md-heading">Units<a href="#Units" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Load <a href="https://github.com/PainterQubits/Unitful.jl">Unitful</a> and a variable can carry a unit, taken from its domain or given as <code class="md-code-inline">unit</code>. Values going in may then be in any unit of the right dimension, answers come back in the axis&#39;s own unit, and the unit is printed after the axis title:</p>
+<p>If you load <a href="https://github.com/PainterQubits/Unitful.jl">Unitful</a>, a variable can have a unit, taken from its domain or given with the <code class="md-code-inline">unit</code> keyword. You can then pass values in any unit of the right dimension. Answers come back in the axis&#39;s own unit, and the unit is printed after the axis title:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -158,8 +158,8 @@ evaluate(room; w = 3u&quot;m&quot;, l = 4u&quot;m&quot;)</code></pre>
 <img src="5ce2692e.svg" alt="Example block output">
 </div>
 </div>
-<p>A plain number is read as being in the axis&#39;s unit, so <code class="md-code-inline">evaluate(room; w = 10, l = 12)</code> means feet. A value of the wrong dimension is refused by name rather than read as something else, as is a quantity given to a variable with no unit. Temperatures convert through their offsets, so a °C axis takes 68 °F as 20 °C.</p>
-<p>Units matter most for <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a>. The formula is called with real quantities, so it may compute in whatever units it likes, and its result is converted to the result&#39;s unit — taken from the formula itself if you do not give one. That conversion checks the formula&#39;s dimensions before any chart is built:</p>
+<p>A plain number is taken to be in the axis&#39;s unit, so <code class="md-code-inline">evaluate(room; w = 10, l = 12)</code> means feet. A value with the wrong dimension is refused with an error that names the variable, and so is a quantity given to a variable that has no unit. Temperatures are converted with their offsets, so a °C axis reads 68 °F as 20 °C.</p>
+<p>Units are most useful with <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a>. Your formula is called with actual quantities, so it can compute in any units it likes. Its output is converted to the result&#39;s unit, which is taken from the formula itself if you do not give one. That conversion checks the formula&#39;s dimensions before any chart is built:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -176,7 +176,7 @@ end</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: BMI = F(mass, height) does not come out in the units of :BMI: :BMI is in kg m^-2, a unit of 𝐌 𝐋^-2, so 54.285714285714285 kg m^-1 cannot be converted to it</code></pre>
 </div>
-<p>Inside, the chart is plain numbers in each variable&#39;s unit: ticks are chosen in that unit, and the <code class="md-code-inline">values</code> of an <a href="../95-reference/#Nomograms.Isopleth"><code class="md-code-inline">Isopleth</code></a> are in it too. Formulas involving temperature need kelvin, since Unitful does not multiply °C or °F.</p>
+<p>Internally, the chart stores plain numbers in each variable&#39;s unit. Ticks are chosen in that unit, and the <code class="md-code-inline">values</code> of an <a href="../95-reference/#Nomograms.Isopleth"><code class="md-code-inline">Isopleth</code></a> are in it too. Formulas involving temperature need kelvin, because Unitful does not multiply °C or °F.</p>
       </article>
       <footer class="md-footer">
 <p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
@@ -197,6 +197,6 @@ end</code></pre>
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=b757ee4e"></script>
+  <script src="../assets/materialdocs.js?v=2966c413"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gallery — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=ffc3ff98">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=b2a2c041">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Gallery — Nomograms.jl">
   <meta property="og:title" content="Gallery — Nomograms.jl">
@@ -60,15 +60,15 @@
       <article class="md-article">
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/55-gallery.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Gallery" class="md-heading">Gallery<a href="#Gallery" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
-<p>Nomograms come in many shapes. This page starts by building one by hand, from nothing but curves, and then shows a range of others — each with the code that draws it.</p>
+<p>This page first builds a chart by hand from plain curves, then shows a range of other charts, each with the code that draws it.</p>
 <h2 id="A-chart-built-piece-by-piece" class="md-heading">A chart built piece by piece<a href="#A-chart-built-piece-by-piece" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Every chart in this package is a set of <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>s: curves that take a value to a point on the page. The constructions — <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> and the rest — only work out those curves for you. You can write them yourself, and the result solves, checks and draws like any other chart.</p>
-<p>Here is a classic that no construction produces. Take three straight scales radiating from one point at 30°, 90° and 150°, graduated evenly with the same unit. A line through <code class="md-code-inline">a</code> on one outer scale and <code class="md-code-inline">b</code> on the other then crosses the middle scale at <code class="md-code-inline">c</code>, where</p>
+<p>Every chart in this package is a set of <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>s: curves that take a value to a point on the page. The constructions, such as <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a>, work out those curves for you. You can also write them yourself, and the result solves, checks and draws like any other chart.</p>
+<p>Here is a classic chart that none of the constructions produces. Take three straight scales radiating from one point at 30°, 90° and 150°, each graduated evenly with the same unit. A line through <code class="md-code-inline">a</code> on one outer scale and <code class="md-code-inline">b</code> on the other crosses the middle scale at <code class="md-code-inline">c</code>, where</p>
 <div class="md-math md-math-display">
 \[\frac{1}{a} + \frac{1}{b} = \frac{1}{c}\]
 </div>
-<p>— resistors in parallel, or the thin-lens formula, read off evenly spaced scales. (For points at distances <span class="md-math md-math-inline">\(r_i\)</span> along lines through one point at angles <span class="md-math md-math-inline">\(\theta_i\)</span>, collinearity is <span class="md-math md-math-inline">\(\sum \sin(\theta_j - \theta_k)/r_i = 0\)</span> over the three cyclic permutations; at these angles that is the relation above.)</p>
-<p><strong>1. The variables.</strong> Each needs a domain except the result, whose range follows from the geometry — here, <span class="md-math md-math-inline">\(c\)</span> runs from 0.5 to 5:</p>
+<p>This is the formula for resistors in parallel, or the thin-lens formula, read from evenly spaced scales. (For points at distances <span class="md-math md-math-inline">\(r_i\)</span> along lines through one point at angles <span class="md-math md-math-inline">\(\theta_i\)</span>, collinearity is <span class="md-math md-math-inline">\(\sum \sin(\theta_j - \theta_k)/r_i = 0\)</span> over the three cyclic permutations; at these angles that is the relation above.)</p>
+<p><strong>1. The variables.</strong> Each input needs a domain. The result&#39;s range follows from the geometry, and here <span class="md-math md-math-inline">\(c\)</span> runs from 0.5 to 5:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -79,7 +79,7 @@ vb = Variable(:b; domain = (1, 10), label = &quot;R₂ (Ω)&quot;)
 vc = Variable(:c; domain = (0.5, 5), label = &quot;R (Ω)&quot;)</code></pre>
 </div>
 </div>
-<p><strong>2. The scales.</strong> A <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a> is a variable, its domain, a curve <code class="md-code-inline">value -&gt; (x, y)</code>, and the side its labels go on. Ten chart units per ohm along each ray, from a centre placed so the chart sits at the left of its canvas:</p>
+<p><strong>2. The scales.</strong> A <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a> is a variable, its domain, a curve <code class="md-code-inline">value -&gt; (x, y)</code>, and the side its labels go on. Each ray here has ten chart units per ohm, and the centre is placed so that the chart sits at the left of its canvas:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -106,7 +106,7 @@ scales = [
 )</code></pre>
 </div>
 </div>
-<p><strong>4. Check it.</strong> Nothing above was derived by the package, so check that the geometry really encodes the relation. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and measures each answer against <code class="md-code-inline">relation</code>:</p>
+<p><strong>4. Check it.</strong> The package derived none of this, so check that the geometry encodes the relation. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and measures each answer against <code class="md-code-inline">relation</code>:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -131,7 +131,7 @@ scales = [
 <img src="2f1f9188.svg" alt="Example block output">
 </div>
 </div>
-<p><strong>6. Style it.</strong> A <a href="../95-reference/#Nomograms.NomogramStyle"><code class="md-code-inline">NomogramStyle</code></a> controls everything drawn. Here the tick labels turn to run along their scales:</p>
+<p><strong>6. Style it.</strong> A <a href="../95-reference/#Nomograms.NomogramStyle"><code class="md-code-inline">NomogramStyle</code></a> controls how everything is drawn. Here the tick labels are turned to run along their scales:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -142,9 +142,9 @@ drawing(star; style, isopleths = [isopleth(star; a = 4, b = 6)])</code></pre>
 <img src="d42e945f.svg" alt="Example block output">
 </div>
 </div>
-<p>To save it, <code class="md-code-inline">save_svg(&quot;star.svg&quot;, star; style)</code>, or <code class="md-code-inline">nomogramplot(star; style)</code> for a Makie figure. The same steps build any chart you can describe as curves; the <a href="../20-constructions/">determinant method</a> is the systematic way to find them.</p>
+<p>To save it, use <code class="md-code-inline">save_svg(&quot;star.svg&quot;, star; style)</code>, or <code class="md-code-inline">nomogramplot(star; style)</code> for a Makie figure. The same steps build any chart you can describe as curves. The <a href="../20-constructions/">determinant method</a> is a systematic way to find the curves.</p>
 <h2 id="Logarithmic-scales" class="md-heading">Logarithmic scales<a href="#Logarithmic-scales" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>The commonest nomogram: a product, drawn on three parallel logarithmic scales by <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a>. Ohm&#39;s law over five decades of current:</p>
+<p>The most common nomogram is a product, drawn on three parallel logarithmic scales by <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a>. This one is Ohm&#39;s law, with current from 1 mA to 10 A:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -163,7 +163,7 @@ drawing(ohm; isopleths = [isopleth(ohm; I = 0.25, R = 47, label = &quot;11.75 V&
 </div>
 </div>
 <h2 id="An-N-chart" class="md-heading">An N-chart<a href="#An-N-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Two parallel scales joined by a diagonal, from <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a>. The outer scales stay linear; labels on the diagonal turn to run along it:</p>
+<p><a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> joins two parallel scales with a diagonal. The outer scales stay linear, and here the labels on the diagonal are turned to run along it:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -184,7 +184,7 @@ drawing(
 </div>
 </div>
 <h2 id="A-curved-scale" class="md-heading">A curved scale<a href="#A-curved-scale" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Some relations need a curve. The roots of <span class="md-math md-math-inline">\(z^2 + pz + q = 0\)</span> lie on one, and a line through <span class="md-math md-math-inline">\(p\)</span> and <span class="md-math md-math-inline">\(q\)</span> crosses it once for each positive root:</p>
+<p>Some relations need a curved scale. The roots of <span class="md-math md-math-inline">\(z^2 + pz + q = 0\)</span> lie on one, and a line through <span class="md-math md-math-inline">\(p\)</span> and <span class="md-math md-math-inline">\(q\)</span> crosses it once for each positive root:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -202,7 +202,7 @@ drawing(roots; isopleths = [isopleth(roots; p = -3, q = 2, label = &quot;roots 1
 </div>
 </div>
 <h2 id="A-net" class="md-heading">A net<a href="#A-net" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>When two variables have to share one point, that point is a <a href="../95-reference/#Nomograms.Net"><code class="md-code-inline">Net</code></a>: two families of curves, each named off the end of its row of values.</p>
+<p>When two variables have to share one point, that point lies on a <a href="../95-reference/#Nomograms.Net"><code class="md-code-inline">Net</code></a>: two families of curves, each named past the end of its row of values.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -224,7 +224,7 @@ drawing(timber; isopleths = [isopleth(timber; a = 1, b = -3, c = 2)])</code></pr
 </div>
 </div>
 <h2 id="A-chain" class="md-heading">A chain<a href="#A-chain" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Three inputs need two alignment lines and a bare turning line between them. <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> finds the chain from the formula; here with units, so the pressure comes out in kPa whatever the inputs are given in:</p>
+<p>Three inputs need two alignment lines with an unmarked turning line between them. <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> finds the chain from the formula. This example uses units, so the pressure comes out in kPa whatever units the inputs are given in:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -246,7 +246,7 @@ drawing(gas; isopleths = isopleth(gas; n = 1u&quot;mol&quot;, T = 300u&quot;K&qu
 </div>
 </div>
 <h2 id="Converging-scales" class="md-heading">Converging scales<a href="#Converging-scales" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>A projective map keeps straight lines straight, so it reshapes a chart without changing an answer. <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> takes the corners of the canvas and where they should go:</p>
+<p>A projective map keeps straight lines straight, so it can reshape a chart without changing its answers. <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> takes the corners of the canvas and where they should go:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -265,7 +265,7 @@ drawing(converging; isopleths = [isopleth(converging; R1 = 4, R2 = 6, label = &q
 </div>
 </div>
 <h2 id="A-fan" class="md-heading">A fan<a href="#A-fan" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Push the same idea until the scales meet at a point beyond the chart, and they become spokes. <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> does it for any chart, compound ones included:</p>
+<p>Take the same idea further, until the scales meet at a point beyond the chart, and they become spokes. <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> does this for any chart, including compound ones:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -277,7 +277,7 @@ drawing(fanned; isopleths = [isopleth(fanned; I = 0.25, R = 47, label = &quot;11
 </div>
 </div>
 <h2 id="A-ruler" class="md-heading">A ruler<a href="#A-ruler" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Fraction ticks, graded by importance as on a ruler: wholes longest, then halves, quarters, eighths and sixteenths. Writing the domains as <code class="md-code-inline">Rational</code>s asks for them:</p>
+<p>Fraction ticks are graded by importance, as on a ruler: wholes are longest, then halves, quarters, eighths and sixteenths. Writing the domains as <code class="md-code-inline">Rational</code>s turns them on:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -294,7 +294,7 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = &
 </div>
 </div>
 <h2 id="Colours" class="md-heading">Colours<a href="#Colours" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p><a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> takes colours for the background, axes, text and reading lines, so a chart can match its surroundings:</p>
+<p><a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> accepts colours for the background, axes, text and reading lines, so a chart can match the colour scheme of the page it appears on:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -346,6 +346,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=ffc3ff98"></script>
+  <script src="../assets/materialdocs.js?v=b2a2c041"></script>
 </body>
 </html>

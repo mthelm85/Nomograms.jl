@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nomograms.jl — Nomograms.jl</title>
-  <link rel="stylesheet" href="./assets/materialdocs.css?v=6dc47bde">
+  <link rel="stylesheet" href="./assets/materialdocs.css?v=662586e0">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Nomograms.jl — Nomograms.jl">
   <meta property="og:title" content="Nomograms.jl — Nomograms.jl">
@@ -60,7 +60,7 @@
       <article class="md-article">
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/index.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Nomograms.jl" class="md-heading">Nomograms.jl<a href="#Nomograms.jl" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
-<p>A <strong>nomogram</strong> is an analog computer printed on paper. Lay a straightedge through the values you know, and it crosses the remaining scale at the answer — no power, no keystrokes, just geometry. Nomograms.jl builds them from the formulas you already use, solves them numerically, and draws them as SVG or with Makie.</p>
+<p>A <strong>nomogram</strong> is a chart that computes by alignment. You lay a straightedge across the scales at the values you know, and read the answer where it crosses the remaining scale. Nomograms.jl builds nomograms from formulas, solves them numerically, and draws them as SVG or with Makie.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -78,7 +78,7 @@ drawing(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6, label = &quot;4 ∥ 6 = 
 <img src="index-5052c6b8.svg" alt="Example block output">
 </div>
 </div>
-<p>The line from 4 Ω to 6 Ω crosses the middle scale at 2.4 Ω, which is <code class="md-code-inline">1/(1/4 + 1/6)</code> — because of how the middle scale was placed, not because anything was looked up.</p>
+<p>The line from 4 Ω to 6 Ω crosses the middle scale at 2.4 Ω, which is <code class="md-code-inline">1/(1/4 + 1/6)</code>. The middle scale is placed so that any line across the chart crosses it at the correct value.</p>
 <h2 id="Installation" class="md-heading">Installation<a href="#Installation" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -86,7 +86,7 @@ drawing(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6, label = &quot;4 ∥ 6 = 
 Pkg.add(url = &quot;https://github.com/mthelm85/Nomograms.jl&quot;)</code></pre>
 </div>
 <h2 id="Start-from-your-formula" class="md-heading">Start from your formula<a href="#Start-from-your-formula" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Hand <a href="./95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> the function as you would ordinarily write it, with the range of each input, and it works out how to draw it:</p>
+<p>Pass <a href="./95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> your function as you would normally write it, together with the range of each input, and it works out how to draw the chart:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -103,7 +103,7 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
 <img src="index-fdaa2975.svg" alt="Example block output">
 </div>
 </div>
-<p>Charts are also calculators. Any variable can be the unknown:</p>
+<p>You can also use a chart as a calculator and solve for any one of its variables:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -111,9 +111,9 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(rate = 7.0, years = 10.244768353349112, growth = 2.0)</code></pre>
 </div>
-<p>Every chart from <code class="md-code-inline">auto_nomogram</code> is checked against your formula before it is returned, and a formula that has no such chart gets an error explaining why rather than a picture that lies. It takes any number of inputs. See <a href="./10-from-a-formula/">From a formula</a>.</p>
+<p><code class="md-code-inline">auto_nomogram</code> accepts any number of inputs. It checks every chart against your formula before returning it. If a formula cannot be drawn as a nomogram, you get an error that explains why. See <a href="./10-from-a-formula/">From a formula</a>.</p>
 <h2 id="Or-build-one-by-hand" class="md-heading">Or build one by hand<a href="#Or-build-one-by-hand" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>The chart at the top was built explicitly: <a href="./95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> charts <code class="md-code-inline">f₁(u) + f₂(v) = f₃(w)</code>, and <code class="md-code-inline">1/R = 1/R₁ + 1/R₂</code> is already in that form with every transform <code class="md-code-inline">1/x</code>. <code class="md-code-inline">R</code> declares no domain — the middle axis&#39;s length and position follow from the outer two, so the construction works out the range it can reach:</p>
+<p>The chart at the top of this page was built directly with <a href="./95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a>, which draws relations of the form <code class="md-code-inline">f₁(u) + f₂(v) = f₃(w)</code>. The formula <code class="md-code-inline">1/R = 1/R₁ + 1/R₂</code> already has this form, with <code class="md-code-inline">1/x</code> as every transform. <code class="md-code-inline">R</code> has no domain: the length and position of the middle axis follow from the outer two, so the construction works out the range it covers:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -121,26 +121,26 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(0.5, 5.0)</code></pre>
 </div>
-<p>Building by hand gives full control over the layout, and reaches charts that no formula test finds — nets, several curved scales, reshaped layouts. See <a href="./20-constructions/">Building charts</a>.</p>
+<p>Building a chart by hand gives you full control over its layout. It also lets you make charts that <code class="md-code-inline">auto_nomogram</code> cannot find, such as nets, charts with several curved scales, and reshaped layouts. See <a href="./20-constructions/">Building charts</a>.</p>
 <h2 id="Contents" class="md-heading">Contents<a href="#Contents" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul class="md-list-tight">
-<li><p><a href="./10-from-a-formula/">From a formula</a> — <code class="md-code-inline">auto_nomogram</code>: when a formula has a chart, how the transforms are found, charts with a curved scale, and charts with three or more inputs.</p>
+<li><p><a href="./10-from-a-formula/">From a formula</a>: using <code class="md-code-inline">auto_nomogram</code>, which formulas have a chart, how the transforms are found, charts with a curved scale, and charts with three or more inputs.</p>
 </li>
-<li><p><a href="./20-constructions/">Building charts</a> — the parallel and N-chart constructions, curved scales from the determinant, and reshaping a chart without changing its answers.</p>
+<li><p><a href="./20-constructions/">Building charts</a>: the parallel and N-chart constructions, curved scales from the determinant, and reshaping a chart without changing its answers.</p>
 </li>
-<li><p><a href="./30-more-variables/">Four or more variables</a> — chaining charts through turning lines, and nets for when a chain will not do.</p>
+<li><p><a href="./30-more-variables/">Four or more variables</a>: chaining charts through turning lines, and nets for relations a chain cannot handle.</p>
 </li>
-<li><p><a href="./40-solving/">Solving</a> — reading charts numerically, and why a line can cross a scale twice.</p>
+<li><p><a href="./40-solving/">Solving</a>: reading charts numerically, and why a line can cross a scale twice.</p>
 </li>
-<li><p><a href="./50-drawing/">Drawing</a> — SVG and Makie output, styling, and how ticks and labels are placed.</p>
+<li><p><a href="./50-drawing/">Drawing</a>: SVG and Makie output, styling, and how ticks and labels are placed.</p>
 </li>
-<li><p><a href="./55-gallery/">Gallery</a> — a chart built by hand from raw curves, and a range of others with the code that draws them.</p>
+<li><p><a href="./55-gallery/">Gallery</a>: a chart built by hand from raw curves, and a range of other charts with the code that draws them.</p>
 </li>
-<li><p><a href="./60-how-it-works/">How it works</a> — under the hood: how a chart is represented, constructed, solved, laid out and drawn.</p>
+<li><p><a href="./60-how-it-works/">How it works</a>: how the package represents, builds, solves, lays out and draws a chart.</p>
 </li>
-<li><p><a href="./95-reference/">API</a> — every exported function and type.</p>
+<li><p><a href="./95-reference/">API</a>: every exported function and type.</p>
 </li>
-<li><p><a href="./96-references/">Bibliography</a> — the founding texts and where each classical result comes from.</p>
+<li><p><a href="./96-references/">Bibliography</a>: the sources for the classical results used here.</p>
 </li>
 </ul>
       </article>
@@ -164,6 +164,6 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
   <script>hljs.highlightAll();</script>
   <script src="./siteinfo.js"></script>
   <script src="./../versions.js"></script>
-  <script src="./assets/materialdocs.js?v=6dc47bde"></script>
+  <script src="./assets/materialdocs.js?v=662586e0"></script>
 </body>
 </html>

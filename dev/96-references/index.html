@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bibliography — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=74de46f9">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=e5ebfbfb">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Bibliography — Nomograms.jl">
   <meta property="og:title" content="Bibliography — Nomograms.jl">
@@ -60,11 +60,11 @@
       <article class="md-article">
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/96-references.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Bibliography" class="md-heading">Bibliography<a href="#Bibliography" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
-<p>Nomography is a nineteenth-century subject with a long textbook tradition. These are the works this documentation leans on, and where to go for more.</p>
+<p>Nomography dates from the nineteenth century and has a long textbook tradition. This page lists the works this documentation draws on, and where to read more.</p>
 <h2 id="The-founding-text" class="md-heading">The founding text<a href="#The-founding-text" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul>
 <li><p>Maurice d&#39;Ocagne. <em>Traité de nomographie. Théorie des abaques, applications pratiques.</em> Paris: Gauthier-Villars, 1899. A public-domain scan is on the <a href="https://archive.org/details/traitdenomograp00ocaggoog">Internet Archive</a>.</p>
-<p>The alignment method — three points on one straight line, written as a vanishing determinant — is d&#39;Ocagne&#39;s, and every chart in this package rests on it.</p>
+<p>The alignment method, in which three points lie on one straight line and the condition is written as a vanishing determinant, is d&#39;Ocagne&#39;s. Every chart in this package is based on it.</p>
 </li>
 </ul>
 <h2 id="Textbooks" class="md-heading">Textbooks<a href="#Textbooks" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -79,14 +79,14 @@
 <h2 id="A-modern-overview" class="md-heading">A modern overview<a href="#A-modern-overview" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul>
 <li><p>Ron Doerfler. &quot;On Jargon: The Lost Art of Nomography.&quot; <em>The UMAP Journal</em> 30(4), 2009, pp. 457–493. The author posts a <a href="https://deadreckonings.com/wp-content/uploads/2010/04/the_lost_art_of_nomography.pdf">free PDF</a>.</p>
-<p>The best single introduction. It derives the parallel-scale chart, the N-chart and the determinant method, works the curved-scale chart for the quadratic <code class="md-code-inline">w² + uw + v = 0</code> (after Adams and Otto), builds grid nomograms from determinants, and reshapes charts by projective transformation.</p>
+<p>This is the best single introduction. It derives the parallel-scale chart, the N-chart and the determinant method, works the curved-scale chart for the quadratic <code class="md-code-inline">w² + uw + v = 0</code> (after Adams and Otto), builds grid nomograms from determinants, and reshapes charts by projective transformation.</p>
 </li>
 </ul>
 <h2 id="When-a-formula-has-a-chart" class="md-heading">When a formula has a chart<a href="#When-a-formula-has-a-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul>
 <li><p>P. de Saint-Robert. &quot;De la résolution de certaines équations à trois variables par le moyen d&#39;une règle glissante.&quot; <em>Memorie della Reale Accademia delle Scienze di Torino</em> XXV, 1871, pp. 53–72. Presented in 1867.</p>
-<p>The test that <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> applies — that <span class="md-math md-math-inline">\(z = F(x, y)\)</span> can be put in the form <span class="md-math md-math-inline">\(h(z) = f(x) + g(y)\)</span> exactly when <span class="md-math md-math-inline">\(\partial^2 \ln(F_x / F_y) / \partial x \, \partial y = 0\)</span> — is attributed to Saint-Robert by V. A. Esaulov, <a href="https://kartsci.org/kocomu/computer-history/the-art-of-nomography/">&quot;The Art of Nomography&quot;</a>, and by Lucien Pirio, <a href="https://web.archive.org/web/20230203100329/http://images.math.cnrs.fr/Geometrie-Anamorphique-II.html">&quot;Géométrie anamorphique II&quot;</a> in <em>Images des mathématiques</em> (CNRS), 16 April 2011, which notes it has been rediscovered many times since (linked as archived in 2023; the original address no longer responds reliably). We follow those two accounts; the 1871 paper itself was not consulted.</p>
-<p>The more general problem — which equations can be brought into a chartable form at all — was taken up by J. Massau, &quot;Mémoire sur l&#39;intégration graphique et ses applications&quot;, <em>Annales de l&#39;Association des ingénieurs sortis des écoles spéciales de Gand</em> 7, 1884, pp. 53–132, and independently by Léon Lecornu, &quot;Sur le problème de l&#39;anamorphose&quot;, <em>Comptes rendus de l&#39;Académie des sciences</em> 102, 1886, pp. 813–816.</p>
+<p><a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> applies the test that <span class="md-math md-math-inline">\(z = F(x, y)\)</span> can be put in the form <span class="md-math md-math-inline">\(h(z) = f(x) + g(y)\)</span> exactly when <span class="md-math md-math-inline">\(\partial^2 \ln(F_x / F_y) / \partial x \, \partial y = 0\)</span>. Two accounts attribute this test to Saint-Robert: V. A. Esaulov, <a href="https://kartsci.org/kocomu/computer-history/the-art-of-nomography/">&quot;The Art of Nomography&quot;</a>, and Lucien Pirio, <a href="https://web.archive.org/web/20230203100329/http://images.math.cnrs.fr/Geometrie-Anamorphique-II.html">&quot;Géométrie anamorphique II&quot;</a> in <em>Images des mathématiques</em> (CNRS), 16 April 2011. Pirio notes that the test has been rediscovered many times since. The link is to a copy archived in 2023, because the original address no longer responds reliably. We follow those two accounts; the 1871 paper itself was not consulted.</p>
+<p>The more general problem, of which equations can be brought into a chartable form at all, was taken up by J. Massau, &quot;Mémoire sur l&#39;intégration graphique et ses applications&quot;, <em>Annales de l&#39;Association des ingénieurs sortis des écoles spéciales de Gand</em> 7, 1884, pp. 53–132, and independently by Léon Lecornu, &quot;Sur le problème de l&#39;anamorphose&quot;, <em>Comptes rendus de l&#39;Académie des sciences</em> 102, 1886, pp. 813–816.</p>
 </li>
 </ul>
 <h2 id="Related-software" class="md-heading">Related software<a href="#Related-software" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -95,9 +95,9 @@
 </li>
 </ul>
 <h2 id="What-is-original-here" class="md-heading">What is original here<a href="#What-is-original-here" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>The derivations in these pages were written for this package, starting from the collinearity condition, rather than taken from the sources above; where a result is classical, the sources above are where it comes from. Specific to this package:</p>
+<p>The derivations in these pages were written for this package, starting from the collinearity condition, and are not copied from the sources above. Where a result is classical, it comes from those sources. The following are specific to this package:</p>
 <ul class="md-list-tight">
-<li><p>the test that a formula of three or more inputs splits into a chain — that it depends on a pair of inputs only through one combination of them exactly when <span class="md-math md-math-inline">\(F_x / F_y\)</span> does not depend on the rest — and the recovery of every transform numerically from the formula itself;</p>
+<li><p>the test that a formula of three or more inputs splits into a chain (it depends on a pair of inputs only through one combination of them exactly when <span class="md-math md-math-inline">\(F_x / F_y\)</span> does not depend on the rest), and the numerical recovery of every transform from the formula itself;</p>
 </li>
 <li><p>how a chain&#39;s stages are paired, mirrored and sized so that no axis lands on another;</p>
 </li>
@@ -137,6 +137,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=74de46f9"></script>
+  <script src="../assets/materialdocs.js?v=e5ebfbfb"></script>
 </body>
 </html>
