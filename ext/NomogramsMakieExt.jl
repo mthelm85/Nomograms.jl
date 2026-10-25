@@ -22,7 +22,7 @@ function Nomograms.nomogramplot!(
     d::NomogramDrawing;
     pxperunit::Real = 4.0,
     axiscolor = "#333333",
-    gridcolor = "#9a9a9a",
+    gridcolor = nothing,
     textcolor = "#1a1a1a",
     isoplethcolors = DEFAULT_COLORS,
     isoplethdashes = DEFAULT_DASHES,
@@ -49,7 +49,7 @@ function Nomograms.nomogramplot!(
         lines!(
             ax,
             [_p(p) for p in sd.path];
-            color = grid ? gridcolor : axiscolor,
+            color = grid ? something(gridcolor, axiscolor) : axiscolor,
             linewidth = (grid ? st.gridlinewidth : st.axislinewidth) * k,
         )
         segs = Point2f[]
@@ -85,7 +85,19 @@ function Nomograms.nomogramplot!(
             text = sd.label,
             fontsize = st.titlesize * k,
             align = sd.titlealign,
-            color = grid ? gridcolor : textcolor,
+            color = grid ? something(gridcolor, textcolor) : textcolor,
+            font = font,
+        )
+    end
+
+    for t in d.texts
+        text!(
+            ax,
+            _p(t.pos);
+            text = t.text,
+            fontsize = st.titlesize * k,
+            align = t.align,
+            color = textcolor,
             font = font,
         )
     end

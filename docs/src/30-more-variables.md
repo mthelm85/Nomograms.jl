@@ -117,7 +117,10 @@ The mesh is genuinely two-dimensional only when `(α : β : γ)` sweeps a region
 sweeps just a curve the net collapses onto a line, and the relation wanted a pivot instead —
 which is a useful check on whether you have reached for the right construction.
 
-Strands are scales of `kind = :grid`, drawn lighter than the scales a reader takes values
-from. Each family is labelled at whichever end it fans out, since at the end where strands
-converge the labels pile up and get nudged next to the wrong curve; set `titleend` on a
-[`Variable`](@ref) to choose by hand.
+Strands are scales of `kind = :grid`, read like any other scale and drawn like one. Each
+strand is labelled with its value at whichever end its family fans out, since at the end
+where strands converge the labels pile up and get nudged next to the wrong curve; set
+`titleend` on a [`Variable`](@ref) to choose by hand. The family's own name goes off the
+end of that row of values, as an axis title goes off the end of its axis. For a dense net
+that should recede, pass a lighter `gridcolor` to [`svg`](@ref) or
+[`nomogramplot`](@ref).

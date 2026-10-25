@@ -201,8 +201,8 @@ end
     Scale(variable, domain, curve, side, kind = :scale)
 
 `kind` is `:scale` for a scale a reader takes a value from, or `:grid` for one strand of a
-[`Net`](@ref). Grid strands are drawn lighter, since a net is a backdrop rather than the
-instrument.
+[`Net`](@ref). Strands are read like scales and drawn like them, but carry no ticks, and
+a renderer's `gridcolor` can draw them lighter.
 """
 Scale(v::Variable, domain, curve, side::Symbol) = Scale(v, domain, curve, side, :scale)
 

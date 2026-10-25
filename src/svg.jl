@@ -105,6 +105,9 @@ inside a `Figure` (see [`nomogramplot`](@ref)).
 - `padding = 2.0`: margin in chart units, added outside the computed bounding box.
 - `background = "white"`, `axiscolor`, `textcolor`, `isoplethcolors`: colours, as any
   string an SVG renderer accepts. Pass `background = "none"` for a transparent chart.
+- `gridcolor`: the colour of a net's strands and their labels. By default they are drawn
+  like the axes, since they are read like them; pass a lighter colour to push a dense net
+  into the background.
 - `font`: CSS font stack for all text.
 """
 function svg(
@@ -113,7 +116,7 @@ function svg(
     padding::Real = 2.0,
     background::AbstractString = "white",
     axiscolor::AbstractString = "#333333",
-    gridcolor::AbstractString = "#9a9a9a",
+    gridcolor::Union{Nothing,AbstractString} = nothing,
     textcolor::AbstractString = "#1a1a1a",
     isoplethcolors = DEFAULT_ISOPLETH_COLORS,
     isoplethdashes = DEFAULT_ISOPLETH_DASHES,
@@ -161,7 +164,7 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
     for sd in d.scales
         println(io, """    <g id="scale-$(sd.name)">""")
         grid = sd.kind === :grid
-        stroke = grid ? gridcolor : axiscolor
+        stroke = grid ? something(gridcolor, axiscolor) : axiscolor
         linewidth = (grid ? st.gridlinewidth : st.axislinewidth) * k
         pts = join((" $(_num(X(p[1]))),$(_num(Y(p[2])))" for p in sd.path), "")
         println(
@@ -206,10 +209,14 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
                 st.titlesize * k,
                 sd.titlealign,
                 0.0,
-                grid ? gridcolor : textcolor,
+                grid ? something(gridcolor, textcolor) : textcolor,
             )
         end
         println(io, "    </g>")
+    end
+
+    for t in d.texts
+        _text(io, "    ", X, Y, t.pos, t.text, st.titlesize * k, t.align, 0.0, textcolor)
     end
 
     for (i, iso) in enumerate(d.isopleths)

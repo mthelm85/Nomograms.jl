@@ -34,8 +34,9 @@ roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
   value falls.
 - `collisionpad`: extra clearance required between two labels.
 - `axislinewidth`, `gridlinewidth`, `tickwidth`, `isoplethwidth`: stroke widths. The
-  grid width applies to the strands of a [`Net`](@ref), which are drawn lighter than the
-  scales a reader takes values from.
+  grid width applies to the strands of a [`Net`](@ref). Its strands are read like any
+  other scale, so by default they match the axes; make it thinner, or pass `gridcolor`
+  to [`svg`](@ref) or [`nomogramplot`](@ref), for a lighter net.
 - `isopleth_overhang`: how far an alignment line extends past the outermost scale.
 - `markersize`: radius of the dot where an isopleth meets a scale.
 """
@@ -56,7 +57,7 @@ Base.@kwdef struct NomogramStyle
     avoid_isopleths::Bool = true
     collisionpad::Float64 = 0.3
     axislinewidth::Float64 = 0.25
-    gridlinewidth::Float64 = 0.15
+    gridlinewidth::Float64 = 0.25
     tickwidth::Float64 = 0.25
     isoplethwidth::Float64 = 0.4
     isopleth_overhang::Float64 = 5.0
@@ -115,6 +116,18 @@ struct IsoplethDrawing
 end
 
 """
+    TextDrawing
+
+A title drawn on its own rather than off the end of a scale: the name of one of a net's
+families, whose strands carry only their values. In [`NomogramDrawing`](@ref)'s `texts`.
+"""
+struct TextDrawing
+    text::String
+    pos::Point
+    align::NTuple{2,Symbol}
+end
+
+"""
     NomogramDrawing
 
 A complete, backend-independent description of a rendered nomogram: everything a renderer
@@ -130,7 +143,20 @@ struct NomogramDrawing
     titlealign::NTuple{2,Symbol}
     bbox::NTuple{4,Float64}
     style::NomogramStyle
+    texts::Vector{TextDrawing}
 end
+
+NomogramDrawing(scales, isopleths, title, titlepos, titlealign, bbox, style) =
+    NomogramDrawing(
+        scales,
+        isopleths,
+        title,
+        titlepos,
+        titlealign,
+        bbox,
+        style,
+        TextDrawing[],
+    )
 
 _segments(path::Vector{Point}) = [(path[k], path[k+1]) for k = 1:(length(path)-1)]
 
@@ -503,36 +529,45 @@ function _place_titles(
             push!(placed, (pos, align))
             continue
         end
-        clear(box) =
-            !any(b -> _overlaps(box, b, style.collisionpad), occupied) &&
-            !any(
-                w ->
-                    w[1] != i &&
-                    segment_hits_box(w[2][1], w[2][2], box, style.collisionpad),
-                walls,
-            )
-        step = style.titlesize * 1.3
-        kmax = _steps_clear(
-            label_box(ends[1][1], text, style.titlesize, ends[1][2], 0.0),
-            occupied,
-            step;
-            points = [p for (_, seg) in walls for p in seg],
-        )
-        spot = nothing
-        for k = 0:kmax, (anchor, align, away) in ends
-            pos = _offset(anchor, away, k * step)
-            box = label_box(pos, text, style.titlesize, align, 0.0)
-            if clear(box)
-                spot = (pos, align, box)
-                break
-            end
-        end
-        isnothing(spot) && error("unreachable: title :$(name(s)) found no clear place")
-        push!(occupied, spot[3])
-        push!(placed, (spot[1], spot[2]))
+        pos, align = _clear_spot(text, ends, style, occupied, walls, i)
+        push!(placed, (pos, align))
     end
     return placed
 end
+
+# The first of `ends`, or of rows further out from them, where `text` overlaps nothing in
+# `occupied` and crosses no wall but its own scale's (`own`). Far enough out is always
+# clear, so this always finds one. The box it takes is added to `occupied`.
+function _clear_spot(text, ends, style, occupied, walls, own)
+    clear(box) =
+        !any(b -> _overlaps(box, b, style.collisionpad), occupied) &&
+        !any(
+            w -> w[1] != own && segment_hits_box(w[2][1], w[2][2], box, style.collisionpad),
+            walls,
+        )
+    step = style.titlesize * 1.3
+    kmax = _steps_clear(
+        label_box(ends[1][1], text, style.titlesize, ends[1][2], 0.0),
+        occupied,
+        step;
+        points = [p for (_, seg) in walls for p in seg],
+    )
+    for k = 0:kmax, (anchor, align, away) in ends
+        pos = _offset(anchor, away, k * step)
+        box = label_box(pos, text, style.titlesize, align, 0.0)
+        if clear(box)
+            push!(occupied, box)
+            return (pos, align)
+        end
+    end
+    error("unreachable: \"$text\" found no clear place")
+end
+
+# Titles that belong to no single scale -- the names of a net's two families, whose
+# strands are labelled only with their values. A chart supplies them as text with the
+# places it would like them, `(anchor, align, away)` as for a scale's title, given where
+# the scale titles went; only a net has any.
+_extra_titles(::AbstractNomogram, titles, paths, style) = Tuple{String,Vector{Any}}[]
 
 # Tick labels are thinned per scale by distance along their own axis, which says nothing
 # about labels belonging to other scales. Non-parallel layouts bring scales together, so
@@ -589,6 +624,17 @@ function drawing(
     occupied = NTuple{4,Float64}[]
     paths = [_path(s) for s in nom.scales]
     titles = _place_titles(nom, paths, style, occupied)
+    # Strands as well as axes are walls for these: a family's name should not sit across
+    # the curves it names.
+    allwalls = [(0, seg) for path in paths for seg in _segments(path)]
+    texts = TextDrawing[]
+    for (text, ends) in _extra_titles(nom, titles, paths, style)
+        pos, align =
+            style.resolve_collisions ?
+            _clear_spot(text, ends, style, occupied, allwalls, -1) :
+            (ends[1][1], ends[1][2])
+        push!(texts, TextDrawing(text, pos, align))
+    end
     scaledrawings = ScaleDrawing[]
     for (s, path, (titlepos, titlealign)) in zip(nom.scales, paths, titles)
         majors, minors = candidate_ticks(s.variable, s.domain)
@@ -635,6 +681,9 @@ function drawing(
     end
 
     bb = [Inf, Inf, -Inf, -Inf]
+    for t in texts
+        _expand_box!(bb, label_box(t.pos, t.text, style.titlesize, t.align, 0.0))
+    end
     for sd in scaledrawings
         for p in sd.path
             _expand!(bb, p)
@@ -695,5 +744,6 @@ function drawing(
         titlealign,
         (bb[1], bb[2], bb[3], bb[4]),
         style,
+        texts,
     )
 end

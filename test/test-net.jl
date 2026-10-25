@@ -144,11 +144,92 @@ end
     out = svg(nom; isopleths = isos)
     @test !occursin("NaN", out)
     @test occursin("id=\"scale-a\"", out)
-    # The mesh is stroked more lightly than the scales.
+    # The mesh is read like the scales, so by default it is stroked like them; a lighter
+    # net is a style choice.
     st = NomogramStyle()
-    @test occursin("stroke-width=\"$(Nomograms._num(st.gridlinewidth * 4))\"", out)
     @test occursin("stroke-width=\"$(Nomograms._num(st.axislinewidth * 4))\"", out)
-    @test st.gridlinewidth < st.axislinewidth
+    @test st.gridlinewidth == st.axislinewidth
+    light = svg(nom; style = NomogramStyle(; gridlinewidth = 0.15))
+    @test occursin("stroke-width=\"$(Nomograms._num(0.15 * 4))\"", light)
 
     @test nomogramplot(nom; isopleths = isos) isa Figure
+end
+
+@testitem "a net's families are named, in the axes' colour" tags = [:unit] begin
+    timber = net_nomogram(
+        Net(
+            Variable(:x; domain = (0.5, 5.0), label = "Beam Thickness Ratio (x)"),
+            Variable(:c; domain = (0.0, 4.0), label = "Max Deflection Threshold (c)"),
+            (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
+        ),
+        Variable(:a; domain = (0.5, 3.0), label = "Timber Density / Load Factor (a)") =>
+            a -> (0.0, a),
+        Variable(:b; domain = (-6.0, 0.0), label = "Span Length Factor (b)") =>
+            b -> (1.0, b);
+        relation = (x, c, a, b) -> a * x^2 + b * x + c,
+    )
+    d = drawing(timber)
+    @test Set(t.text for t in d.texts) ==
+          Set(["Beam Thickness Ratio (x)", "Max Deflection Threshold (c)"])
+
+    # Nothing overlaps: the family names against every other text and every line.
+    st = d.style
+    box(t) = Nomograms.label_box(t.pos, t.text, st.titlesize, t.align, 0.0)
+    others = [
+        [
+            Nomograms.label_box(sd.titlepos, sd.label, st.titlesize, sd.titlealign, 0.0) for sd in d.scales if !isempty(sd.label)
+        ]
+        [
+            Nomograms.label_box(t.labelpos, t.label, st.ticklabelsize, t.align, t.rotation) for sd in d.scales for t in sd.ticks if !isnothing(t.label)
+        ]
+    ]
+    for t in d.texts
+        @test !any(b -> Nomograms._overlaps(box(t), b, st.collisionpad), others)
+        @test !any(
+            Nomograms.segment_hits_box(p, q, box(t), st.collisionpad) for sd in d.scales for
+            (p, q) in Nomograms._segments(sd.path)
+        )
+    end
+    @test !Nomograms._overlaps(box(d.texts[1]), box(d.texts[2]), st.collisionpad)
+    # The canvas holds them.
+    xmin, ymin, xmax, ymax = d.bbox
+    @test all(
+        xmin - 1e-9 <= box(t)[1] &&
+            box(t)[3] <= xmax + 1e-9 &&
+            ymin - 1e-9 <= box(t)[2] &&
+            box(t)[4] <= ymax + 1e-9 for t in d.texts
+    )
+
+    # Strands are drawn like the axes unless asked otherwise.
+    out = svg(timber)
+    @test !occursin("#9a9a9a", out)
+    @test occursin("Max Deflection Threshold (c)", out)
+    @test occursin("#9a9a9a", svg(timber; gridcolor = "#9a9a9a"))
+    @test NomogramStyle().gridlinewidth == NomogramStyle().axislinewidth
+
+    # A family with no label gets no title.
+    bare = net_nomogram(
+        Net(
+            Variable(:x; domain = (0.5, 5.0), label = ""),
+            Variable(:c; domain = (0, 4)),
+            (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
+        ),
+        Variable(:a; domain = (0.5, 3.0)) => a -> (0.0, a),
+        Variable(:b; domain = (-6.0, 0.0)) => b -> (1.0, b),
+    )
+    @test [t.text for t in drawing(bare).texts] == ["c"]
+end
+
+@testitem "net family titles render in Makie" tags = [:integration] begin
+    using CairoMakie
+    gq = net_nomogram(
+        Net(
+            Variable(:x; domain = (0.5, 5)),
+            Variable(:c; domain = (0, 4)),
+            (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
+        ),
+        Variable(:a; domain = (0.5, 3)) => a -> (0.0, a),
+        Variable(:b; domain = (-6, 0)) => b -> (1.0, b),
+    )
+    @test nomogramplot(gq) isa Figure
 end

@@ -41,7 +41,8 @@ netpoint(n::Net, u, v) = Point(n.surface(float(u), float(v)))
 A [`Net`](@ref) and two [`Scale`](@ref)s: four variables related by one alignment line.
 
 Build one with [`net_nomogram`](@ref). Drawing works as for any other chart — the net's
-strands are scales of `kind = :grid` and are drawn lighter. Solving is
+strands are scales of `kind = :grid`, labelled with their values, and each family's name
+is drawn off the end of its row of labels. Solving is
 [`evaluate`](@ref)'s job and depends on which variable is unknown; see there.
 """
 struct NetNomogram <: AbstractNomogram
@@ -457,4 +458,64 @@ function max_relation_residual(nn::NetNomogram; n::Int = 7)
         end
     end
     return checked == 0 ? NaN : worst
+end
+
+# Which family a strand belongs to: strands are named `Symbol(variable, :_, value)`. The
+# longer name wins, should one net variable's name begin with the other's.
+function _strand_family(nn::NetNomogram, s::Scale)
+    s.kind === :grid || return nothing
+    n = string(name(s))
+    fams = [f for f in (nn.net.u, nn.net.v) if startswith(n, string(f.name, "_"))]
+    isempty(fams) && return nothing
+    return argmax(f -> length(string(f.name)), fams).name
+end
+
+# A family's name goes off the end of its row (or column) of strand labels, the way an
+# axis title continues off the end of its axis: the higher end first, then the other.
+# With one strand there is no row, and it follows the strand's own label outwards.
+function _extra_titles(nn::NetNomogram, titles, paths, style)
+    out = Tuple{String,Vector{Any}}[]
+    for f in (nn.net.u, nn.net.v)
+        text = axislabel(f)
+        isempty(text) && continue
+        idx = [i for (i, s) in enumerate(nn.scales) if _strand_family(nn, s) === f.name]
+        isempty(idx) && continue
+        boxes = [
+            label_box(
+                titles[i][1],
+                axislabel(nn.scales[i].variable),
+                style.titlesize,
+                titles[i][2],
+                0.0,
+            ) for i in idx
+        ]
+        centre(b) = ((b[1] + b[3]) / 2, (b[2] + b[4]) / 2)
+        cs = centre.(boxes)
+        if length(cs) == 1
+            path = paths[idx[1]]
+            near = argmin(p -> _dist(p, cs[1]), (path[1], path[end]))
+            away = _unit(_sub(cs[1], near))
+            pairs = [(1, away)]
+        else
+            (a, b) = argmax(
+                ij -> _dist(cs[ij[1]], cs[ij[2]]),
+                [(i, j) for i in eachindex(cs) for j in eachindex(cs)],
+            )
+            da, db = _unit(_sub(cs[a], cs[b])), _unit(_sub(cs[b], cs[a]))
+            # Higher end first, ties to the left, as for a scale's title.
+            first_a =
+                cs[a][2] > cs[b][2] + 1e-9 ||
+                (abs(cs[a][2] - cs[b][2]) <= 1e-9 && cs[a][1] <= cs[b][1])
+            pairs = first_a ? [(a, da), (b, db)] : [(b, db), (a, da)]
+        end
+        ends = Any[]
+        for (k, d) in pairs
+            bx = boxes[k]
+            half = abs(d[1]) * (bx[3] - bx[1]) / 2 + abs(d[2]) * (bx[4] - bx[2]) / 2
+            anchor = _offset(cs[k], d, half + style.titlegap / 2)
+            push!(ends, (anchor, align_for(d), d))
+        end
+        push!(out, (text, ends))
+    end
+    return out
 end
