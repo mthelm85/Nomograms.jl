@@ -4,15 +4,15 @@ CurrentModule = Nomograms
 
 # Four or more variables
 
-One alignment line can relate only three scales. Past that there are two ways on: chain
-charts together through a shared scale, or let one point carry two variables at once.
-[`auto_nomogram`](@ref) builds chains by itself for formulas that allow them; this page is
-about building either by hand.
+One alignment line can relate only three scales. For more variables there are two
+approaches: chain charts together through a shared scale, or let one point carry two
+variables at once. [`auto_nomogram`](@ref) builds chains automatically for formulas that
+allow them. This page shows how to build either kind by hand.
 
 ## Chains and turning lines
 
-A fourth variable means two stages sharing an intermediate, and [`compound`](@ref)
-positions them so the shared scale coincides.
+With four variables you need two stages that share an intermediate scale. [`compound`](@ref)
+positions the stages so that their copies of the shared scale coincide.
 
 ```@example more
 using Nomograms
@@ -33,59 +33,63 @@ box = compound(stage1, stage2; title = "V = L × W × H")
 drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = "3 × 4 × 2"))
 ```
 
-The reader lays a line across the first stage, notes where it crosses the shared scale,
-then pivots about that point and reads the second — which is why that scale is called the
-turning line. Giving it an empty tick list draws it bare, as here; leave the ticks on and
-it carries the intermediate value, which is worth doing when the intermediate means
-something.
+To read the chart, lay a line across the first stage and note where it crosses the shared
+scale. Then pivot about that point and read the second stage. This is why the shared scale
+is called the turning line. An empty tick list draws it bare, as here. If you leave the
+ticks on, it shows the intermediate value, which is useful when that value means something
+on its own.
 
-Solving propagates rather than following a fixed direction: any stage with exactly one
-unknown is read, its answer becomes known, and the pass repeats. So inputs may be given in
-whatever combination closes the chain,
+The solver does not work in a fixed direction. It reads any stage with exactly one
+unknown, adds the answer to the known values, and repeats. So you can give any combination
+of inputs that closes the chain:
 
 ```@example more
 evaluate(box; L = 3, W = 4, V = 24).H
 ```
 
-and a combination that cannot close it is refused, naming what stayed unknown. Supplying
-`t`, `H` and `V`, for instance, pins the product `L × W` but neither factor.
+A combination that cannot close the chain is refused, with a message naming what stayed
+unknown. For instance, supplying `t`, `H` and `V` fixes the product `L × W` but neither
+factor.
 
-Alignment is a similarity — rotate, scale, translate — carrying the later stage's shared
-scale onto the placed one, checked along the whole domain rather than only at the two
-points that fixed it. Being affine, it cannot change what either stage computes.
+To align the stages, `compound` applies a similarity (rotation, uniform scaling and
+translation) that carries the later stage's shared scale onto the one already placed. The
+match is checked along the whole domain, not only at the two points used to compute it. A
+similarity is affine, so it cannot change what either stage computes.
 
 !!! note "The shared scale must be the same scale in both stages"
-    Both stages above are multiplicative, so both place `t` logarithmically and the two
-    coincide. Splitting `V = (L + W) × H` the same way would not work: the first stage
-    puts `t` on a linear scale and the second on a logarithmic one, and no amount of
-    moving the stages reconciles that. `compound` checks and says so rather than drawing
-    a chart that lies.
+    Both stages above are multiplicative, so both place `t` on a logarithmic scale and the
+    two copies coincide. Splitting `V = (L + W) × H` the same way would not work. The
+    first stage puts `t` on a linear scale and the second on a logarithmic one, and moving
+    the stages cannot make those match. `compound` checks for this and throws an error
+    instead of drawing a wrong chart.
 
-Stages interleave rather than sitting side by side, because a parallel-axis construction
-puts its result *between* its inputs: one input of the first stage always lands inside the
-second. Sizing the stages decides where — here the first is 40 wide and the second 130, so
-`width` falls between the turning line and `volume` rather than on top of `volume`.
-`auto_nomogram` makes that choice itself, and [`project`](@ref) will reshape the result if
-the arrangement is still awkward.
+The stages overlap instead of sitting side by side. A parallel-axis construction puts its
+result *between* its inputs, so one input of the first stage always lands inside the
+second. The sizes of the stages decide where it lands. Here the first stage is 40 wide and
+the second 130, so `width` falls between the turning line and `volume` instead of on top of
+`volume`. `auto_nomogram` chooses the sizes itself, and you can use [`project`](@ref) to
+reshape the result if the layout is still awkward.
 
-## When a pivot will not do: nets
+## Nets
 
-A pivot works only when the first two variables collapse into a single intermediate. When
-they do not, one of the three points an alignment line crosses must carry two variables at
-once. That is a [`Net`](@ref): a two-parameter surface `(u, v) -> (x, y)`, drawn as a mesh —
-the grid nomogram of the classic texts, which goes back to d'Ocagne and which Doerfler builds
-from determinants (see the [Bibliography](96-references.md)).
+A turning line works only when the first two variables combine into a single intermediate
+value. When they do not, one of the three points on an alignment line has to carry two
+variables at once. That point lies on a [`Net`](@ref): a two-parameter surface
+`(u, v) -> (x, y)`, drawn as a mesh. This is the grid nomogram of the classic texts. It
+goes back to d'Ocagne, and Doerfler builds it from determinants (see the
+[Bibliography](96-references.md)).
 
-Deriving one follows the same pattern as a curved scale. With `a` on `x = 0` at height
-`f(a)` and `b` on `x = 1` at height `g(b)`, a net point is crossed exactly when
+You derive a net the same way as a curved scale. With `a` on `x = 0` at height `f(a)` and
+`b` on `x = 1` at height `g(b)`, a line passes through a net point exactly when
 
 ```math
 \alpha f(a) + \beta g(b) = \gamma, \qquad
 x_3 = \frac{\beta}{\alpha + \beta}, \quad y_3 = \frac{\gamma}{\alpha + \beta}
 ```
 
-so any relation whose two net variables enter as the coefficients has a net. The general
-quadratic `a·x² + b·x + c = 0`, written `a·x² + b·x = -c`, has `α = x²`, `β = x`, `γ = -c`:
+So any relation that can be written this way, with the coefficients depending only on the
+two net variables, has a net. The general quadratic `a·x² + b·x + c = 0`, written as
+`a·x² + b·x = -c`, has `α = x²`, `β = x` and `γ = -c`:
 
 ```@example more
 gq = net_nomogram(
@@ -107,20 +111,20 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = "x² − 3x + 2 = 0")])
 [sol.x for sol in roots]
 ```
 
-Which problem [`evaluate`](@ref) solves depends on what is unknown. With both net variables
-known the net contributes a single point and it is the ordinary three-point alignment. With
-one unknown, the line is already fixed by the two scales, and the answer is where it
-crosses the strand for the known net variable — a curve, which the line may cross twice.
-Here it does, because a quadratic has two roots.
+What [`evaluate`](@ref) does depends on which variable is unknown. If both net variables
+are known, the net gives a single point and the problem is an ordinary three-point
+alignment. If one net variable is unknown, the two scales already fix the line, and the
+answer is where it crosses the strand for the known net variable. That strand is a curve,
+so the line may cross it twice. Here it does, because a quadratic has two roots.
 
-The mesh is genuinely two-dimensional only when `(α : β : γ)` sweeps a region. When it
-sweeps just a curve the net collapses onto a line, and the relation wanted a pivot instead —
-which is a useful check on whether you have reached for the right construction.
+The mesh is truly two-dimensional only when `(α : β : γ)` sweeps out a region. If it
+sweeps out only a curve, the net collapses onto a line, which means the relation needed a
+turning line instead. This is a useful check that you have chosen the right construction.
 
-Strands are scales of `kind = :grid`, read like any other scale and drawn like one. Each
-strand is labelled with its value at whichever end its family fans out, since at the end
-where strands converge the labels pile up and get nudged next to the wrong curve; set
-`titleend` on a [`Variable`](@ref) to choose by hand. The family's own name goes off the
-end of that row of values, as an axis title goes off the end of its axis. For a dense net
-that should recede, pass a lighter `gridcolor` to [`svg`](@ref) or
-[`nomogramplot`](@ref).
+Strands are scales of `kind = :grid`, and they are read and drawn like any other scale.
+Each strand is labelled with its value at the end where its family spreads apart. At the
+end where the strands converge, the labels would crowd together and get pushed next to the
+wrong curve. To choose the end yourself, set `titleend` on the [`Variable`](@ref). The
+family's name goes past the end of that row of values, as an axis title goes past the end
+of its axis. To make a dense net less prominent, pass a lighter `gridcolor` to
+[`svg`](@ref) or [`nomogramplot`](@ref).

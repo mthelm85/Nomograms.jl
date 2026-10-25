@@ -4,11 +4,11 @@ CurrentModule = Nomograms
 
 # Building charts
 
-A nomogram asserts one thing: that a point taken from each scale lies on a single straight
-line. So every chart in this package is a set of parametric curves `value -> (x, y)`
-([`Scale`](@ref)), and each construction below is a way of choosing curves that makes that
-collinearity agree with a relation. [How it works](60-how-it-works.md) follows a chart
-from construction to picture in detail.
+A nomogram works because the points you pick on its scales lie on one straight line
+exactly when their values satisfy the relation. In this package, every chart is a set of
+parametric curves `value -> (x, y)` ([`Scale`](@ref)). Each construction on this page is a
+way of choosing those curves so that collinearity matches a given relation.
+[How it works](60-how-it-works.md) follows a chart in detail from construction to picture.
 
 ## Parallel scales
 
@@ -21,20 +21,20 @@ f_1(u) + f_2(v) = f_3(w)
 
 Each `fᵢ` is a [`ScaleTransform`](@ref): [`LinearScale`](@ref), [`LogScale`](@ref),
 [`ReciprocalScale`](@ref), [`PowerScale`](@ref), [`ComposedScale`](@ref), or
-[`FunctionScale`](@ref) for anything else. A transform carries its own inverse, which is
-what lets the result axis be derived exactly instead of searched for.
-[`additive_nomogram`](@ref) builds the chart; see its docstring for the geometry.
+[`FunctionScale`](@ref) for anything else. A transform carries its own inverse, so the
+result axis can be computed exactly instead of found by search.
+[`additive_nomogram`](@ref) builds the chart; its docstring describes the geometry.
 
-Where the middle axis goes is not a free choice: it falls between the outer two, nearer the
-one whose transform spans more. When one range is far wider than the other, the middle axis
-would sit almost on top of that neighbour and its labels would read as the neighbour's. So
-the narrower axis is shortened and centred until the middle axis is at least a fifth of the
-way across. Readings are unchanged, since the middle axis moves with it. Set
-`max_modulus_ratio` to trade the narrow axis's length against that spacing, or `Inf` for
-full-height axes whatever their ranges.
+You do not choose where the middle axis goes. It falls between the outer two, nearer the
+one whose transform spans more. When one range is much wider than the other, the middle
+axis would sit almost on top of its neighbour, and its labels would look like the
+neighbour's. To prevent this, the narrower axis is shortened and centred until the middle
+axis is at least a fifth of the way across. The middle axis moves to match, so readings do
+not change. Use `max_modulus_ratio` to trade the narrow axis's length against that
+spacing, or set it to `Inf` to keep full-height axes whatever their ranges.
 
-Product relations separate under a logarithm, which [`multiplicative_nomogram`](@ref)
-applies for you:
+Products become sums under a logarithm, and [`multiplicative_nomogram`](@ref) takes the
+logarithms for you:
 
 ```@example build
 using Nomograms
@@ -50,10 +50,10 @@ drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = "\$90"
 
 ## Ratios, and the N-chart
 
-Not every relation wants parallel scales. [`ratio_nomogram`](@ref) builds an N-chart (also
-called a Z-chart) for `f₁(u) / f₂(v) = f₃(w)`: two vertical scales joined by a diagonal,
-with the result read off the diagonal. Doerfler's "The Lost Art of Nomography" derives the
-classic construction (see the [Bibliography](96-references.md)).
+[`ratio_nomogram`](@ref) builds an N-chart (also called a Z-chart) for
+`f₁(u) / f₂(v) = f₃(w)`. It has two vertical scales joined by a diagonal, and you read the
+result on the diagonal. Doerfler's "The Lost Art of Nomography" derives the classic
+construction (see the [Bibliography](96-references.md)).
 
 ```@example build
 speed = ratio_nomogram(
@@ -65,37 +65,37 @@ speed = ratio_nomogram(
 drawing(speed; isopleths = [isopleth(speed; distance = 6, time = 3, label = "2 km/h")])
 ```
 
-`multiplicative_nomogram` charts ratios as well, by way of logarithms. The N-chart earns
-its place by needing none: the outer scales stay *linear*, so precision is even along them
-and a reader can interpolate between ticks by eye.
+`multiplicative_nomogram` can also chart ratios, using logarithms. The advantage of the
+N-chart is that it needs no logarithms: the outer scales stay *linear*, so precision is
+even along them and you can interpolate between ticks by eye.
 
-Two details are worth knowing. The textbook derivation gives both outer scales the same
-scale factor so that the ratio falls out directly; here the diagonal's own scale absorbs
-the ratio of the two factors instead, so each outer axis is fitted to the canvas on its
-own. And the diagonal is a *projective* scale, `s = k·r / (k·r + 1)`, so a ratio spanning
-decades is spread across it roughly logarithmically — which is why the result axis takes
-decade-based tick values in that case. Picking them linearly would offer nothing between
-0.1 and 2, most of the diagonal. Pass `tickstyle = :linear` on the [`Variable`](@ref) to
-override.
+Two details of this construction affect what you see. The textbook derivation gives both
+outer scales the same scale factor so that the ratio comes out directly. Here the
+diagonal's own scale absorbs the ratio of the two factors instead, so each outer axis is
+fitted to the canvas separately. Also, the diagonal is a *projective* scale,
+`s = k·r / (k·r + 1)`, so a ratio spanning several decades is spread across it roughly
+logarithmically. In that case the result axis uses decade-based tick values; linear ticks
+would leave nothing between 0.1 and 2, which covers most of the diagonal. To override
+this, pass `tickstyle = :linear` on the [`Variable`](@ref).
 
-## Anything else, from the determinant
+## Other relations: the determinant method
 
-The two named constructions are particular solutions of the collinearity condition.
-[`determinant_nomogram`](@ref) takes any other one you can write down: give each variable a
-curve, and the combined bounding box is measured and mapped onto the canvas for you. This
-is the determinant method of the nomography textbooks; Doerfler's overview is a good
-worked introduction to it.
+The parallel and N-chart constructions are particular solutions of the collinearity
+condition. [`determinant_nomogram`](@ref) accepts any other solution you can write down.
+Give each variable a curve, and the package measures their combined bounding box and maps
+it onto the canvas. This is the determinant method of the nomography textbooks; Doerfler's
+overview is a good worked introduction to it.
 
-Deriving a curve is mechanical once the first two scales are fixed. Put `p` on `x = 0` at
-height `p` and `q` on `x = 1` at height `q`; a line between them crosses `x = x₃` at
-`p + x₃(q - p)`, so a third scale is met exactly when `(1 - x₃)·p + x₃·q = y₃`. To make
-that say `z·p + q + z² = 0`, match coefficients:
+Once the first two scales are fixed, deriving a curve is mechanical. Put `p` on `x = 0` at
+height `p` and `q` on `x = 1` at height `q`. A line between them crosses `x = x₃` at
+`p + x₃(q - p)`, so it meets a third scale exactly when `(1 - x₃)·p + x₃·q = y₃`. To make
+that equation say `z·p + q + z² = 0`, match coefficients:
 
 ```math
 \frac{1 - x_3}{z} = \frac{x_3}{1} = \frac{-y_3}{z^2}
 ```
 
-giving `x₃ = 1/(1 + z)` and `y₃ = -z²/(1 + z)` — a curved scale for the roots of a
+This gives `x₃ = 1/(1 + z)` and `y₃ = -z²/(1 + z)`, a curved scale for the roots of a
 quadratic.
 
 ```@example build
@@ -114,33 +114,35 @@ drawing(quad; isopleths = [isopleth(quad, roots[1]; label = "z² − 3z + 2 = 0"
 [sol.z for sol in roots]
 ```
 
-Two answers, because a quadratic has two roots and the chart shows why: one alignment line,
-meeting the curved scale twice. This curved-scale chart for the quadratic is a classic;
-Doerfler draws it after Adams (1964) and Otto (1963).
+There are two answers because a quadratic has two roots. On the chart, one alignment line
+meets the curved scale twice. This chart for the quadratic is a classic one; Doerfler draws
+it after Adams (1964) and Otto (1963).
 
-Collinearity survives any affine map, so fitting the curves to the canvas cannot change
-what the chart computes — including the anisotropic fit used by default to fill it. Pass
-`preserve_aspect = true` to scale both axes alike and centre the result.
+An affine map keeps collinear points collinear, so fitting the curves to the canvas cannot
+change what the chart computes. This includes the default fit, which scales the two axes
+by different factors to fill the canvas. Pass `preserve_aspect = true` to scale both axes
+by the same factor and centre the result.
 
-Getting a determinant form right is the hard part of designing a chart by hand, and a chart
-that is subtly wrong still draws perfectly well. [`max_relation_residual`](@ref) solves on
-the geometry over a grid of inputs and checks each answer against the algebra:
+Getting the determinant form right is the hardest part of designing a chart by hand, and a
+chart with a small error in it still draws normally. [`max_relation_residual`](@ref)
+solves the chart over a grid of inputs and checks each answer against the relation:
 
 ```@example build
 max_relation_residual(quad)
 ```
 
-It returns `NaN` rather than a flattering zero when there is no relation to check, or when
-no input in the grid produced a solution.
+It returns `NaN` (rather than zero) when there is no relation to check, or when no input in
+the grid produced a solution.
 
-## Reshaping, for free
+## Reshaping a chart
 
-An affine map preserves collinearity, which is why fitting curves to the canvas is safe.
-*Projective* maps preserve it too, and they are a much larger family — they can turn
-parallel scales into converging ones and redistribute spacing along an axis. Nomographers
-have long reshaped charts this way; Doerfler's overview closes with these transformations.
+*Projective* maps also keep collinear points collinear, and they are a much larger family
+than affine maps. They can turn parallel scales into converging ones and change the
+spacing along an axis. Nomographers have long reshaped charts this way; Doerfler's
+overview ends with these transformations.
 
-So [`project`](@ref) reshapes a chart without changing a single answer it gives:
+[`project`](@ref) applies a projective map to a chart, and the reshaped chart gives the
+same answers:
 
 ```@example build
 parallel = additive_nomogram(
@@ -157,28 +159,27 @@ drawing(skew; isopleths = [isopleth(skew; R1 = 4, R2 = 6, label = "2.4")])
 (evaluate(parallel; R1 = 4, R2 = 6).R, evaluate(skew; R1 = 4, R2 = 6).R)
 ```
 
-[`projective_transform`](@ref) builds the map from four point correspondences, which is
-how you want to say it in practice: name the corners of a quadrilateral and where they
-should end up, rather than writing out nine coefficients. A map whose bottom row is
-`[0 0 1]` is affine — the familiar translate, scale and shear — and everything above that
-is genuine perspective.
+[`projective_transform`](@ref) builds the map from four point correspondences. You name the
+corners of a quadrilateral and where they should end up, instead of writing out nine
+coefficients. A map whose bottom row is `[0 0 1]` is affine (translation, scaling and
+shear); any other map adds true perspective.
 
-The result is re-fitted to the canvas, since a projective map takes the bounding box
-somewhere arbitrary; composing that affine fit with the projective map leaves it
-projective, so the guarantee is unaffected.
+A projective map can move the bounding box anywhere, so the result is fitted to the canvas
+again. That fit is affine, and an affine map composed with a projective one is still
+projective, so the answers are still unchanged.
 
-This is what makes reshaping a design tool rather than a risk. A region where the ticks
-pile up can be pulled open and nothing needs re-deriving — and
-[`max_relation_residual`](@ref) will confirm it on the reshaped chart.
+This means you can reshape a chart freely while designing it. You can pull open a region
+where the ticks are crowded without re-deriving anything, and
+[`max_relation_residual`](@ref) will confirm that the reshaped chart is still correct.
 
-The one thing to watch for is the map's vanishing line, where the denominator goes to
-zero. If it crosses a scale's domain, points there go to infinity; that is reported
-against the scale it affects rather than producing a chart full of `Inf`.
+Watch out for the map's vanishing line, where its denominator is zero. If that line
+crosses a scale's domain, points there are sent to infinity. `project` then throws an
+error naming the affected scale, instead of returning a chart full of `Inf`.
 
 ## Fans
 
 Parallel lines meet at a point at infinity, and a projective map can bring that point onto
-the page. Every axis then runs through it, and the chart becomes a fan of spokes —
+the page. Every axis then runs through it, and the chart becomes a fan of spokes.
 [`fan`](@ref) does this:
 
 ```@example build
@@ -192,9 +193,9 @@ fanned = fan(additive_nomogram(
 drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = "4 ∥ 6 = 2.4")])
 ```
 
-It is the same chart, reading the same answers, and works on compound charts and nets too.
-Two things follow from the geometry. Straight lines stay straight, so the spokes end on a
-straight chord rather than an arc: at the default 90° spread the tips line up level, and
-wider fans leave the middle spokes shorter than the outer ones. And the map squeezes whatever lies
-near the hub, so `fan` lays the chart out both ways round and keeps whichever labels more
-values. Here the reciprocal scales' crowded ends — 4 to 10 — went to the rim.
+The fanned chart gives the same answers as the original, and `fan` works on compound
+charts and nets too. Because straight lines stay straight, the spokes end on a straight
+chord, not an arc. At the default spread of 90° the tips line up level, and wider fans
+leave the middle spokes shorter than the outer ones. The map also squeezes everything near
+the hub, so `fan` lays the chart out both ways round and keeps the one that labels more
+values. Here the crowded ends of the reciprocal scales, from 4 to 10, went to the rim.
