@@ -343,7 +343,7 @@ decade-based ticks according to how its transform spreads its values.
 
 The finished chart is then *solved* over a grid of inputs, and every answer is compared with
 `F` itself. If any answer differs by more than `rtol` times the result's range, no chart is
-returned: the call throws an error that reports the error it measured. The chart's
+returned: the call throws an error that reports the disagreement it measured. The chart's
 `relation` is `F`, so [`relation_residual`](@ref) and [`max_relation_residual`](@ref) check
 against your formula, not a derived one.
 
