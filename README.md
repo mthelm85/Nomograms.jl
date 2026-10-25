@@ -8,10 +8,10 @@
 [![Docs workflow Status](https://github.com/mthelm85/Nomograms.jl/actions/workflows/Docs.yml/badge.svg?branch=main)](https://github.com/mthelm85/Nomograms.jl/actions/workflows/Docs.yml?query=branch%3Amain)
 [![BestieTemplate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/JuliaBesties/BestieTemplate.jl/main/docs/src/assets/badge.json)](https://github.com/JuliaBesties/BestieTemplate.jl)
 
-A **nomogram** is an analog computer printed on paper. Lay a straightedge through the values
-you know, and it crosses the remaining scale at the answer — no power, no keystrokes, just
-geometry. Nomograms.jl builds them from the formulas you already use, solves them
-numerically, and draws them as SVG or with Makie.
+A **nomogram** is a chart that computes by alignment. You lay a straightedge across the
+scales at the values you know, and read the answer where it crosses the remaining scale.
+Nomograms.jl builds nomograms from formulas, solves them numerically, and draws them as
+SVG or with Makie.
 
 ```julia
 using Nomograms
@@ -30,15 +30,15 @@ evaluate(nom; R1 = 4, R = 2.4)    # ...and backwards: R2 = 6.0
 save_svg("parallel.svg", nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6)])
 ```
 
-Note that `R` declares no domain. The length and position of the middle axis are
-*consequences* of the outer two, not free parameters, so the package derives `R ∈ [0.5, 5]`
-itself — and rejects a domain you supply that contradicts the relation.
+Note that `R` has no domain. The length and position of the middle axis are determined by
+the outer two, so the package derives `R ∈ [0.5, 5]` itself. If you supply a domain that
+contradicts the relation, it is rejected.
 
 ## Or just give it the formula
 
-Every constructor below asks you to rewrite your formula into a separable form first and
-choose the transforms. `auto_nomogram` does that for you, from the function as you would
-ordinarily write it:
+The constructors below need you to rewrite your formula in a separable form and choose
+its transforms yourself. `auto_nomogram` does this for you. Pass it the function as you
+would normally write it:
 
 ```julia
 nom = auto_nomogram((r, n) -> (1 + r/100)^n, :r => (1, 20), :n => (1, 30), :growth)
@@ -66,10 +66,10 @@ gas = auto_nomogram((n, T, V) -> n * 8.314 * T / V,
 evaluate(gas; n = 1, T = 300, V = 0.024).P   # 103925.0…
 ```
 
-Nothing is returned on trust. The finished chart is *solved* over a grid of inputs and
-every answer compared with your function; a chart that disagrees is an error, not a
-result. When a formula has no chart on straight scales or with one curved scale, it says
-so and points you at the constructions that can still handle it.
+Once the chart is built, it is solved over a grid of inputs and every answer is compared
+with your function. If the chart disagrees, you get an error instead of a chart. When a
+formula has no chart on straight scales or with one curved scale, the error says so and
+points you to the constructions that can still handle it.
 
 ## What it does
 
@@ -118,20 +118,20 @@ save("chart.pdf", fig)
 ```
 
 Both go through `drawing(nom; style = NomogramStyle(...))`, so a `NomogramStyle` means the
-same thing in either backend, and tests can assert on tick positions without rendering.
+same thing in either backend, and tests can check tick positions without rendering.
 
-The defaults follow the proportions of a classic d3 axis — hairline rules, short ticks,
-small type. All lengths are in chart units, and at the default `pxperunit = 4` they come
-out as 1px strokes, 6px major ticks and 10px labels.
+The defaults follow the proportions of a standard d3 axis: hairline rules, short ticks and
+small type. All lengths are in chart units, and at the default `pxperunit = 4` this gives
+1px strokes, 6px major ticks and 10px labels.
 
-Isopleths get **three** colours, not more: blue, orange, aqua. Every isopleth on a chart is
-visible at once, so all three pairs must stay apart under colour-vision deficiency, and no
-fourth hue holds up once every pair is in play. These were checked with a validator rather
-than by eye — worst pair ΔE 9.2 under deuteranopia, 24.0 in normal vision, against a ≥8
-target. d3's own `category10` is *not* used for a measurable reason: its orange and green
-sit ΔE 0.7 apart under protanopia, which is to say they are the same colour. Past three
-isopleths the dash pattern advances instead of the hue, so identity never rests on colour
-alone.
+Isopleths use three colours: blue, orange and aqua. All the isopleths on a chart are
+visible at once, so every pair of colours has to stay distinguishable under colour-vision
+deficiency, and no fourth hue does once every pair is taken into account. The colours were
+checked with a validator: the worst pair is ΔE 9.2 under deuteranopia and 24.0 in normal
+vision, against a target of at least 8. d3's own `category10` palette is not used because
+its orange and green are only ΔE 0.7 apart under protanopia, which makes them look the
+same. From the fourth isopleth on, the dash pattern changes instead of the hue, so lines
+are never told apart by colour alone.
 
 ## Products, and anything separable
 
@@ -154,8 +154,8 @@ charts `growth = (1 + r)ⁿ` by way of `log(growth) = n · log(1 + r)`.
 
 ## Ratios, on an N-chart
 
-Parallel scales are not the only layout. `ratio_nomogram` builds an N-chart (Z-chart) —
-two vertical scales joined by a diagonal, with the result read off the diagonal — for
+`ratio_nomogram` builds an N-chart (Z-chart) for ratios. It has two vertical scales joined
+by a diagonal, and you read the result on the diagonal:
 
 ```julia
 nom = ratio_nomogram(
@@ -166,13 +166,13 @@ nom = ratio_nomogram(
 evaluate(nom; distance = 6, time = 3).speed  # 2.0
 ```
 
-`multiplicative_nomogram` charts ratios too, by taking logarithms. The N-chart earns its
-place by needing none: the outer scales stay **linear**, so precision is even along them
-and small ratios are not squeezed into a corner.
+`multiplicative_nomogram` can also chart ratios, using logarithms. The advantage of the
+N-chart is that it needs no logarithms: the outer scales stay **linear**, so precision is
+even along them and small ratios are not squeezed into a corner.
 
-The diagonal is a projective scale, `s = k·r / (k·r + 1)`, so a ratio spanning decades is
-spread across it roughly logarithmically — and the tick values follow suit rather than
-being picked linearly, which over 0.1 to 10 would offer nothing between 0.1 and 2.
+The diagonal is a projective scale, `s = k·r / (k·r + 1)`, so a ratio spanning several
+decades is spread across it roughly logarithmically. The tick values follow this; linear
+ticks over 0.1 to 10 would leave nothing between 0.1 and 2.
 
 ## Anything else, from the determinant
 
@@ -192,15 +192,15 @@ nom = determinant_nomogram(
 ```
 
 Write the curves in whatever coordinates suit the geometry; their bounding box is measured
-and mapped onto the canvas. Collinearity survives any affine map, so the fit cannot change
-what the chart computes.
+and mapped onto the canvas. An affine map keeps collinear points collinear, so the fit
+cannot change what the chart computes.
 
-Note the two answers. A quadratic has two roots and the chart shows why — one alignment
-line, meeting the curved scale twice.
+There are two answers because a quadratic has two roots. On the chart, one alignment line
+meets the curved scale twice.
 
-Getting a determinant form right is the hard part of designing a chart by hand, and a wrong
-one still draws perfectly well, so `max_relation_residual(nom)` solves on the geometry and
-checks the answers against the algebra.
+Getting the determinant form right is the hardest part of designing a chart by hand, and a
+chart with an error in it still draws normally. `max_relation_residual(nom)` solves the
+chart over a grid of inputs and checks the answers against the relation.
 
 For full control, build `Scale`s directly — a curve per variable, in final coordinates —
 and pass them to `Nomogram`. Everything downstream, the solver included, works unchanged.
@@ -223,24 +223,26 @@ evaluate(nom; L = 3, W = 4, H = 2)     # (L=3, t=12, W=4, V=24, H=2)
 evaluate(nom; L = 3, W = 4, V = 24).H  # 2.0 — any direction the chain allows
 ```
 
-The reader lays a line across the first stage, notes where it crosses the shared scale,
-then pivots about that point and reads the second. Hence the usual name for that scale: the
-turning line. An empty tick list draws it bare, as above.
+To read the chart, lay a line across the first stage and note where it crosses the shared
+scale. Then pivot about that point and read the second stage. This is why the shared scale
+is called the turning line. An empty tick list draws it bare, as above.
 
-Solving propagates: any stage with exactly one unknown is read, its answer becomes known,
-and the pass repeats. So inputs can be given in whatever combination closes the chain, and
-a combination that cannot is refused with the variables still missing.
+The solver reads any stage with exactly one unknown, adds the answer to the known values,
+and repeats. So you can give any combination of inputs that closes the chain. A
+combination that cannot close it is refused, with a message naming the variables still
+missing.
 
-The one real constraint is that a shared scale must be the *same* scale in both stages.
-Both stages above are multiplicative, so both place `t` logarithmically. Splitting
-`V = (L + W) × H` the same way would not work — one stage would want `t` linear and the
-other logarithmic — and `compound` says so rather than drawing a chart that lies.
+A shared scale must be the *same* scale in both stages. Both stages above are
+multiplicative, so both place `t` on a logarithmic scale. Splitting `V = (L + W) × H` the
+same way would not work, because one stage would put `t` on a linear scale and the other on
+a logarithmic one. `compound` checks for this and throws an error instead of drawing a
+wrong chart.
 
-### When a pivot will not do: nets
+### Nets
 
-A pivot works only when two variables collapse into one intermediate. When they do not —
-the general quadratic `a·x² + b·x + c = 0` is the classic case — one of the three points the
-line crosses has to carry two variables at once. That is a **net**: a mesh of curves,
+A turning line works only when two variables combine into one intermediate value. When they
+do not, as in the general quadratic `a·x² + b·x + c = 0`, one of the three points on the
+line has to carry two variables at once. That point lies on a **net**: a mesh of curves,
 `(u, v) -> (x, y)`.
 
 ```julia
@@ -260,10 +262,11 @@ reads `x` off the strand through that point. Any of the four variables may be th
 The mesh is drawn lighter than the scales, and each family of strands is labelled at the
 end where it fans out rather than where it crowds together.
 
-## Reshaping, for free
+## Reshaping a chart
 
-A projective map sends straight lines to straight lines, so it preserves the one thing a
-nomogram asserts. `project` reshapes a chart **without changing a single answer it gives**:
+A projective map sends straight lines to straight lines, so it preserves the collinearity
+that a nomogram depends on. `project` reshapes a chart, and the reshaped chart gives the
+same answers:
 
 ```julia
 corners = [(0, 0), (70, 0), (70, 100), (0, 100)]
@@ -273,9 +276,9 @@ evaluate(nom;  R1 = 4, R2 = 6).R   # 2.4
 evaluate(skew; R1 = 4, R2 = 6).R   # 2.4 — the same chart, differently drawn
 ```
 
-Four point correspondences fix the map, so you say where the corners should go rather than
-writing out nine coefficients. That makes reshaping a design tool rather than a risk: a
-chart cramped at one end can be pulled open, and nothing needs re-deriving.
+Four point correspondences fix the map, so you say where the corners should go instead of
+writing out nine coefficients. You can pull open a chart that is cramped at one end without
+re-deriving anything.
 
 ## Examples
 
