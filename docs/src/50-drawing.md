@@ -6,11 +6,11 @@ CurrentModule = Nomograms
 
 ## Rendering
 
-[`drawing`](@ref) turns a nomogram into a [`NomogramDrawing`](@ref): axis polylines, tick
-positions, normals and labels, and isopleth segments — pure geometry, with nothing about
-how to draw it. Both backends are thin walks over that structure, so a
-[`NomogramStyle`](@ref) means the same thing in either, and tests can assert on tick
-positions without rendering anything.
+[`drawing`](@ref) turns a nomogram into a [`NomogramDrawing`](@ref). This holds the axis
+polylines, tick positions, normals and labels, and isopleth segments: the geometry of the
+chart, with no information about how to draw it. Both backends simply walk over that
+structure, so a [`NomogramStyle`](@ref) means the same thing in either, and tests can check
+tick positions without rendering anything.
 
 | | dependency | output |
 |---|---|---|
@@ -24,9 +24,9 @@ using CairoMakie
 save("parallel.pdf", nomogramplot(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6)]))
 ```
 
-Charts and drawings also display themselves as images wherever Julia can show one — a
-notebook, VS Code's plot pane, or a page like this one. A chart displays bare; display its
-`drawing` to include isopleths.
+Charts and drawings also display as images wherever Julia can show one: in a notebook, in
+VS Code's plot pane, or on a page like this one. A chart displays without isopleths; to
+include them, display its `drawing`.
 
 ```@example draw
 using Nomograms
@@ -41,23 +41,24 @@ nom = additive_nomogram(
 
 ## Styling
 
-The defaults follow the proportions of a classic d3 axis: hairline rules, short ticks and
-small type. Everything in [`NomogramStyle`](@ref) is measured in chart units, so at the
-default `pxperunit = 4` they land on 1px strokes, 6px major ticks, 3px of label padding and
-10px labels, and changing the output size rescales the lot together.
+The defaults follow the proportions of a standard d3 axis: hairline rules, short ticks
+and small type. Everything in [`NomogramStyle`](@ref) is measured in chart units. At the
+default `pxperunit = 4` this gives 1px strokes, 6px major ticks, 3px of label padding and
+10px labels, and changing the output size scales them all together.
 
-Isopleths get three colours — blue, orange, aqua — and that is deliberate rather than
-parsimonious. Every isopleth on a chart is visible at the same time, so all three pairs
-have to stay apart under colour-vision deficiency, and no fourth hue holds up once every
-pair is in play. The three were checked with a validator rather than by eye: worst pair
-ΔE 9.2 under deuteranopia and 24.0 in normal vision, against a ≥8 target.
+Isopleths use three colours: blue, orange and aqua. All the isopleths on a chart are
+visible at once, so every pair of colours has to stay distinguishable under colour-vision
+deficiency, and no fourth hue does once every pair is taken into account. The three
+colours were checked with a validator: the worst pair is ΔE 9.2 under deuteranopia and
+24.0 in normal vision, against a target of at least 8.
 
-d3's own `category10` is not used, for a reason that is measurable rather than aesthetic:
-its orange and green are ΔE 0.7 apart under protanopia, which is to say indistinguishable.
+d3's own `category10` palette is not used because its orange and green are only ΔE 0.7
+apart under protanopia, which makes them indistinguishable.
 
-Past three isopleths the dash pattern advances instead of the hue — a fourth line is a
-dashed blue, not a second plain blue — so identity never rests on colour alone. Override
-either with `isoplethcolors` and `isoplethdashes`, which both backends accept.
+From the fourth isopleth on, the dash pattern changes instead of the hue: a fourth line is
+dashed blue, so you can still tell it from the first plain blue one. You never have to
+rely on colour alone. To override the colours or dashes, pass `isoplethcolors` and
+`isoplethdashes`, which both backends accept.
 
 ```@example draw
 drawing(nom; isopleths = [
@@ -67,35 +68,35 @@ drawing(nom; isopleths = [
 
 ## Ticks
 
-Tick values are chosen to be round numbers *in the variable*, then thinned by distance *on
-the page* ([`thin_ticks`](@ref)). That split is what keeps a non-uniform axis readable: a
-reciprocal or logarithmic scale keeps its labels where it is stretched and drops them
-where it is compressed, and the numbers that survive are still round ones. Axis endpoints
-and decade boundaries are placed first, so a crowded axis gives up `9` before it gives up
-`10`.
+Tick values are chosen to be round numbers *in the variable*, then thinned by their
+distance apart *on the page* ([`thin_ticks`](@ref)). Doing it in that order keeps a
+non-uniform axis readable. A reciprocal or logarithmic scale keeps its labels where it is
+stretched and drops them where it is compressed, and the numbers that remain are still
+round. Axis endpoints and decade boundaries are placed first, so a crowded axis drops `9`
+before it drops `10`.
 
 A logarithmic axis is offered every whole mantissa in every decade, in the order it should
-give them up — decades, then 5s, then 2s, then the rest — with no rule counting decades to
-decide in advance. One candidate set then serves every length of axis: eight decades
-settles on the classic 1-2-5 sequence, two decades labels every mantissa, and a range too
-narrow to hold three whole mantissas, such as 100 to 200, has its tenths promoted to labels
-instead of being left bare between its ends. A mantissa whose label is dropped still gets a
+drop them: decades, then 5s, then 2s, then the rest. No rule decides in advance based on
+the number of decades. The same set of candidates works for any length of axis. Eight
+decades settle on the familiar 1-2-5 sequence, and two decades label every mantissa. A
+range too narrow to hold three whole mantissas, such as 100 to 200, gets labels at its
+tenths instead of none between its ends. A mantissa whose label is dropped still gets a
 tick mark.
 
-Tick lengths are graded the same way, as on a ruler: the more a value matters, the
+Tick lengths are graded in the same way, as on a ruler: the more important the value, the
 longer its mark. A logarithmic axis draws decades longest, then the other whole digits,
-then tenths; an integer axis 10s, 5s, then the rest; a fraction axis wholes, halves,
-quarters and on down. Labels sit the same distance from the axis whatever their tick's
-length, so they still line up. Set `graded_ticks = false` on the
-[`NomogramStyle`](@ref) for just two lengths.
+then tenths. An integer axis draws 10s longest, then 5s, then the rest, and a fraction axis
+draws wholes, halves, quarters and so on down. Labels sit at the same distance from the
+axis whatever the length of their tick, so they still line up. Set `graded_ticks = false`
+on the [`NomogramStyle`](@ref) to use just two lengths.
 
-Where an axis compresses so hard that automatic selection has nothing to work with, pass
-`ticks = [...]` to the [`Variable`](@ref); anything that will not fit is still dropped.
+If an axis is compressed so much that automatic selection has nothing to work with, pass
+`ticks = [...]` to the [`Variable`](@ref). Any of these that do not fit are still dropped.
 
 ### Counts and fractions
 
-Some quantities are not decimals. Gear teeth are counted, so an axis offering 12.5 teeth
-is wrong however round the number; `tickstyle = :integer` offers whole numbers only:
+Some quantities are not decimals. Gear teeth are counted, so a tick at 12.5 teeth is
+wrong however round the number is. `tickstyle = :integer` offers whole numbers only:
 
 ```@example draw
 gears = multiplicative_nomogram(
@@ -108,8 +109,8 @@ drawing(gears; isopleths = [isopleth(gears; ratio = 2.5, driver = 16, label = "4
 ```
 
 Lengths in inches are read in fractions. `tickstyle = :fraction` offers fractions whose
-denominator divides `maxden` — sixteenths by default, `maxden = 12` for thirds and
-sixths — and labels them the way a ruler does, with [`fractionformat`](@ref):
+denominator divides `maxden`, which is 16 by default; use `maxden = 12` for thirds and
+sixths. The labels are written as on a ruler, using [`fractionformat`](@ref):
 
 ```@example draw
 bolt = additive_nomogram(
@@ -121,47 +122,49 @@ bolt = additive_nomogram(
 drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label = "1 5/8 in")])
 ```
 
-Writing a domain in `Rational`s says the same thing, so `domain = (1//8, 3)` gives a
-fraction axis without asking, in eighths: the finest denominator its ends use. A
-`tickstyle` or `maxden` given explicitly wins.
+Writing a domain with `Rational`s has the same effect. `domain = (1//8, 3)` gives a
+fraction axis in eighths, the finest denominator its ends use. A `tickstyle` or `maxden`
+that you give explicitly takes precedence.
 
-Both work the same way as the decimal styles. Candidates are offered roundest first —
-multiples of 10 before 5s; wholes, then halves, then quarters — and thinned by distance
-on the page, so a crowded stretch of axis gives up sixteenths before eighths. An axis end
-is labelled only if it is a value the style allows. Neither style changes what the chart
-computes: readings come back as ordinary numbers, and an answer of 37.4 turns is reported
-as 37.4, not rounded to a count that would not satisfy the relation.
+Both styles work like the decimal ones. Candidates are offered roundest first (multiples
+of 10 before 5s; wholes, then halves, then quarters) and thinned by distance on the page,
+so a crowded stretch of axis drops sixteenths before eighths. An axis end is labelled only
+if its value is one the style allows. Neither style changes what the chart computes.
+Readings come back as ordinary numbers, so an answer of 37.4 turns is reported as 37.4,
+not rounded to a whole count that would not satisfy the relation.
 
 ## Placing the labels
 
-Thinning compares a scale only against itself, which is all a parallel layout needs. Bring
-scales together — a diagonal, a curve, two axes close on the page — and labels from
-*different* scales start to overlap, which no amount of per-axis thinning can see.
+Thinning compares a scale only with itself, which is all a parallel layout needs. When
+scales come close together, as with a diagonal, a curve, or two axes near each other on
+the page, labels from *different* scales start to overlap, and thinning each axis on its
+own cannot detect this.
 
-So each label carries its anchor point, alignment and rotation, and
-[`label_box`](@ref Nomograms.label_box) turns those into the box it actually occupies. The
-layout then makes one pass over the whole chart: axis titles are reserved first, then major
-tick labels, then minor ones, and a label that cannot fit is dropped while its tick mark
-stays. Isopleth labels are nudged along the perpendicular until they are clear instead,
-since the caller asked for those by name.
+So each label also records its anchor point, alignment and rotation, and
+[`label_box`](@ref Nomograms.label_box) turns those into the box the label occupies. The
+layout then makes one pass over the whole chart. It reserves room for axis titles first,
+then major tick labels, then minor ones. A label that cannot fit is dropped, and its tick
+mark stays. Isopleth labels are moved along the perpendicular until they are clear
+instead, since you asked for those explicitly.
 
-Collisions are not only label against label. An alignment line drawn straight through a
-number makes it just as unreadable, so [`segment_hits_box`](@ref Nomograms.segment_hits_box)
-tests each label against the lines too and a struck label is dropped, tick mark intact.
-Only the span between the outermost crossings counts: the overhang past them is a flourish,
-and it falls exactly where the outer scales' labels sit — including the label for the value
-being read. Set `avoid_isopleths = false` to keep every label regardless.
+Labels can also collide with lines. An alignment line drawn through a number makes it just
+as hard to read, so [`segment_hits_box`](@ref Nomograms.segment_hits_box) tests each label
+against the lines as well, and a label that a line crosses is dropped, keeping its tick
+mark. Only the part of the line between its outermost crossings counts. The overhang
+beyond them carries no information, and it falls exactly where the outer scales' labels
+sit, including the label for the value being read. Set `avoid_isopleths = false` to keep every
+label anyway.
 
-Two related details fall out of the same geometry:
+Two related details follow from the same geometry:
 
-- [`align_for`](@ref Nomograms.align_for) uses *both* components of the direction a label
-  is pushed in. While every axis was vertical only the horizontal one mattered; on a curve,
-  a label pushed straight down from its tick has to hang from its top edge rather than sit
-  centred on the point.
+- [`align_for`](@ref Nomograms.align_for) uses *both* components of the direction in which
+  a label is pushed. On a vertical axis only the horizontal component matters. On a curve,
+  a label pushed straight down from its tick has to hang from its top edge instead of
+  sitting centred on the point.
 - An axis title is placed off the **end** of its scale, continuing along the tangent. For a
-  vertical axis that is straight up from the top, exactly as before; for a diagonal or a
-  curve it follows the scale instead of jumping to whichever point is highest.
+  vertical axis that is straight up from the top. For a diagonal or a curve it follows the
+  scale, instead of jumping to whichever point is highest.
 
-Set `ticklabelrotation = :tangent` on the [`NomogramStyle`](@ref) to turn tick labels to run
-along their scale, which reads better on a steep or curved axis; the default leaves them
-upright. `resolve_collisions = false` turns the whole pass off.
+Set `ticklabelrotation = :tangent` on the [`NomogramStyle`](@ref) to turn tick labels so
+they run along their scale. This reads better on a steep or curved axis; by default labels
+stay upright. `resolve_collisions = false` turns off the whole collision pass.

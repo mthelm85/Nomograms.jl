@@ -4,8 +4,9 @@ CurrentModule = Nomograms
 
 # Solving
 
-A chart is also a calculator, and reading it numerically is the same operation as reading
-it by eye: find the line through the known points, and where it crosses the unknown scale.
+You can read a chart numerically as well as by eye. [`evaluate`](@ref) does what you would
+do with a straightedge: it finds the line through the known points, and where that line
+crosses the unknown scale.
 
 ```@example solve
 using Nomograms
@@ -18,14 +19,14 @@ nom = additive_nomogram(
 evaluate(nom; R1 = 4, R2 = 6)
 ```
 
-Any variable may be the unknown, so the inverse problem needs nothing new:
+Any variable can be the unknown, so you solve the inverse problem the same way:
 
 ```@example solve
 evaluate(nom; R1 = 4, R = 2.4)
 ```
 
-[`isopleth`](@ref) takes the same arguments and returns the line itself, ready to draw.
-Pass it a solution from `evaluate` to draw that reading:
+[`isopleth`](@ref) takes the same arguments and returns the line itself, ready to draw. To
+draw a reading, pass it a solution from `evaluate`:
 
 ```@example solve
 drawing(nom; isopleths = [isopleth(nom, evaluate(nom; R1 = 4, R = 2.4); label = "R₂ = 6")])
@@ -33,15 +34,16 @@ drawing(nom; isopleths = [isopleth(nom, evaluate(nom; R1 = 4, R = 2.4); label = 
 
 ## More than one crossing
 
-A straight line can meet a *curved* scale more than once, and each crossing is a genuine
-solution of the relation. The usual shortcut — checking the sign of the residual at the two
-ends of the domain and bisecting — gets this wrong twice over: it reports "no solution" for
-an even number of crossings, because both ends lie on the same side of the line, and it
-returns an arbitrary one of an odd number without saying so.
+A straight line can meet a *curved* scale more than once, and each crossing is a valid
+solution of the relation. The usual shortcut is to check the sign of the residual at the
+two ends of the domain and bisect. That fails in two ways. With an even number of
+crossings, both ends lie on the same side of the line, so it reports no solution. With an
+odd number greater than one, it returns one of them arbitrarily and does not tell you
+there are others.
 
-So [`solve_all_on`](@ref) searches the whole domain. [`evaluate`](@ref) still returns a
-single answer, but throws rather than choosing when there are several, naming the values it
-could not choose between; [`evaluate_all`](@ref) returns every solution:
+Instead, [`solve_all_on`](@ref) searches the whole domain. [`evaluate`](@ref) still returns
+a single answer. When there are several, it throws an error that lists them instead of
+picking one. [`evaluate_all`](@ref) returns every solution:
 
 ```@example solve
 quad = determinant_nomogram(
@@ -61,17 +63,17 @@ end
 [sol.z for sol in evaluate_all(quad; p = -3, q = 2)]
 ```
 
-A straight scale makes the residual an affine function of position, hence monotone, so
-there is always at most one root: parallel-layout nomograms never encounter this. The cost
-of searching rather than bracketing is around 120 µs per `evaluate` instead of a few, which
-is immaterial for reading charts.
+On a straight scale the residual is an affine function of position, and so monotone,
+which means there is at most one root. Charts made only of straight scales never meet
+this case. Searching the whole domain costs around 120 µs per `evaluate` call, against a
+few microseconds for bracketing, which makes no practical difference when reading charts.
 
 ## Checking a chart
 
-[`max_relation_residual`](@ref) solves on the geometry over a grid of inputs and compares
-every answer with the chart's `relation`. For a chart built by [`auto_nomogram`](@ref) the
-relation is the function you passed in; for the others it is the separable form the chart
-was built from, or whatever you passed as `relation`.
+[`max_relation_residual`](@ref) solves the chart over a grid of inputs and compares every
+answer with the chart's `relation`. For a chart built by [`auto_nomogram`](@ref), the
+relation is the function you passed in. For other charts, it is the separable form the
+chart was built from, or whatever you passed as `relation`.
 
 ```@example solve
 max_relation_residual(quad)
@@ -79,10 +81,10 @@ max_relation_residual(quad)
 
 ## Units
 
-Load [Unitful](https://github.com/PainterQubits/Unitful.jl) and a variable can carry a
-unit, taken from its domain or given as `unit`. Values going in may then be in any unit
-of the right dimension, answers come back in the axis's own unit, and the unit is printed
-after the axis title:
+If you load [Unitful](https://github.com/PainterQubits/Unitful.jl), a variable can have a
+unit, taken from its domain or given with the `unit` keyword. You can then pass values in
+any unit of the right dimension. Answers come back in the axis's own unit, and the unit is
+printed after the axis title:
 
 ```@example units
 using Nomograms, Unitful
@@ -100,15 +102,15 @@ evaluate(room; w = 3u"m", l = 4u"m")
 drawing(room; isopleths = [isopleth(room; w = 10u"ft", l = 12u"ft", label = "120 ft²")])
 ```
 
-A plain number is read as being in the axis's unit, so `evaluate(room; w = 10, l = 12)`
-means feet. A value of the wrong dimension is refused by name rather than read as
-something else, as is a quantity given to a variable with no unit. Temperatures convert
-through their offsets, so a °C axis takes 68 °F as 20 °C.
+A plain number is taken to be in the axis's unit, so `evaluate(room; w = 10, l = 12)`
+means feet. A value with the wrong dimension is refused with an error that names the
+variable, and so is a quantity given to a variable that has no unit. Temperatures are
+converted with their offsets, so a °C axis reads 68 °F as 20 °C.
 
-Units matter most for [`auto_nomogram`](@ref). The formula is called with real
-quantities, so it may compute in whatever units it likes, and its result is converted to
-the result's unit — taken from the formula itself if you do not give one. That conversion
-checks the formula's dimensions before any chart is built:
+Units are most useful with [`auto_nomogram`](@ref). Your formula is called with actual
+quantities, so it can compute in any units it likes. Its output is converted to the
+result's unit, which is taken from the formula itself if you do not give one. That
+conversion checks the formula's dimensions before any chart is built:
 
 ```@example units
 try
@@ -123,6 +125,6 @@ catch err
 end
 ```
 
-Inside, the chart is plain numbers in each variable's unit: ticks are chosen in that unit,
-and the `values` of an [`Isopleth`](@ref) are in it too. Formulas involving temperature
-need kelvin, since Unitful does not multiply °C or °F.
+Internally, the chart stores plain numbers in each variable's unit. Ticks are chosen in
+that unit, and the `values` of an [`Isopleth`](@ref) are in it too. Formulas involving
+temperature need kelvin, because Unitful does not multiply °C or °F.

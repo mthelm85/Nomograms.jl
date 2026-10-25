@@ -4,31 +4,32 @@ CurrentModule = Nomograms
 
 # Gallery
 
-Nomograms come in many shapes. This page starts by building one by hand, from nothing but
-curves, and then shows a range of others — each with the code that draws it.
+This page first builds a chart by hand from plain curves, then shows a range of other
+charts, each with the code that draws it.
 
 ## A chart built piece by piece
 
 Every chart in this package is a set of [`Scale`](@ref)s: curves that take a value to a
-point on the page. The constructions — [`additive_nomogram`](@ref) and the rest — only
-work out those curves for you. You can write them yourself, and the result solves, checks
-and draws like any other chart.
+point on the page. The constructions, such as [`additive_nomogram`](@ref), work out those
+curves for you. You can also write them yourself, and the result solves, checks and draws
+like any other chart.
 
-Here is a classic that no construction produces. Take three straight scales radiating from
-one point at 30°, 90° and 150°, graduated evenly with the same unit. A line through `a` on
-one outer scale and `b` on the other then crosses the middle scale at `c`, where
+Here is a classic chart that none of the constructions produces. Take three straight
+scales radiating from one point at 30°, 90° and 150°, each graduated evenly with the same
+unit. A line through `a` on one outer scale and `b` on the other crosses the middle scale
+at `c`, where
 
 ```math
 \frac{1}{a} + \frac{1}{b} = \frac{1}{c}
 ```
 
-— resistors in parallel, or the thin-lens formula, read off evenly spaced scales. (For
-points at distances ``r_i`` along lines through one point at angles ``\theta_i``,
-collinearity is ``\sum \sin(\theta_j - \theta_k)/r_i = 0`` over the three cyclic
-permutations; at these angles that is the relation above.)
+This is the formula for resistors in parallel, or the thin-lens formula, read from evenly
+spaced scales. (For points at distances ``r_i`` along lines through one point at angles
+``\theta_i``, collinearity is ``\sum \sin(\theta_j - \theta_k)/r_i = 0`` over the three
+cyclic permutations; at these angles that is the relation above.)
 
-**1. The variables.** Each needs a domain except the result, whose range follows from the
-geometry — here, ``c`` runs from 0.5 to 5:
+**1. The variables.** Each input needs a domain. The result's range follows from the
+geometry, and here ``c`` runs from 0.5 to 5:
 
 ```@example star
 using Nomograms
@@ -40,8 +41,8 @@ nothing # hide
 ```
 
 **2. The scales.** A [`Scale`](@ref) is a variable, its domain, a curve `value -> (x, y)`,
-and the side its labels go on. Ten chart units per ohm along each ray, from a centre
-placed so the chart sits at the left of its canvas:
+and the side its labels go on. Each ray here has ten chart units per ohm, and the centre is
+placed so that the chart sits at the left of its canvas:
 
 ```@example star
 centre = (90.0, 0.0)
@@ -69,9 +70,9 @@ star = Nomogram(
 nothing # hide
 ```
 
-**4. Check it.** Nothing above was derived by the package, so check that the geometry
-really encodes the relation. [`max_relation_residual`](@ref) solves the chart over a grid
-of inputs and measures each answer against `relation`:
+**4. Check it.** The package derived none of this, so check that the geometry encodes the
+relation. [`max_relation_residual`](@ref) solves the chart over a grid of inputs and
+measures each answer against `relation`:
 
 ```@example star
 max_relation_residual(star)
@@ -87,22 +88,22 @@ evaluate(star; a = 4, b = 6)
 drawing(star; isopleths = [isopleth(star; a = 4, b = 6, label = "4 ∥ 6 = 2.4")])
 ```
 
-**6. Style it.** A [`NomogramStyle`](@ref) controls everything drawn. Here the tick labels
-turn to run along their scales:
+**6. Style it.** A [`NomogramStyle`](@ref) controls how everything is drawn. Here the tick
+labels are turned to run along their scales:
 
 ```@example star
 style = NomogramStyle(; ticklabelrotation = :tangent)
 drawing(star; style, isopleths = [isopleth(star; a = 4, b = 6)])
 ```
 
-To save it, `save_svg("star.svg", star; style)`, or `nomogramplot(star; style)` for a
-Makie figure. The same steps build any chart you can describe as curves; the
-[determinant method](20-constructions.md) is the systematic way to find them.
+To save it, use `save_svg("star.svg", star; style)`, or `nomogramplot(star; style)` for a
+Makie figure. The same steps build any chart you can describe as curves. The
+[determinant method](20-constructions.md) is a systematic way to find the curves.
 
 ## Logarithmic scales
 
-The commonest nomogram: a product, drawn on three parallel logarithmic scales by
-[`multiplicative_nomogram`](@ref). Ohm's law over five decades of current:
+The most common nomogram is a product, drawn on three parallel logarithmic scales by
+[`multiplicative_nomogram`](@ref). This one is Ohm's law, with current from 1 mA to 10 A:
 
 ```@example gallery
 using Nomograms
@@ -118,8 +119,8 @@ drawing(ohm; isopleths = [isopleth(ohm; I = 0.25, R = 47, label = "11.75 V")])
 
 ## An N-chart
 
-Two parallel scales joined by a diagonal, from [`ratio_nomogram`](@ref). The outer scales
-stay linear; labels on the diagonal turn to run along it:
+[`ratio_nomogram`](@ref) joins two parallel scales with a diagonal. The outer scales stay
+linear, and here the labels on the diagonal are turned to run along it:
 
 ```@example gallery
 pace = ratio_nomogram(
@@ -137,8 +138,8 @@ drawing(
 
 ## A curved scale
 
-Some relations need a curve. The roots of ``z^2 + pz + q = 0`` lie on one, and a line
-through ``p`` and ``q`` crosses it once for each positive root:
+Some relations need a curved scale. The roots of ``z^2 + pz + q = 0`` lie on one, and a
+line through ``p`` and ``q`` crosses it once for each positive root:
 
 ```@example gallery
 roots = determinant_nomogram(
@@ -153,8 +154,8 @@ drawing(roots; isopleths = [isopleth(roots; p = -3, q = 2, label = "roots 1 and 
 
 ## A net
 
-When two variables have to share one point, that point is a [`Net`](@ref): two families
-of curves, each named off the end of its row of values.
+When two variables have to share one point, that point lies on a [`Net`](@ref): two
+families of curves, each named past the end of its row of values.
 
 ```@example gallery
 timber = net_nomogram(
@@ -173,9 +174,9 @@ drawing(timber; isopleths = [isopleth(timber; a = 1, b = -3, c = 2)])
 
 ## A chain
 
-Three inputs need two alignment lines and a bare turning line between them.
-[`auto_nomogram`](@ref) finds the chain from the formula; here with units, so the
-pressure comes out in kPa whatever the inputs are given in:
+Three inputs need two alignment lines with an unmarked turning line between them.
+[`auto_nomogram`](@ref) finds the chain from the formula. This example uses units, so the
+pressure comes out in kPa whatever units the inputs are given in:
 
 ```@example gallery
 using Unitful
@@ -194,8 +195,8 @@ drawing(gas; isopleths = isopleth(gas; n = 1u"mol", T = 300u"K", V = 24u"L", lab
 
 ## Converging scales
 
-A projective map keeps straight lines straight, so it reshapes a chart without changing an
-answer. [`project`](@ref) takes the corners of the canvas and where they should go:
+A projective map keeps straight lines straight, so it can reshape a chart without changing
+its answers. [`project`](@ref) takes the corners of the canvas and where they should go:
 
 ```@example gallery
 parallel = additive_nomogram(
@@ -211,8 +212,8 @@ drawing(converging; isopleths = [isopleth(converging; R1 = 4, R2 = 6, label = "2
 
 ## A fan
 
-Push the same idea until the scales meet at a point beyond the chart, and they become
-spokes. [`fan`](@ref) does it for any chart, compound ones included:
+Take the same idea further, until the scales meet at a point beyond the chart, and they
+become spokes. [`fan`](@ref) does this for any chart, including compound ones:
 
 ```@example gallery
 fanned = fan(ohm; spread = 80)
@@ -221,8 +222,8 @@ drawing(fanned; isopleths = [isopleth(fanned; I = 0.25, R = 47, label = "11.75 V
 
 ## A ruler
 
-Fraction ticks, graded by importance as on a ruler: wholes longest, then halves, quarters,
-eighths and sixteenths. Writing the domains as `Rational`s asks for them:
+Fraction ticks are graded by importance, as on a ruler: wholes are longest, then halves,
+quarters, eighths and sixteenths. Writing the domains as `Rational`s turns them on:
 
 ```@example gallery
 bolt = additive_nomogram(
@@ -236,8 +237,8 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = "
 
 ## Colours
 
-[`svg`](@ref) takes colours for the background, axes, text and reading lines, so a chart
-can match its surroundings:
+[`svg`](@ref) accepts colours for the background, axes, text and reading lines, so a
+chart can match the colour scheme of the page it appears on:
 
 ```@example gallery
 struct SVGText; s::String; end # hide
