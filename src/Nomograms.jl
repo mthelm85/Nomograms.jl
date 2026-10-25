@@ -3,11 +3,10 @@
 
 Build, solve and render nomograms (alignment charts).
 
-A nomogram is an analog computer printed on paper. Lay a straightedge through the values
-you know, and it crosses the remaining scale at the answer — no power, no keystrokes, just
-geometry. It works because its three or more scales are drawn so that any straight line
-crossing them picks out a solution of an equation. The entire geometric content is
-d'Ocagne's collinearity criterion,
+A nomogram is a chart that computes by alignment: lay a straightedge across the scales at
+the values you know, and read the answer where it crosses the remaining scale. The scales
+are drawn so that any straight line crossing them picks out a solution of an equation. The
+geometry rests entirely on d'Ocagne's collinearity criterion,
 
 ```
 | x1  y1  1 |
@@ -15,10 +14,10 @@ d'Ocagne's collinearity criterion,
 | x3  y3  1 |
 ```
 
-so this package represents every scale as a parametric curve `value -> (x, y)` and does all
-its arithmetic by asking where a line crosses a curve. One solver then serves forward and
-inverse problems alike, and layouts beyond the built-in parallel-axis construction need no
-new machinery.
+This package therefore represents every scale as a parametric curve `value -> (x, y)`, and
+does all its arithmetic by finding where a line crosses a curve. The same solver handles
+forward and inverse problems, and layouts other than the built-in parallel-axis construction
+need no extra code.
 
 # Getting started
 
@@ -137,7 +136,7 @@ save("chart.pdf", fig)
 - `axiscolor`, `textcolor`, `isoplethcolors`: colours.
 - `pxperunit = 4.0`: figure size per chart unit (`nomogramplot` only).
 
-For vector output with no plotting dependency at all, use [`svg`](@ref) instead.
+For vector output without a plotting dependency, use [`svg`](@ref).
 """
 function nomogramplot(args...; kwargs...)
     throw(

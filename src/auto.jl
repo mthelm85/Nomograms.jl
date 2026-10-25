@@ -4,11 +4,11 @@
 A [`ScaleTransform`](@ref) known only numerically: values and derivatives at a set of
 nodes, joined by cubic Hermite interpolation.
 
-This is what [`auto_nomogram`](@ref) builds when it derives a transform by integration,
-since most of those integrals have no closed form worth looking for. With exact derivatives
-at the nodes the interpolation error is fourth order in the node spacing, far below
-anything a chart can show. Outside the tabulated range it extrapolates linearly, so a
-solver probing an ulp past a domain edge gets an answer rather than an exception.
+[`auto_nomogram`](@ref) builds these when it derives a transform by integration, because
+most of those integrals have no useful closed form. With exact derivatives at the nodes, the
+interpolation error is fourth order in the node spacing, far smaller than anything a chart
+can show. Outside the tabulated range it extrapolates linearly, so a solver probing an ulp
+past the edge of a domain gets an answer instead of an exception.
 """
 struct TabulatedScale <: ScaleTransform
     x::Vector{Float64}
@@ -137,20 +137,21 @@ end
 """
     separability_defect(F, xdomain, ydomain; n = 9) -> Float64
 
-How far `z = F(x, y)` is from being drawable on three straight parallel scales. Zero (to
-rounding) when transforms `f`, `g`, `h` exist with `h(z) = f(x) + g(y)`; otherwise the
-largest violation found on an `n × n` grid.
+Measure how far `z = F(x, y)` is from being drawable on three straight parallel scales. The
+result is zero (up to rounding) when transforms `f`, `g`, `h` exist with
+`h(z) = f(x) + g(y)`. Otherwise it is the largest violation found on an `n × n` grid.
 
-The test is the classical one: such transforms exist exactly when `ln|F_x / F_y|` splits
-into a function of `x` plus a function of `y`. Rather than take a mixed second derivative
-of that — numerically noisy — this checks the equivalent identity
+This is the classical test: such transforms exist exactly when `ln|F_x / F_y|` splits into a
+function of `x` plus a function of `y`. A mixed second derivative of that is noisy to
+compute numerically, so this function checks an equivalent identity that needs only first
+derivatives:
 
 ```
 L(x, y) − L(x, y₀) − L(x₀, y) + L(x₀, y₀) = 0
 ```
 
-which needs only first derivatives. Throws if `F` is not monotone in each variable, since
-then no straight scale can carry it whatever the transforms.
+Throws an error if `F` is not monotone in each variable, because then no straight scale can
+represent it, whatever the transforms.
 """
 function separability_defect(F, xd, yd; n::Int = 9, xname = :x, yname = :y)
     xd = (float(xd[1]), float(xd[2]))
@@ -306,21 +307,22 @@ end
     auto_nomogram(F, x, y, [z]; kwargs...) -> Nomogram
     auto_nomogram(F, x, y, w, ..., z; kwargs...) -> CompoundNomogram
 
-A nomogram for `z = F(x, y)` — or `z = F(x, y, w, …)` with any number of inputs — from the
-function as you would ordinarily write it.
+Build a nomogram for `z = F(x, y)`, or for `z = F(x, y, w, …)` with any number of inputs,
+from the function as you would normally write it.
 
-Every other constructor asks you to rewrite your formula first — into `f₁(u) + f₂(v) =
-f₃(w)`, with the transforms chosen and the inverses supplied. This one does that part:
+The other constructors need you to rewrite your formula first, as `f₁(u) + f₂(v) = f₃(w)`
+with the transforms chosen and their inverses supplied. `auto_nomogram` does that for you:
 
 ```julia
 nom = auto_nomogram((r, n) -> (1 + r/100)^n, :r => (1, 20), :n => (1, 30), :growth)
 ```
 
-Each input is a [`Variable`](@ref) with a domain, or simply `name => (lo, hi)`, in the order
-`F` takes them. The last argument names the result — a `Variable` or a name — except that
-with exactly two arguments after `F` both are inputs and the result is `:z`. The result's
-domain is derived from `F` and, if you give one, checked. Labels, tick formats and explicit
-ticks on the variables are kept. Transforms are not — deriving them is the point.
+Give each input as a [`Variable`](@ref) with a domain, or as `name => (lo, hi)`, in the
+order `F` takes them. The last argument names the result, as a `Variable` or a name. The
+exception is when there are exactly two arguments after `F`: both are then inputs, and the
+result is called `:z`. The result's domain is derived from `F`; if you give one, it is
+checked. Labels, tick formats and explicit ticks on the variables are used as given.
+Transforms are always derived, and replace any you set.
 
 # How
 
@@ -332,18 +334,18 @@ F_x / F_y = f′(x) / g′(y)
 ```
 
 so the test is whether `ln|F_x / F_y|` splits into a part in `x` plus a part in `y` (see
-[`separability_defect`](@ref)). When it does, that same identity hands back `f′` and `g′`;
-integrating them gives `f` and `g`, and `h` follows by walking the level sets of `F`. The
-transforms come out as [`TabulatedScale`](@ref)s, and each axis gets linear or
+[`separability_defect`](@ref)). When it does, the same identity gives `f′` and `g′`.
+Integrating them gives `f` and `g`, and `h` is found by walking across the level sets of
+`F`. The transforms come out as [`TabulatedScale`](@ref)s, and each axis gets linear or
 decade-based ticks according to how its transform spreads its values.
 
 # Verification
 
-Whatever the numerics did, the finished chart is then *solved* over a grid of inputs and
-every answer compared with `F` itself. A chart that disagrees by more than `rtol` of the
-result's range is never returned — the call throws instead, quoting the error it measured.
-The chart's `relation` is `F`, so [`relation_residual`](@ref) and
-[`max_relation_residual`](@ref) check against your formula rather than the derived one.
+The finished chart is then *solved* over a grid of inputs, and every answer is compared with
+`F` itself. If any answer differs by more than `rtol` times the result's range, no chart is
+returned: the call throws an error that reports the error it measured. The chart's
+`relation` is `F`, so [`relation_residual`](@ref) and [`max_relation_residual`](@ref) check
+against your formula, not a derived one.
 
 # More than two inputs
 
@@ -351,42 +353,42 @@ One alignment line relates three scales, so `F(x, y, w)` is drawn as a chain of
 [`compound`](@ref) stages and the result is a [`CompoundNomogram`](@ref). That needs `F` to
 depend on some pair of its inputs only through a single combination of them, `t = T(x, y)`,
 which holds exactly when `F_x / F_y` does not depend on `w`. The first stage then charts
-`t`, the second charts `z` from `t` and `w`, and the reader pivots between them on a
-bare turning line. More inputs are reduced the same way, a pair at a time.
+`t`, the second charts `z` from `t` and `w`, and the reader pivots between them on an
+unmarked turning line. More inputs are reduced in the same way, one pair at a time.
 
-Every pairing is tried. One can fail for two reasons: `F` may not depend on the pair
-through one combination at all, or it may, but with the two stages wanting the
-intermediate on different scales — `(x + y)·w` is the standard case, linear in the first
-stage and logarithmic in the second. That second kind needs a net, which has to be derived
-by hand ([`net_nomogram`](@ref)). If no pairing works, the error lists what went wrong
-with each.
+Every pairing is tried. A pairing can fail for two reasons. `F` may not depend on the pair
+through a single combination at all. Or it may, but the two stages need the intermediate on
+different scales. The standard example is `(x + y)·w`, where the first stage needs a linear
+scale and the second a logarithmic one. That case needs a net, which you have to derive by
+hand ([`net_nomogram`](@ref)). If no pairing works, the error lists what went wrong with
+each.
 
 # One curved scale
 
-A formula of two inputs that is not separable may still have a chart on two straight scales
-and one curve — the roots of a quadratic, say. Each variable in turn is tried on the curve:
-with `G(u, v, w) = 0` and `w` curved, such a chart exists exactly when `ln|G_u / G_v|`
-splits as `φ(w) + a(u) − b(v)`, which is tested by a least-squares fit along level sets of
-`w`. The derivatives this needs are taken by automatic differentiation of `F` itself, so
-`F` must accept any number type, not only `Float64`. The first curved chart from a given
-function compiles for a few seconds.
+A two-input formula that is not separable may still have a chart on two straight scales and
+one curve, such as the chart for the roots of a quadratic. Each variable is tried on the
+curve in turn. With `G(u, v, w) = 0` and `w` on the curve, such a chart exists exactly when
+`ln|G_u / G_v|` splits as `φ(w) + a(u) − b(v)`. This is tested by a least-squares fit along
+level sets of `w`. The derivatives it needs come from automatic differentiation of `F`
+itself, so `F` must accept generic number types as well as `Float64`. The first curved chart
+from a given function takes a few seconds to compile.
 
-# When it can't
+# Formulas with no chart
 
 A formula with neither kind of chart is refused, and the error gives the reason for each
-arrangement tried. It may still have one with more curved scales or a net, but those need
-a form derived by hand: see [`determinant_nomogram`](@ref) and [`net_nomogram`](@ref). A
-formula that is not monotone in a variable over its domain fails too, since a straight
-scale cannot fold back on itself.
+arrangement tried. The formula may still have a chart with more curved scales or a net, but
+you have to derive the form by hand: see [`determinant_nomogram`](@ref) and
+[`net_nomogram`](@ref). A formula that is not monotone in a variable over its domain is also
+refused, because a straight scale cannot fold back on itself.
 
 # Keywords
-- `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for
-  two inputs. In a chain it is the width of the last stage, and the default grows with
-  the chain, 35 per input after the first. An earlier stage always has one input inside
-  the rest of the chain, so it is mirrored and resized, between a quarter of `width` and
-  `width`, to land that input mid-way between the axes already there. Every way of
-  pairing the inputs is tried for the first two levels of the chain, and the one whose
-  axes end up furthest apart is kept.
+- `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for two
+  inputs. In a chain it is the width of the last stage, and the default grows with the
+  chain, 35 per input after the first. An earlier stage always has one input inside the rest
+  of the chain, so it is mirrored and resized, to between a quarter of `width` and `width`,
+  to put that input midway between the axes already there. Every way of pairing the inputs
+  is tried for the first two levels of the chain, and the one whose axes end up furthest
+  apart is kept.
 - `rtol = 1e-6`: the largest disagreement with `F` to accept, relative to the result's
   range.
 """

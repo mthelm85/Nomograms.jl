@@ -1,23 +1,23 @@
 """
     fan(nom; spread = 90, hub = 0.35, radius = 100, inward = :auto) -> nomogram
 
-Redraw a chart with its axes as spokes radiating from one centre -- the same chart, giving
-exactly the same answers, in a different shape. The result is the same kind of chart as
-`nom`: a [`Nomogram`](@ref), a [`CompoundNomogram`](@ref) or a [`NetNomogram`](@ref).
+Redraw a chart with its axes as spokes radiating from one centre. The fanned chart gives
+exactly the same answers as the original. The result is the same kind of chart as `nom`: a
+[`Nomogram`](@ref), a [`CompoundNomogram`](@ref) or a [`NetNomogram`](@ref).
 
 Parallel lines meet at a point at infinity, and a projective map can bring that point onto
-the page. Collinear points stay collinear under such a map, which is why the chart still
-works (see [`project`](@ref)); every vertical axis becomes a spoke through the new point,
-the turning lines of a [`compound`](@ref) chart and the strands of a net included.
+the page. Collinear points stay collinear under such a map, so the chart still works (see
+[`project`](@ref)). Every vertical axis becomes a spoke through the new point, including the
+turning lines of a [`compound`](@ref) chart and the strands of a net.
 
-Straight lines stay straight, so the far ends of the spokes lie on a straight chord rather
-than an arc, and the middle spokes are shorter than the outer ones -- by more the wider the
-fan. At 90° their tips line up level with the outer spokes' tips.
+Straight lines stay straight, so the far ends of the spokes lie on a straight chord, not an
+arc, and the middle spokes are shorter than the outer ones; the wider the fan, the bigger
+the difference. At 90° the middle spokes' tips line up level with the outer spokes' tips.
 
-The map also squeezes whatever lies near the centre. So by default the chart is laid out
-both ways round, with the top of each axis at the rim and at the hub, and whichever keeps
-more tick labels is used: a scale that already crowds one end, such as a reciprocal one, is
-best with that end at the rim.
+The map also squeezes everything near the centre. So by default the chart is laid out both
+ways round, once with the top of each axis at the rim and once with it at the hub, and the
+layout that keeps more tick labels is used. A scale that is already crowded at one end, such
+as a reciprocal scale, works best with that end at the rim.
 
 # Keywords
 - `spread = 90`: the angle in degrees between the outermost spokes; less than 180.
@@ -26,8 +26,8 @@ best with that end at the rim.
 - `inward = :auto`: `true` puts the top of each axis at the hub, `false` at the rim.
 - `title`: defaults to the chart's own.
 
-Works on any chart, but it is designed for parallel axes; a diagonal or curved scale is
-reshaped too, and stays correct, but does not become a spoke.
+`fan` works on any chart, but it is designed for parallel axes. A diagonal or curved scale
+is reshaped too and stays correct, but it does not become a spoke.
 """
 function fan(
     nom::AbstractNomogram;

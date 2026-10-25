@@ -75,11 +75,11 @@ end
     linear_ticks(lo, hi; count = 6) -> (majors, minors)
 
 Evenly spaced "nice" values covering `[lo, hi]`, with each major interval subdivided five
-ways. Spacing is nice *in the variable*, not on the page: a nomogram axis is usually
-non-uniform, and thinning (see [`thin_ticks`](@ref)) decides what actually fits.
+ways. The values are round and evenly spaced *in the variable*, not on the page. A nomogram
+axis is usually non-uniform, and thinning (see [`thin_ticks`](@ref)) decides what fits.
 
-`majors` comes back in descending order of roundness rather than ascending by value, which
-is the order [`thin_ticks`](@ref) consumes it in.
+`majors` is returned roundest first, not sorted by value, because that is the order in which
+[`thin_ticks`](@ref) uses it.
 """
 function linear_ticks(lo::Real, hi::Real; count::Int = 6)
     lo, hi = float(lo), float(hi)
@@ -114,16 +114,16 @@ end
 Ticks for a logarithmic axis: every whole mantissa 1–9 in every decade the range touches,
 offered as a major, with tenths between them as minors.
 
-There is deliberately no cut-off for wide ranges. `majors` comes back in the order
-[`thin_ticks`](@ref) should try them — decades, then 5s, then 2s, then the rest — and
-thinning keeps whatever fits. So a crowded axis settles on decades alone, a less crowded
-one on the classic 1-2-5 sequence, and a roomy one labels every mantissa, all from the same
-candidates. A fixed rule counting decades could only ever pick one of those, and picked
-decades-only for an axis spanning a hair over two.
+There is no cut-off for wide ranges. `majors` is returned in the order [`thin_ticks`](@ref)
+should try them (decades, then 5s, then 2s, then the rest), and thinning keeps whatever
+fits. So a crowded axis ends up with decades only, a less crowded one with the familiar
+1-2-5 sequence, and a roomy one labels every mantissa, all from the same candidates. A fixed
+rule that counts decades could pick only one of these, and an earlier rule of that kind
+labelled only the decades on an axis spanning just over two.
 
 Every mantissa is also offered as a minor, so one whose label is dropped still gets a tick
-mark. On a range too narrow to hold three whole mantissas — 100 to 200 holds only its ends
-— the tenths are promoted to majors as well, since otherwise almost nothing is labelled.
+mark. On a range too narrow to hold three whole mantissas (100 to 200 holds only its ends),
+the tenths are promoted to majors as well, since otherwise almost nothing would be labelled.
 """
 function log_ticks(lo::Real, hi::Real)
     lo, hi = float(lo), float(hi)
@@ -183,10 +183,10 @@ end
 """
     fraction_ticks(lo, hi; maxden = 16) -> (majors, minors)
 
-Every fraction in `[lo, hi]` whose denominator divides `maxden`, offered whole numbers
-first (roundest first), then halves, quarters and so on: the order a crowded axis should
-give them up, so it keeps `1/2` before `3/8`. Every one is also a minor, so a fraction
-whose label is dropped keeps its mark, as on a ruler.
+Every fraction in `[lo, hi]` whose denominator divides `maxden`. Whole numbers come first
+(roundest first), then halves, quarters and so on. This is the order of priority on a
+crowded axis, so it keeps `1/2` before `3/8`. Every fraction is also a minor, so one whose
+label is dropped keeps its mark, as on a ruler.
 """
 function fraction_ticks(lo::Real, hi::Real; maxden::Integer = 16)
     lo, hi = float(lo), float(hi)
@@ -210,9 +210,9 @@ end
 """
     fractionformat(maxden = 16; mixed = true) -> (value -> String)
 
-A tick label format for fractions: `1 3/8` (or `11/8` with `mixed = false`), `3/4`, `2`.
-A value that is not a whole number of `1/maxden`ths falls back to plain decimals, so an
-axis end at 0.3 still reads correctly. The default label format for
+A tick label format for fractions: `1 3/8` (or `11/8` with `mixed = false`), `3/4`, `2`. A
+value that is not a whole number of `1/maxden`ths falls back to plain decimals, so an axis
+end at 0.3 still reads correctly. This is the default label format for
 `tickstyle = :fraction`; pass it as `tickformat` to label any axis this way.
 """
 function fractionformat(maxden::Integer = 16; mixed::Bool = true)

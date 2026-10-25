@@ -5,8 +5,8 @@ A strictly monotone map from a variable's own units onto the *functional* axis o
 nomogram, together with its inverse.
 
 A three-variable alignment chart exists whenever the relation can be written in the
-separable form `f1(u) + f2(v) = f3(w)`; a `ScaleTransform` is one of those `f`s. Bundling
-the inverse with the forward map lets the construction derive the third variable's domain
+separable form `f1(u) + f2(v) = f3(w)`; a `ScaleTransform` is one of those `f`s. Because the
+inverse comes with the forward map, the construction can compute the third variable's domain
 exactly instead of searching for it.
 
 Implement [`transform`](@ref) for a new subtype, and either [`invtransform`](@ref) or
@@ -151,9 +151,9 @@ end
 """
     frange(t::ScaleTransform, domain) -> (lo, hi)
 
-The interval spanned by `transform(t, .)` over `domain`, after checking that `t` really is
-monotone there. A fold-over would make the axis double back on itself, which no amount of
-drawing can rescue, so it is rejected early.
+The interval spanned by `transform(t, .)` over `domain`, after checking that `t` is monotone
+there. A transform that folds over would make the axis double back on itself, which no
+layout can fix, so it is rejected early.
 """
 function frange(t::ScaleTransform, domain::Tuple{Real,Real}; nsamples::Int = 65)
     lo, hi = float(domain[1]), float(domain[2])

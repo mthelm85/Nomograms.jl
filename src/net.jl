@@ -1,29 +1,29 @@
 """
     Net(u::Variable, v::Variable, surface)
 
-A two-parameter family of points, `surface(u, v) -> (x, y)`, drawn as a mesh of curves and
-occupying one of the three slots an alignment line crosses.
+A two-parameter family of points, `surface(u, v) -> (x, y)`, drawn as a mesh of curves. It
+takes the place of one of the three scales an alignment line crosses.
 
-Three collinear points relate three variables. A net carries two of them in a single point,
-so a chart with a net and two ordinary scales relates **four**. That is a different
-construction from [`compound`](@ref), which chains stages through a shared pivot, and it
-reaches relations chaining cannot: a pivot works only when the first two variables combine
-into one intermediate, whereas a net handles a genuinely two-parameter family.
+Three collinear points relate three variables. A net carries two variables in a single
+point, so a chart with a net and two ordinary scales relates four. This is a different
+construction from [`compound`](@ref), which chains stages through a shared pivot. A net can
+handle relations that a chain cannot: a pivot works only when the first two variables
+combine into one intermediate, while a net handles a true two-parameter family.
 
-# Deriving one
+# Deriving a net
 
-With scale `a` on `x = 0` at height `f(a)` and scale `b` on `x = 1` at height `g(b)`, a
-line between them meets `x = x₃` at `(1-x₃)·f(a) + x₃·g(b)`. So a net point `(x₃, y₃)` is
-crossed exactly when
+With scale `a` on `x = 0` at height `f(a)` and scale `b` on `x = 1` at height `g(b)`, a line
+between them meets `x = x₃` at `(1-x₃)·f(a) + x₃·g(b)`. So the line passes through a net
+point `(x₃, y₃)` exactly when
 
 ```
 α·f(a) + β·g(b) = γ        with   x₃ = β/(α+β),  y₃ = γ/(α+β)
 ```
 
-Any relation whose two net variables enter as the coefficients `α`, `β`, `γ` therefore has
-a net. The mesh is genuinely two-dimensional as long as `(α : β : γ)` sweeps a region
-rather than a curve — when it sweeps only a curve, the net collapses to a line and the
-relation wanted [`compound`](@ref) instead.
+So any relation that can be written this way, with the coefficients `α`, `β`, `γ` depending
+on the two net variables, has a net. The mesh is truly two-dimensional as long as
+`(α : β : γ)` sweeps out a region. If it sweeps out only a curve, the net collapses to a
+line, and the relation needed [`compound`](@ref) instead.
 
 See [`net_nomogram`](@ref).
 """
@@ -40,10 +40,10 @@ netpoint(n::Net, u, v) = Point(n.surface(float(u), float(v)))
 
 A [`Net`](@ref) and two [`Scale`](@ref)s: four variables related by one alignment line.
 
-Build one with [`net_nomogram`](@ref). Drawing works as for any other chart — the net's
-strands are scales of `kind = :grid`, labelled with their values, and each family's name
-is drawn off the end of its row of labels. Solving is
-[`evaluate`](@ref)'s job and depends on which variable is unknown; see there.
+Build one with [`net_nomogram`](@ref). Drawing works as for any other chart: the net's
+strands are scales of `kind = :grid`, labelled with their values, and each family's name is
+drawn past the end of its row of labels. How [`evaluate`](@ref) solves the chart depends on
+which variable is unknown; see its docstring.
 """
 struct NetNomogram <: AbstractNomogram
     net::Net
@@ -127,9 +127,9 @@ end
 A four-variable chart: a [`Net`](@ref) carrying two variables, and two ordinary scales
 given as curves, in the manner of [`determinant_nomogram`](@ref).
 
-Everything is written in whatever coordinates suit the geometry and fitted to the canvas
-together; collinearity survives the affine fit, so it cannot change what the chart
-computes. The net's surface is moved by the same fit as the scales.
+You can write everything in whatever coordinates suit the geometry, and it is all fitted to
+the canvas together. The fit is affine, so it keeps collinear points collinear and cannot
+change what the chart computes. The net's surface is moved by the same fit as the scales.
 
 # Keywords
 - `width`, `height`, `title`, `preserve_aspect`, `nsamples`: as for
@@ -334,12 +334,12 @@ _as_namedtuple(nn::NetNomogram, d::Dict{Symbol,Float64}) =
 
 Solve a net chart. Supply three of its four variables.
 
-Which problem this is depends on which variable is unknown. With both net variables known
-the net contributes a single point and it is the ordinary three-point alignment. With one
-of them unknown the line is already fixed by the two scales, and the answer is where that
-line crosses the strand for the known net variable — a curve, which a line may cross more
-than once. As elsewhere, [`evaluate`](@ref) refuses to choose between several and
-[`evaluate_all`](@ref) returns them.
+How the chart is solved depends on which variable is unknown. If both net variables are
+known, the net gives a single point, and the problem is an ordinary three-point alignment.
+If one of them is unknown, the two scales already fix the line, and the answer is where that
+line crosses the strand for the known net variable. The strand is a curve, so the line may
+cross it more than once. As with other charts, [`evaluate`](@ref) throws an error when there
+are several answers, and [`evaluate_all`](@ref) returns them all.
 """
 evaluate(nn::NetNomogram; values...) = _with_units(nn, _evaluate(nn; values...))
 
@@ -429,7 +429,8 @@ end
 """
     max_relation_residual(nn::NetNomogram; n = 7) -> Float64
 
-The worst disagreement between a net chart's geometry and the algebra it claims to encode.
+The largest disagreement between a net chart's geometry and the relation it is meant to
+encode.
 
 Sweeps both net variables over an `n × n` grid and the first scale over `n` values, solves
 the second scale geometrically, and checks each answer against the relation. Inputs whose

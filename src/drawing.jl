@@ -2,36 +2,35 @@
     NomogramStyle(; kwargs...)
 
 Sizes and thresholds for turning a [`Nomogram`](@ref) into geometry. All lengths are in
-chart units -- the same units as a nomogram's `width` and `height`, which default to 70 by
-100 -- so one style carries over unchanged between output sizes and backends.
+chart units, the same units as a nomogram's `width` and `height` (70 by 100 by default), so
+one style works unchanged at any output size and in either backend.
 
-The defaults follow the proportions of a classic d3 axis: hairline rules, short ticks and
-small type. At the default `pxperunit = 4` a chart unit is 4 pixels, so they come out as
-roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.
+The defaults follow the proportions of a standard d3 axis: hairline rules, short ticks and
+small type. At the default `pxperunit = 4` a chart unit is 4 pixels, which gives roughly 1px
+strokes, 6px major ticks, 3px of label padding and 10px labels.
 
 # Keywords
 - `majorticklength`, `minorticklength`: tick mark lengths.
 - `graded_ticks`: whether ticks between those lengths are graded by importance, as on a
-  ruler -- wholes longest, then halves, quarters and so on on a fraction axis; 10s, 5s,
-  then the rest on an integer one; decades, whole digits, tenths on a logarithmic one.
+  ruler: wholes longest, then halves, quarters and so on on a fraction axis; 10s, 5s, then
+  the rest on an integer one; decades, whole digits, then tenths on a logarithmic one.
   Labels sit the same distance from the axis whatever their tick's length. `false` gives
-  every labelled tick the major length and every other the minor.
+  every labelled tick the major length and every other tick the minor length.
 - `ticklabelgap`: gap between a tick's outer end and its label.
 - `ticklabelsize`, `titlesize`: text heights.
 - `titlegap`: gap between the end of an axis and its title.
-- `min_major_spacing`, `min_minor_spacing`: a tick is dropped if it would land closer
-  than this to one already placed. This is what keeps a non-uniform axis legible.
+- `min_major_spacing`, `min_minor_spacing`: a tick is dropped if it would land closer than
+  this to one already placed. This keeps a non-uniform axis readable.
 - `label_minors`: whether minor ticks get labels too.
 - `endpoint_ticks`: whether to add the ends of each domain as labelled ticks when they fit.
-  An end needing more than three significant figures is left to the axis line: that is a
-  derived reach such as `237.4`, not a value anyone chose.
+  An end that needs more than three significant figures is not labelled, since it is a
+  derived limit such as `237.4` and not a value anyone chose.
 - `ticklabelrotation`: `:horizontal` leaves tick labels upright; `:tangent` turns each to
   run along its scale, which reads better on a steep or curved axis.
 - `resolve_collisions`: whether to drop tick labels that would overlap a label from
   another scale, and nudge isopleth labels clear of both.
-- `avoid_isopleths`: whether a tick label struck through by an alignment line is dropped
-  too. A label a line runs across cannot be read, and the tick mark still shows where the
-  value falls.
+- `avoid_isopleths`: whether to also drop a tick label that an alignment line crosses. Such
+  a label is hard to read, and the tick mark still shows where the value falls.
 - `collisionpad`: extra clearance required between two labels.
 - `axislinewidth`, `gridlinewidth`, `tickwidth`, `isoplethwidth`: stroke widths. The
   grid width applies to the strands of a [`Net`](@ref). Its strands are read like any
@@ -71,7 +70,7 @@ One tick on a scale: where it sits, which way it points away from the axis, how 
 and what (if anything) it is labelled with. `level` is 1 for major ticks and 2 for minor.
 
 `labelpos`, `align` and `rotation` fully determine where the text goes, so every backend
-places it identically and the layout can reason about the box it occupies.
+places it in the same way, and the layout can work out the box it occupies.
 """
 struct TickMark
     value::Float64
@@ -130,10 +129,9 @@ end
 """
     NomogramDrawing
 
-A complete, backend-independent description of a rendered nomogram: everything a renderer
-needs, and nothing about how to draw it. [`svg`](@ref) and the Makie extension are both
-thin walks over this structure, and tests can assert on tick positions without rendering
-anything.
+A complete, backend-independent description of a laid-out nomogram. It holds everything a
+renderer needs, but no drawing instructions. [`svg`](@ref) and the Makie extension both
+draw from this structure, and tests can check tick positions without rendering anything.
 """
 struct NomogramDrawing
     scales::Vector{ScaleDrawing}
@@ -203,9 +201,9 @@ end
 Which corner of a text box sits on its anchor point, given the direction the text is
 pushed away from whatever it labels.
 
-Both components matter. Using only the horizontal one -- enough while every axis is
-vertical -- centres a label vertically on its anchor, so a label pushed straight down from
-a tick on a curved scale would sit half on top of it.
+Both components matter. Using only the horizontal one, which is enough for vertical axes,
+centres a label vertically on its anchor. A label pushed straight down from a tick on a
+curved scale would then sit half on top of the tick.
 """
 function align_for(d::Point)
     h = d[1] < -0.3 ? :right : d[1] > 0.3 ? :left : :center
@@ -255,9 +253,9 @@ end
 
 Whether the segment from `a` to `b` passes through `box`, grown by `pad`.
 
-Liang--Barsky: clip the segment against each of the box's four slabs in turn, and see
-whether any of it is left. Label collisions are not only label against label -- an
-alignment line drawn straight through a number makes it just as unreadable.
+This uses the Liang–Barsky method: clip the segment against each of the box's four slabs in
+turn, and see whether any of it is left. It keeps labels clear of alignment lines, since a
+line drawn through a number makes it as hard to read as an overlapping label.
 """
 function segment_hits_box(a::Point, b::Point, box::NTuple{4,Float64}, pad::Real)
     xmin, ymin = box[1] - pad, box[2] - pad
@@ -291,12 +289,12 @@ _overlaps(a::NTuple{4,Float64}, b::NTuple{4,Float64}, pad::Real) =
 Place as many of the candidate ticks as will fit, rejecting any that would land within
 `min_major_spacing` / `min_minor_spacing` of one already placed.
 
-Thinning happens in *page* distance, not value distance, which is what makes a reciprocal
-or logarithmic axis readable: the tick values stay round numbers, and crowding near a
-compressed end of the axis simply drops some of them.
+Thinning uses distance *on the page*, not distance in value. This keeps a reciprocal or
+logarithmic axis readable: the tick values stay round numbers, and where the axis is
+compressed some of them are dropped.
 
-This only ever compares a scale against itself; labels colliding with *another* scale are
-handled later, over the whole chart at once.
+This function compares a scale only with itself. Collisions with labels from *other* scales
+are handled later, in one pass over the whole chart.
 """
 function thin_ticks(
     s::Scale,
@@ -476,9 +474,9 @@ end
 Place a label at `anchor`, or at the nearest offset along `±dir` that clears everything in
 `occupied`, and record the box it takes.
 
-This is for text that must not simply be dropped: an axis title, or an isopleth label the
-caller asked for by name. Tick labels are the other case -- there are plenty of those, so
-one that will not fit loses its label and keeps its tick.
+This is for text that should not be dropped: an axis title, or an isopleth label that the
+caller asked for explicitly. Tick labels are handled differently: there are many of them, so
+a tick whose label does not fit loses the label and keeps its mark.
 """
 function nudge_clear(
     text::AbstractString,

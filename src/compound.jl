@@ -4,11 +4,11 @@
 Several [`Nomogram`](@ref) stages sharing variables, for relations that need more than
 three variables.
 
-Three scales is the limit of a single alignment line, so a four-variable relation is split
-into two: `g(a, b) = t` and `h(t, c) = d`, sharing the intermediate `t`. The reader lays a
-line across the first stage to find where it crosses the shared scale, then pivots about
-that point and reads the second — which is why the shared scale is often called the pivot
-or turning line.
+A single alignment line relates at most three scales, so a four-variable relation is split
+into two, `g(a, b) = t` and `h(t, c) = d`, which share the intermediate `t`. The reader lays
+a line across the first stage to find where it crosses the shared scale, then pivots about
+that point and reads the second stage. This is why the shared scale is often called the
+pivot or turning line.
 
 Build one with [`compound`](@ref), which positions the stages so their shared scales
 coincide. Drawing works exactly as for a single nomogram; solving propagates values from
@@ -94,9 +94,10 @@ end
 Join nomogram stages into one chart, positioning each so that the scales it shares with an
 earlier stage lie exactly on top of them.
 
-Variables are shared by name. Each stage after the first must share at least one with a
-stage already placed, and that shared scale must carry the same values over the same
-domain in both — so build the later stage with the domain the earlier one derived:
+Variables are shared by name. Each stage after the first must share at least one variable
+with a stage already placed, and that shared scale must have the same values over the same
+domain in both stages. So build the later stage with the domain that the earlier one
+derived:
 
 ```julia
 first = additive_nomogram(a, b, Variable(:t))          # :t derived
@@ -104,15 +105,15 @@ second = additive_nomogram(Variable(:t; domain = first[:t].domain), c, d)
 chart = compound(first, second)
 ```
 
-Alignment is a similarity — rotate, scale, translate — chosen to carry the later stage's
-shared scale onto the placed one, then checked along the whole domain rather than just at
-the two points that fixed it. A similarity is affine, so it cannot change what any stage
-computes.
+The stages are aligned by a similarity (rotation, uniform scaling and translation) chosen to
+carry the later stage's shared scale onto the one already placed. The match is then checked
+along the whole domain, not only at the two points used to compute it. A similarity is
+affine, so it cannot change what any stage computes.
 
-The shared scale is drawn once. Note that the stages generally interleave rather than
-sitting side by side: a parallel-axis construction puts its result *between* its two
-inputs, so a pivot shared by two such stages has both stages' other scales straddling it.
-[`project`](@ref) will reshape the result if the arrangement is awkward.
+The shared scale is drawn once. The stages usually overlap instead of sitting side by side.
+A parallel-axis construction puts its result *between* its two inputs, so when two such
+stages share a pivot, the other scales of both stages lie on either side of it. Use
+[`project`](@ref) to reshape the result if the layout is awkward.
 """
 function compound(stages::Nomogram...; title::AbstractString = "", atol::Real = 1e-6)
     length(stages) >= 2 ||
@@ -189,12 +190,12 @@ end
 
 Solve a compound nomogram by reading its stages in turn.
 
-Supply enough variables that some stage has exactly one unknown; that stage is solved, its
-answer becomes known, and the pass repeats until everything is determined. Which variables
-you supply is up to you, as long as the chain closes — the intermediate on a shared scale
-is usually left to be derived, but it can equally be an input.
+Supply enough variables that some stage has exactly one unknown. That stage is solved, its
+answer is added to the known values, and the pass repeats until every variable is known. You
+can supply any set of variables that closes the chain. The intermediate on a shared scale is
+usually left to be derived, but it can also be an input.
 
-Throws, naming what is left, if the values given are not enough to finish.
+Throws an error, naming the variables still unknown, if the values given are not enough.
 """
 evaluate(cn::CompoundNomogram; values...) = _with_units(cn, _evaluate(cn; values...))
 
@@ -249,10 +250,10 @@ The alignment lines for one reading of a compound nomogram: one per stage, since
 it means drawing a line across each in turn.
 
 They come back sharing a `group`, so a renderer draws the whole reading in one colour. Pass
-the vector straight to [`drawing`](@ref) or a backend. The label goes on the last stage,
-where the answer is read: the one whose result scale no other stage shares. That is not
-always the last in the list -- [`auto_nomogram`](@ref) lists its final stage first -- so
-the list order is only the fallback.
+the vector straight to [`drawing`](@ref) or a backend. The label goes on the stage where the
+answer is read: the one whose result scale no other stage shares. This is not always the
+last stage in the list, because [`auto_nomogram`](@ref) lists its final stage first, so list
+order is used only as a fallback.
 """
 function isopleth(
     cn::CompoundNomogram,

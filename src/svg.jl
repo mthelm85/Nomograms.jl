@@ -1,22 +1,23 @@
 """
     DEFAULT_ISOPLETH_COLORS
 
-Blue, orange, aqua. Three, not more, and in this order: every isopleth on a chart is
-visible at once, so all three pairs have to stay apart under colour-vision deficiency, and
-no fourth hue holds up once all pairs are in play. Checked with the validator rather than
-by eye -- worst pair ΔE 9.2 (deuteranopia), 24.0 normal vision, against a ≥8 target.
+Blue, orange and aqua, in that order. All the isopleths on a chart are visible at once, so
+every pair of colours has to stay distinguishable under colour-vision deficiency, and no
+fourth hue does once every pair is taken into account. The colours were checked with a
+validator: the worst pair is ΔE 9.2 under deuteranopia and 24.0 in normal vision, against a
+target of at least 8.
 
-The classic d3 category10 palette is not used, for a measurable reason: its orange and
-green sit ΔE 0.7 apart under protanopia, which is the same colour.
+d3's `category10` palette is not used because its orange and green are only ΔE 0.7 apart
+under protanopia, which makes them look the same.
 """
 const DEFAULT_ISOPLETH_COLORS = ("#2a78d6", "#eb6834", "#1baf7a")
 
 """
     DEFAULT_ISOPLETH_DASHES
 
-Dash patterns cycled one step behind the colours, so a fourth isopleth is a dashed blue
-rather than a repeat of plain blue. Identity then never rests on hue alone, which is what
-lets a chart carry more lines than there are safe colours.
+Dash patterns, cycled one step behind the colours, so a fourth isopleth is dashed blue
+instead of a second plain blue. Lines are never told apart by colour alone, so a chart can
+carry more lines than there are safe colours.
 """
 const DEFAULT_ISOPLETH_DASHES = (:solid, :dash, :dot, :dashdot)
 
@@ -95,9 +96,9 @@ end
 
 Render a nomogram as a standalone SVG document, returned as a `String`.
 
-This backend has no dependencies beyond the standard library, so the package draws
-publication-quality vector output out of the box; load Makie as well if you want the chart
-inside a `Figure` (see [`nomogramplot`](@ref)).
+This backend needs nothing beyond the standard library, so vector output works without any
+other packages. To put the chart in a Makie `Figure`, load Makie as well (see
+[`nomogramplot`](@ref)).
 
 # Keywords
 - `isopleths`, `style`: forwarded to [`drawing`](@ref) when given a `Nomogram`.
@@ -106,8 +107,8 @@ inside a `Figure` (see [`nomogramplot`](@ref)).
 - `background = "white"`, `axiscolor`, `textcolor`, `isoplethcolors`: colours, as any
   string an SVG renderer accepts. Pass `background = "none"` for a transparent chart.
 - `gridcolor`: the colour of a net's strands and their labels. By default they are drawn
-  like the axes, since they are read like them; pass a lighter colour to push a dense net
-  into the background.
+  like the axes, since they are read like them; pass a lighter colour to make a dense net
+  less prominent.
 - `font`: CSS font stack for all text.
 """
 function svg(

@@ -112,23 +112,23 @@ y = a3 * (f1 + f2) - a3 * (p0 + q0)
 ```
 
 which is exactly a linear scale for `f3 = f1 + f2` with gradient `a3`. Reading a value off
-the middle axis therefore solves the relation. Because `a3 * (1/a1 + 1/a2) == 1`, the
-middle axis spans the same `[0, H]` as the outer two: its height and position are
-*consequences* of the outer scales, not free parameters.
+the middle axis therefore solves the relation. Because `a3 * (1/a1 + 1/a2) == 1`, the middle
+axis spans the same `[0, H]` as the outer two: its height and position are determined by the
+outer scales and are not free parameters.
 
 # Keeping the middle axis clear
 
-The middle axis sits at `L = a1 / (a1 + a2)` of the way across, so it hugs whichever outer
-axis has the smaller gradient -- the one whose `f` spans more. Over `[1, 1000]` against
-`[11, 14]` on logarithmic scales the gradients differ about 28-fold, and the middle axis
-lands 3% of the way across, nearly on top of its neighbour. So the steeper gradient is
-capped at `max_modulus_ratio` times the other, by shortening that axis and centring it
-vertically. An outer axis shifted by `d` shifts the line's crossing of the middle one by
-`d` times that axis's share, `L` or `1 - L`, so the middle axis is shifted to match and
-every reading is unchanged. The middle axis then lies at least `1/(1 + max_modulus_ratio)`
-of the width from either outer axis: a fifth, by default. The shortened axis loses only
-resolution it had to spare -- it was the one stretched furthest. Pass
-`max_modulus_ratio = Inf` for full-height outer axes whatever their ranges.
+The middle axis sits at `L = a1 / (a1 + a2)` of the way across, so it lies close to
+whichever outer axis has the smaller gradient, which is the one whose `f` spans more. Over
+`[1, 1000]` against `[11, 14]` on logarithmic scales the gradients differ about 28-fold, and
+the middle axis lands 3% of the way across, nearly on top of its neighbour. So the steeper
+gradient is capped at `max_modulus_ratio` times the other, by shortening that axis and
+centring it vertically. An outer axis shifted by `d` shifts the line's crossing of the
+middle one by `d` times that axis's share, `L` or `1 - L`, so the middle axis is shifted to
+match and every reading is unchanged. The middle axis then lies at least
+`1/(1 + max_modulus_ratio)` of the width from either outer axis: a fifth, by default. The
+shortened axis only loses resolution it could spare, since it was the one stretched
+furthest. Pass `max_modulus_ratio = Inf` for full-height outer axes whatever their ranges.
 
 # Example
 
@@ -253,17 +253,17 @@ An N-chart (also called a Z-chart) for the ratio relation
 f1(v1) / f2(v2) = f3(v3)
 ```
 
-Two vertical scales joined by a diagonal, which is where the result is read. `v3` may
-leave `domain = nothing`, in which case the range it can reach is derived from the other
-two. All three transforms must be strictly positive over their domains.
+It has two vertical scales joined by a diagonal, on which the result is read. `v3` may leave
+`domain = nothing`, in which case the range it can reach is derived from the other two. All
+three transforms must be strictly positive over their domains.
 
-# Why not a parallel chart?
+# Compared with a parallel chart
 
-[`multiplicative_nomogram`](@ref) already charts ratios, by taking logarithms. The N-chart
-earns its place by needing no logarithm at all: the scales stay *linear*, so precision is
-even along them and small ratios are not squeezed into a corner. It is the layout to reach
-for when the quantities are everyday ones -- a rate as distance over time, a concentration,
-a unit conversion -- and the reader wants to interpolate by eye.
+[`multiplicative_nomogram`](@ref) can also chart ratios, by taking logarithms. The N-chart
+needs no logarithms: the scales stay *linear*, so precision is even along them and small
+ratios are not squeezed into a corner. Use it for everyday quantities, such as a rate as
+distance over time, a concentration or a unit conversion, when the reader will want to
+interpolate by eye.
 
 # The construction
 
@@ -279,15 +279,15 @@ s = a1*f1 / (a1*f1 + a2*f2)
 Writing `r = f1/f2` and `k = a1/a2` that is `s = k*r / (k*r + 1)`, a one-to-one map from
 the ratio onto the diagonal: reading `s` back gives `r = s / (k * (1 - s))`.
 
-Note what the two scale factors do *not* have to be. The usual textbook derivation makes
-them equal and the ratio falls out directly; here the diagonal's own scale absorbs `k`
-instead, so each outer axis is free to be fitted to the canvas on its own. Taking
-`a1 = H/max(f1)` and `a2 = H/max(f2)` anchors the diagonal at the two corners, which is
-what gives the layout its N.
+The two scale factors do not have to be equal. The usual textbook derivation makes them
+equal so that the ratio comes out directly. Here the diagonal's own scale absorbs `k`
+instead, so each outer axis can be fitted to the canvas separately. Taking `a1 = H/max(f1)`
+and `a2 = H/max(f2)` anchors the diagonal at the two corners, which gives the layout its N
+shape.
 
-The diagonal is drawn only over the part its scale actually reaches, `f1/f2` between
-`min(f1)/max(f2)` and `max(f1)/min(f2)`, so it stops short of the corners -- those are the
-ratios 0 and infinity.
+The diagonal is drawn only over the part its scale reaches, `f1/f2` between
+`min(f1)/max(f2)` and `max(f1)/min(f2)`, so it stops short of the corners, which correspond
+to the ratios 0 and infinity.
 
 # Example
 
@@ -406,7 +406,7 @@ end
 
 A nomogram from scales given directly as curves, fitted to the canvas for you.
 
-This is the general form. Every three-variable nomogram is a set of parametric curves
+This is the general constructor. Every three-variable nomogram is a set of parametric curves
 positioned so that d'Ocagne's determinant
 
 ```
@@ -416,28 +416,28 @@ positioned so that d'Ocagne's determinant
 ```
 
 vanishes exactly when the relation holds. [`additive_nomogram`](@ref) and
-[`ratio_nomogram`](@ref) are two particular solutions of that condition; this constructor
-takes any other one you can write down, including curved and concurrent layouts that no
-arrangement of parallel axes can express.
+[`ratio_nomogram`](@ref) are two particular solutions of that condition. This constructor
+accepts any other solution you can write down, including curved and concurrent layouts that
+parallel axes cannot express.
 
-Each argument is a [`Variable`](@ref) paired with a function from its value to a point.
-The curves may be written in whatever coordinates are natural for the geometry: their
-combined bounding box is measured and mapped onto `width` × `height`. Collinearity survives
-any affine map, so the fit cannot change what the chart computes -- including the
-anisotropic one used by default to fill the canvas.
+Each argument is a [`Variable`](@ref) paired with a function from its value to a point. The
+curves can use whatever coordinates suit the geometry: their combined bounding box is
+measured and mapped onto `width` × `height`. An affine map keeps collinear points collinear,
+so the fit cannot change what the chart computes. This includes the default fit, which
+scales the two axes by different factors to fill the canvas.
 
 # Keywords
 - `width`, `height`: the canvas to fit to.
 - `preserve_aspect`: fit with one scale factor and centre the result, rather than
   stretching each axis to fill.
 - `relation`: the algebraic relation, if you have it, for [`relation_residual`](@ref) and
-  [`max_relation_residual`](@ref) to check the geometry against. Optional -- the chart
+  [`max_relation_residual`](@ref) to check the geometry against. It is optional; the chart
   draws and solves without it.
 - `title`, `nsamples`: chart title, and how finely curves are sampled when measuring the
   bounding box.
 
-Every variable must declare a `domain`: with no distinguished result there is nothing to
-derive one from.
+Every variable must have a `domain`. There is no designated result variable, so no domain
+can be derived.
 
 # Example
 
@@ -560,17 +560,17 @@ end
 """
     max_relation_residual(nom::Nomogram; n = 9) -> Float64
 
-The worst disagreement between a nomogram's geometry and the algebra it claims to encode,
-over a grid of `n × n` inputs.
+The largest disagreement between a nomogram's geometry and the relation it is meant to
+encode, over a grid of `n × n` inputs.
 
-Getting a determinant form right is the hard part of designing a nomogram by hand, and a
-chart that is subtly wrong still draws perfectly well. This solves the first two variables
-against the third *geometrically* and then asks [`relation_residual`](@ref) whether the
-answer satisfies the relation; anything far from zero means the curves and the formula
-disagree.
+Getting the determinant form right is the hardest part of designing a nomogram by hand, and
+a chart with a small error in it still draws normally. This function solves for the third
+variable *geometrically* from the first two, then uses [`relation_residual`](@ref) to check
+whether the answer satisfies the relation. A result far from zero means the curves and the
+formula disagree.
 
-Returns `NaN` for a nomogram built without a `relation`. Inputs for which the alignment
-line misses the third scale are skipped, since those say nothing about correctness.
+Returns `NaN` for a nomogram built without a `relation`. Inputs whose alignment line misses
+the third scale are skipped, since they say nothing about correctness.
 """
 function max_relation_residual(nom::Nomogram; n::Int = 9)
     isnothing(nom.relation) && return NaN
@@ -605,9 +605,9 @@ end
 The 3×3 homography taking the four points `src` to the four points `dst`, each given as a
 4-tuple (or vector) of `(x, y)`.
 
-Four correspondences fix a projective map exactly, which makes this the practical way to
-describe one: say where you want four corners to land rather than writing out nine
-coefficients. No three of the four source points may be collinear, nor of the destination.
+Four correspondences fix a projective map exactly, so this is a practical way to describe
+one: you say where four corners should land instead of writing out nine coefficients. No
+three of the four source points may be collinear, and likewise for the destination points.
 """
 function projective_transform(src, dst)
     length(src) == 4 && length(dst) == 4 ||
@@ -665,21 +665,21 @@ end
     project(nom::Nomogram, H::AbstractMatrix; kwargs...) -> Nomogram
     project(nom::Nomogram, src => dst; kwargs...) -> Nomogram
 
-Reshape a nomogram by a projective map, **without changing a single answer it gives**.
+Reshape a nomogram with a projective map. The reshaped chart gives exactly the same answers
+as the original.
 
-A projective map sends straight lines to straight lines, so it preserves the one thing a
-nomogram asserts: that a point from each scale is collinear. Everything else about the
-picture is free. That is what makes reshaping a design tool rather than a risk — a region
-where the ticks are piled on top of one another can be pulled open, and the chart still
-computes exactly what it computed before.
+A projective map sends straight lines to straight lines, so it preserves the collinearity
+that a nomogram depends on. Everything else about the picture can change. For example, you
+can pull open a region where the ticks are crowded together, and the chart still computes
+exactly what it did before.
 
-The second form builds the map from four point correspondences via
-[`projective_transform`](@ref), which is usually how you want to say it: give the corners
-of a quadrilateral in the current chart and where they should end up.
+The second form builds the map from four point correspondences with
+[`projective_transform`](@ref), which is usually the easiest way to specify it: give the
+corners of a quadrilateral in the current chart and where they should end up.
 
-The result is re-fitted to the canvas, since a projective map takes the bounding box
-somewhere arbitrary. The composition of that affine fit with the projective map is still
-projective, so the guarantee is unaffected.
+A projective map can move the bounding box anywhere, so the result is fitted to the canvas
+again. That fit is affine, and an affine map composed with a projective one is still
+projective, so the answers are still unchanged.
 
 # Keywords
 - `width`, `height`: canvas for the reshaped chart; defaults to the original's.

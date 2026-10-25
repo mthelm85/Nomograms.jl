@@ -7,9 +7,9 @@ _cross(a::Point, b::Point) = a[1] * b[2] - a[2] * b[1]
 Signed area (twice the triangle area) of `p`, `q` and `point(s, value)`. Zero exactly when
 the three are collinear, so this is the residual whose root [`evaluate`](@ref) seeks.
 
-This is d'Ocagne's determinant criterion written as a cross product, and it is the only
-thing a nomogram asserts; every layout in this package is just a choice of scale curves
-that makes the criterion agree with the relation being charted.
+This is d'Ocagne's determinant criterion written as a cross product. Every layout in this
+package is a choice of scale curves that makes this criterion agree with the relation being
+charted.
 """
 align_residual(s::Scale, value, p::Point, q::Point) =
     _cross(_sub(q, p), _sub(point(s, value), p))
@@ -49,13 +49,13 @@ end
 Every value on scale `s` whose point lies on the line through `p` and `q`, in increasing
 order. Empty when the line misses the scale.
 
-A straight line can cross a curved scale more than once, so "the" solution is not always
-well defined. Checking only the sign of the residual at the ends of the domain -- the
-usual shortcut -- would report *no* solution for an even number of crossings and pick an
-arbitrary one of an odd number, so the whole domain is searched instead.
+A straight line can cross a curved scale more than once, so there is not always a single
+solution. The usual shortcut, checking only the sign of the residual at the ends of the
+domain, would report *no* solution for an even number of crossings and pick one arbitrarily
+for an odd number. So this function searches the whole domain instead.
 
-For a straight scale the residual is monotone and this returns at most one value, which is
-why parallel-layout nomograms never see the ambiguity.
+For a straight scale the residual is monotone and this returns at most one value, so charts
+with only straight scales never have more than one answer.
 """
 function solve_all_on(s::Scale, p::Point, q::Point)
     if isapprox(p[1], q[1]; atol = 1e-12) && isapprox(p[2], q[2]; atol = 1e-12)
@@ -189,8 +189,8 @@ end
 
 The single value on scale `s` whose point lies on the line through `p` and `q`.
 
-Throws if the line misses the scale, and also if it crosses more than once -- an ambiguity
-only curved scales can produce. Use [`solve_all_on`](@ref) to get every crossing.
+Throws an error if the line misses the scale, or if it crosses the scale more than once,
+which can only happen on a curved scale. Use [`solve_all_on`](@ref) to get every crossing.
 """
 function solve_on(s::Scale, p::Point, q::Point)
     roots = solve_all_on(s, p, q)
@@ -271,14 +271,14 @@ _variable(nom::AbstractNomogram, n::Symbol) = scale(nom, n).variable
 """
     evaluate(nom::Nomogram; values...) -> NamedTuple
 
-Solve the relation by alignment. Supply every variable but one and the remaining one is
-read off its scale; the result is a `NamedTuple` of all variables.
+Solve the relation by alignment. Supply every variable but one, and the remaining one is
+read from its scale. The result is a `NamedTuple` of all the variables.
 
-Because the solver only ever asks "where does this line cross that scale", forward and
-inverse problems are the same call — any one of the variables may be the unknown.
+The solver only ever finds where a line crosses a scale, so forward and inverse problems use
+the same call: any one of the variables can be the unknown.
 
-Throws if the alignment line crosses the unknown's scale more than once, which only a
-curved scale can do; [`evaluate_all`](@ref) returns every solution instead.
+Throws an error if the alignment line crosses the unknown's scale more than once, which can
+only happen on a curved scale. Use [`evaluate_all`](@ref) to get every solution.
 
 # Example
 
@@ -307,8 +307,8 @@ Every solution of the relation consistent with the values given, in increasing o
 the unknown.
 
 A straight alignment line can cross a curved scale more than once, and each crossing is a
-genuine solution. [`evaluate`](@ref) refuses to choose between them; this returns the lot.
-For a parallel-layout nomogram the result always has exactly one element.
+valid solution. [`evaluate`](@ref) throws an error in that case; `evaluate_all` returns all
+of them. For a parallel-layout nomogram the result always has exactly one element.
 
 # Example
 
@@ -337,14 +337,14 @@ end
     isopleth(nom::Nomogram; label = "", values...) -> Isopleth
     isopleth(nom::Nomogram, solution::NamedTuple; label = "") -> Isopleth
 
-The alignment line for one solution of the relation: records where the line meets every
-scale so it can be drawn.
+The alignment line for one solution of the relation. It records where the line meets every
+scale, so that it can be drawn.
 
-The first form solves for the missing variable. When the line crosses its scale more than
-once -- a curved scale can be met twice -- every crossing is a solution and all of them lie
-on this one line, so that is what comes back: the line, with each crossing marked. Its
-`values` then hold only the values that fix the line, since the unknown has several; get
-those from [`evaluate_all`](@ref).
+The first form solves for the missing variable. If the line crosses that variable's scale
+more than once (a curved scale can be crossed twice), every crossing is a solution and all
+of them lie on this one line. So the result is that line, with each crossing marked. Its
+`values` then hold only the values that fix the line, because the unknown has several
+values; get those from [`evaluate_all`](@ref).
 
 The second form takes a solution you already have, to draw one reading on its own:
 
@@ -396,8 +396,8 @@ end
     relation_residual(nom::Nomogram, values::NamedTuple) -> Float64
 
 The residual of the *algebraic* relation the nomogram was built from, independent of the
-geometry. Useful for checking that a chart really encodes the equation it claims to:
-`relation_residual` should vanish on anything [`evaluate`](@ref) returns.
+geometry. Use it to check that a chart encodes the equation it is meant to:
+`relation_residual` should be zero for anything [`evaluate`](@ref) returns.
 
 Returns `NaN` for nomograms built directly from scales, which carry no algebraic relation.
 """

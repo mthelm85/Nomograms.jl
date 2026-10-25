@@ -32,24 +32,23 @@ One variable of a nomogram, before it has been placed on the page.
 - `tickstyle`: how automatic tick values are picked.
   - `:linear` or `:log` for round decimals spaced evenly or by decade;
   - `:integer` for whole numbers only, for a count such as gear teeth or turns;
-  - `:fraction` for fractions whose denominator divides `maxden` -- halves, quarters,
-    eighths, sixteenths by default -- labelled as such: `1 3/8`, not `1.375`;
-  - `:auto` to take it from the transform. A construction may override `:auto` when it
-    knows better: an N-chart's ratio axis gets logarithmic ticks when it spans a decade or
-    more.
+  - `:fraction` for fractions whose denominator divides `maxden` (halves, quarters, eighths
+    and sixteenths by default), labelled as fractions, such as `1 3/8` instead of `1.375`;
+  - `:auto` to take it from the transform. A construction may override `:auto`: for example,
+    an N-chart's ratio axis gets logarithmic ticks when it spans a decade or more.
   Whichever is chosen, ticks are thinned by distance on the page, roundest first.
 - `maxden = 16`: for `tickstyle = :fraction`, the finest fraction offered; every
   denominator dividing it is used. 16 gives halves to sixteenths, 12 gives halves, thirds,
   quarters, sixths and twelfths.
 
 A domain written with `Rational` ends, such as `(1//10, 1//1)`, makes a variable left on
-`tickstyle = :auto` a `:fraction` one, with `maxden` the least common multiple of the
-ends' denominators -- 10 here -- or 16 if they are all whole. A `tickstyle` or `maxden`
-given explicitly wins, and a floating-point end turns the inference off.
+`tickstyle = :auto` a `:fraction` one, with `maxden` the least common multiple of the ends'
+denominators (10 here), or 16 if they are all whole numbers. An explicit `tickstyle` or
+`maxden` takes precedence, and a floating-point end turns this off.
 - `side`: `:left`, `:right`, or `:auto` (the construction chooses).
-- `titleend`: which end of the scale the title sits off — `:start` or `:stop` for the low
-  or high end of the domain, or `:auto` for whichever is higher on the page. Worth setting
-  where the automatic choice lands somewhere crowded, as it does for the strands of a
+- `titleend`: which end of the scale the title goes past: `:start` or `:stop` for the low or
+  high end of the domain, or `:auto` for whichever end is higher on the page. Set this when
+  the automatic choice puts the title somewhere crowded, as happens for the strands of a
   [`Net`](@ref) that converge at one end.
 """
 struct Variable
@@ -186,8 +185,9 @@ resolved_tickstyle(v::Variable) =
     Scale
 
 A [`Variable`](@ref) placed on the page: a parametric curve `value -> (x, y)` over a
-resolved domain. Collinearity of one point per scale is the whole content of a nomogram, so
-every layout — parallel, curved, or hand-built — reduces to a set of these.
+resolved domain. A nomogram works entirely through the collinearity of one point on each
+scale, so every layout, whether parallel, curved or built by hand, comes down to a set of
+these.
 """
 struct Scale
     variable::Variable
@@ -219,11 +219,11 @@ domain(s::Scale) = s.domain
 """
     AbstractNomogram
 
-A chart made of [`Scale`](@ref)s on a canvas. Everything about *drawing* one -- ticks,
-labels, bounding box, both backends -- needs only the scales, the canvas and the title, so
-it is written against this type. What differs between subtypes is how they are *solved*: a
-[`Nomogram`](@ref) is one alignment line through every scale, while a
-[`CompoundNomogram`](@ref) is several stages read in turn.
+A chart made of [`Scale`](@ref)s on a canvas. Drawing one (ticks, labels, bounding box and
+both backends) needs only the scales, the canvas and the title, so that code is written
+against this type. Subtypes differ in how they are *solved*: a [`Nomogram`](@ref) is one
+alignment line through every scale, while a [`CompoundNomogram`](@ref) is several stages
+read in turn.
 """
 abstract type AbstractNomogram end
 

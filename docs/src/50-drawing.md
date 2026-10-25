@@ -8,9 +8,9 @@ CurrentModule = Nomograms
 
 [`drawing`](@ref) turns a nomogram into a [`NomogramDrawing`](@ref). This holds the axis
 polylines, tick positions, normals and labels, and isopleth segments: the geometry of the
-chart, with no information about how to draw it. Both backends simply walk over that
-structure, so a [`NomogramStyle`](@ref) means the same thing in either, and tests can check
-tick positions without rendering anything.
+chart, with no information about how to draw it. Both backends draw from this structure,
+so a [`NomogramStyle`](@ref) means the same thing in either, and tests can check tick
+positions without rendering anything.
 
 | | dependency | output |
 |---|---|---|
