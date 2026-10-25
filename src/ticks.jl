@@ -231,6 +231,16 @@ function fractionformat(maxden::Integer = 16; mixed::Bool = true)
     end
 end
 
+# The step of the sequence a count or fraction belongs to: 1/8 for an eighth, and for a
+# whole number the round multiple it is -- 10 for 20, 5 for 15, 1 for 3.
+function _grain(v::Variable, x::Float64)
+    if v.tickstyle === :fraction
+        d = denominator(rationalize(Int, x; tol = 0.5 / v.maxden^2))
+        d > 1 && return 1 / d
+    end
+    return _roundness(x, 1.0)
+end
+
 # Whether a value may stand as an axis end's label under the variable's tick style: a
 # whole number on an integer axis, a fraction on a fraction axis.
 function _style_allows(v::Variable, x::Real)

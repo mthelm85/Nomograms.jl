@@ -116,20 +116,26 @@ end
     @test length(id.points) == 3
 end
 
-@testitem "a derived end is left unlabelled unless it is round" tags = [:unit] begin
+@testitem "a derived end is marked, and labelled only if round" tags = [:unit] begin
     nom = multiplicative_nomogram(
         Variable(:a; domain = (1.5, 10)),
         Variable(:b; domain = (1.11, 9)),
         Variable(:c),
     )
     @test nom[:c].domain[1] ≈ 1.665
-    ticks = Dict(sd.name => [t.value for t in sd.ticks] for sd in drawing(nom).scales)
-    # Declared ends keep their ticks, up to three significant figures.
-    @test all(v -> any(t -> t ≈ v, ticks[:a]), (1.5, 10))
-    @test all(v -> any(t -> t ≈ v, ticks[:b]), (1.11, 9))
-    # The derived 1.665 is wherever the arithmetic landed; 90 is a round number.
-    @test !any(t -> t ≈ 1.665, ticks[:c])
-    @test any(t -> t ≈ 90, ticks[:c])
+    d = drawing(nom)
+    ticks = Dict(sd.name => [t.value for t in sd.ticks] for sd in d.scales)
+    labelled = Dict(
+        sd.name => [t.value for t in sd.ticks if !isnothing(t.label)] for sd in d.scales
+    )
+    # Declared ends keep their labels, up to three significant figures.
+    @test all(v -> any(t -> t ≈ v, labelled[:a]), (1.5, 10))
+    @test all(v -> any(t -> t ≈ v, labelled[:b]), (1.11, 9))
+    # The derived 1.665 is wherever the arithmetic landed: marked, so the axis does not
+    # just stop, but not labelled. 90 is a round number, and labelled.
+    @test any(t -> t ≈ 1.665, ticks[:c])
+    @test !any(t -> t ≈ 1.665, labelled[:c])
+    @test any(t -> t ≈ 90, labelled[:c])
 
     @test Nomograms._readable_end(0.0) && Nomograms._readable_end(-250)
     @test Nomograms._readable_end(1.01) && !Nomograms._readable_end(237.4)
@@ -170,4 +176,32 @@ end
     flat = len(drawing(bolt; style = NomogramStyle(; graded_ticks = false)), :grip)
     @test Set(round.(values(flat); digits = 9)) ⊆
           Set(round.([st.majorticklength, st.minorticklength]; digits = 9))
+end
+
+@testitem "an axis always ends in a tick, labelled or not" tags = [:unit] begin
+    nom = auto_nomogram(
+        (original, scale) -> original * scale,
+        Variable(:original; domain = (1 // 10, 5), tickstyle = :fraction, maxden = 16),
+        Variable(:scale; domain = (0.1, 5.0)),
+        Variable(:adjusted; tickstyle = :fraction, maxden = 16),
+    )
+    d = drawing(nom)
+    for sd in d.scales
+        dom = nom[sd.name].domain
+        vals = [t.value for t in sd.ticks]
+        @test any(v -> isapprox(v, dom[1]; rtol = 1e-9), vals)
+        @test any(v -> isapprox(v, dom[2]; rtol = 1e-9), vals)
+    end
+    # 1/10 is no sixteenth: it is marked but not labelled.
+    orig = only(sd for sd in d.scales if sd.name === :original)
+    endtick = only(t for t in orig.ticks if isapprox(t.value, 0.1))
+    @test isnothing(endtick.label)
+    @test endtick.length ≈ d.style.majorticklength
+
+    # Values are labelled only where their own sequence fits: no 19 3/8 standing in for a
+    # crowded-out 20, no 3 7/8 for 4.
+    adj = only(sd for sd in d.scales if sd.name === :adjusted)
+    labels = [t.label for t in adj.ticks if !isnothing(t.label)]
+    @test !("19 3/8" in labels) && !("3 7/8" in labels)
+    @test "1/16" in labels && "10" in labels
 end

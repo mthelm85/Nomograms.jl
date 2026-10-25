@@ -309,12 +309,28 @@ function thin_ticks(
     ticks = TickMark[]
     placed = Point[]
 
-    function tryplace(value, level; endpoint = false)
+    # A count or a fraction is labelled only where its own sequence fits: an eighth only
+    # where eighths are far enough apart to label, a 20 only where the 10s are. Otherwise
+    # a round value crowded out leaves room that an odd one -- 19 3/8 -- would fill.
+    grained = isnothing(v.ticks) && v.tickstyle in (:integer, :fraction)
+    lo, hi = s.domain
+    function fits_grain(value, p)
+        g = _grain(v, value)
+        for nb in (value - g, value + g)
+            lo - 1e-9 * g <= nb <= hi + 1e-9 * g || continue
+            _dist(p, point(s, nb)) >= style.min_major_spacing || return false
+        end
+        return true
+    end
+
+    function tryplace(value, level; endpoint = false, labelled = true, force = false)
         value = float(value)
         p = point(s, value)
         gap = level == 1 ? style.min_major_spacing : style.min_minor_spacing
-        all(_dist(p, q) >= gap for q in placed) || return false
-        label = (level == 1 || style.label_minors) ? v.tickformat(value) : nothing
+        force || all(_dist(p, q) >= gap for q in placed) || return false
+        level == 1 && !endpoint && grained && !fits_grain(value, p) && return false
+        label =
+            labelled && (level == 1 || style.label_minors) ? v.tickformat(value) : nothing
         maj, mnr = style.majorticklength, style.minorticklength
         len = if !style.graded_ticks || endpoint
             # An axis end marks where the axis stops, so it is drawn in full.
@@ -343,9 +359,11 @@ function thin_ticks(
     # An explicitly empty tick list is a request for a bare line, though -- a compound
     # nomogram's turning line is usually drawn blank -- so it overrides this.
     blank = !isnothing(v.ticks) && isempty(v.ticks)
+    bare = Float64[]
     if style.endpoint_ticks && !blank
         for value in s.domain
-            _readable_end(v, value) && tryplace(value, 1; endpoint = true)
+            _readable_end(v, value) ? tryplace(value, 1; endpoint = true) :
+            push!(bare, value)
         end
     end
     for value in majors
@@ -353,6 +371,14 @@ function thin_ticks(
     end
     for value in minors
         tryplace(value, 2)
+    end
+    # An end whose value is not worth a label -- 0.01 on an axis in sixteenths, a derived
+    # 237.4 -- still gets its mark, so the axis does not just stop. It goes in last and
+    # unlabelled, so it crowds out nothing, unless a tick already sits there.
+    for value in bare
+        p = point(s, value)
+        any(q -> _dist(p, q) < style.min_minor_spacing / 2, placed) && continue
+        tryplace(value, 1; endpoint = true, labelled = false, force = true)
     end
     sort!(ticks; by = t -> t.value)
     return ticks
