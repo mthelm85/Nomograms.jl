@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nomograms.jl — Nomograms.jl</title>
-  <link rel="stylesheet" href="./assets/materialdocs.css?v=703f1e67">
+  <link rel="stylesheet" href="./assets/materialdocs.css?v=9e7064d9">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Nomograms.jl — Nomograms.jl">
   <meta property="og:title" content="Nomograms.jl — Nomograms.jl">
@@ -75,7 +75,7 @@ nom = additive_nomogram(
 drawing(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6, label = &quot;4 ∥ 6 = 2.4&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="index-a4ccb8df.svg" alt="Example block output">
+<img src="index-5052c6b8.svg" alt="Example block output">
 </div>
 </div>
 <p>The line from 4 Ω to 6 Ω crosses the middle scale at 2.4 Ω, which is <code class="md-code-inline">1/(1/4 + 1/6)</code> — because of how the middle scale was placed, not because anything was looked up.</p>
@@ -100,7 +100,7 @@ Pkg.add(url = &quot;https://github.com/mthelm85/Nomograms.jl&quot;)</code></pre>
 drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quot;5% for 10 years&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="index-35885a82.svg" alt="Example block output">
+<img src="index-fdaa2975.svg" alt="Example block output">
 </div>
 </div>
 <p>Charts are also calculators. Any variable can be the unknown:</p>
@@ -109,7 +109,7 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
 <pre><code class="language-julia">evaluate(growth; rate = 7, growth = 2)   # how long until money doubles at 7%?</code></pre>
 </div>
-<pre class="md-output md-output-text"><code class="nohighlight ansi">(rate = 7.0, years = 10.24476835334911, growth = 2.0)</code></pre>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(rate = 7.0, years = 10.244768353349112, growth = 2.0)</code></pre>
 </div>
 <p>Every chart from <code class="md-code-inline">auto_nomogram</code> is checked against your formula before it is returned, and a formula that has no such chart gets an error explaining why rather than a picture that lies. It takes any number of inputs. See <a href="./10-from-a-formula/">From a formula</a>.</p>
 <h2 id="Or-build-one-by-hand" class="md-heading">Or build one by hand<a href="#Or-build-one-by-hand" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -164,6 +164,6 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
   <script>hljs.highlightAll();</script>
   <script src="./siteinfo.js"></script>
   <script src="./../versions.js"></script>
-  <script src="./assets/materialdocs.js?v=703f1e67"></script>
+  <script src="./assets/materialdocs.js?v=9e7064d9"></script>
 </body>
 </html>

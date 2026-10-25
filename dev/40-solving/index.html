@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Solving — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=30c9d8e2">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=5a316cc2">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Solving — Nomograms.jl">
   <meta property="og:title" content="Solving — Nomograms.jl">
@@ -90,7 +90,7 @@ evaluate(nom; R1 = 4, R2 = 6)</code></pre>
 <pre><code class="language-julia">drawing(nom; isopleths = [isopleth(nom, evaluate(nom; R1 = 4, R = 2.4); label = &quot;R₂ = 6&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="5022ae26.svg" alt="Example block output">
+<img src="5ac42029.svg" alt="Example block output">
 </div>
 </div>
 <h2 id="More-than-one-crossing" class="md-heading">More than one crossing<a href="#More-than-one-crossing" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -119,7 +119,7 @@ end</code></pre>
 <pre><code class="language-julia">[sol.z for sol in evaluate_all(quad; p = -3, q = 2)]</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">2-element Vector{Float64}:
- 0.9999999999999999
+ 1.0000000000000007
  1.9999999999999998</code></pre>
 </div>
 <p>A straight scale makes the residual an affine function of position, hence monotone, so there is always at most one root: parallel-layout nomograms never encounter this. The cost of searching rather than bracketing is around 120 µs per <code class="md-code-inline">evaluate</code> instead of a few, which is immaterial for reading charts.</p>
@@ -155,7 +155,7 @@ evaluate(room; w = 3u&quot;m&quot;, l = 4u&quot;m&quot;)</code></pre>
 <pre><code class="language-julia">drawing(room; isopleths = [isopleth(room; w = 10u&quot;ft&quot;, l = 12u&quot;ft&quot;, label = &quot;120 ft²&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="99c66031.svg" alt="Example block output">
+<img src="5ce2692e.svg" alt="Example block output">
 </div>
 </div>
 <p>A plain number is read as being in the axis&#39;s unit, so <code class="md-code-inline">evaluate(room; w = 10, l = 12)</code> means feet. A value of the wrong dimension is refused by name rather than read as something else, as is a quantity given to a variable with no unit. Temperatures convert through their offsets, so a °C axis takes 68 °F as 20 °C.</p>
@@ -197,6 +197,6 @@ end</code></pre>
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=30c9d8e2"></script>
+  <script src="../assets/materialdocs.js?v=5a316cc2"></script>
 </body>
 </html>

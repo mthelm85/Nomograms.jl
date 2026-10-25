@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Drawing — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=4dbb351e">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=ea9661de">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Drawing — Nomograms.jl">
   <meta property="og:title" content="Drawing — Nomograms.jl">
@@ -106,7 +106,7 @@ nom = additive_nomogram(
 )</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="f1d5fd71.svg" alt="Example block output">
+<img src="ed1f50dd.svg" alt="Example block output">
 </div>
 </div>
 <h2 id="Styling" class="md-heading">Styling<a href="#Styling" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -122,7 +122,7 @@ nom = additive_nomogram(
 ])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="bd3f3eca.svg" alt="Example block output">
+<img src="0aa9b3c0.svg" alt="Example block output">
 </div>
 </div>
 <h2 id="Ticks" class="md-heading">Ticks<a href="#Ticks" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -144,7 +144,7 @@ nom = additive_nomogram(
 drawing(gears; isopleths = [isopleth(gears; ratio = 2.5, driver = 16, label = &quot;40 teeth&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="c1b7d114.svg" alt="Example block output">
+<img src="9b103ebd.svg" alt="Example block output">
 </div>
 </div>
 <p>Lengths in inches are read in fractions. <code class="md-code-inline">tickstyle = :fraction</code> offers fractions whose denominator divides <code class="md-code-inline">maxden</code> — sixteenths by default, <code class="md-code-inline">maxden = 12</code> for thirds and sixths — and labels them the way a ruler does, with <a href="../95-reference/#Nomograms.fractionformat"><code class="md-code-inline">fractionformat</code></a>:</p>
@@ -160,7 +160,7 @@ drawing(gears; isopleths = [isopleth(gears; ratio = 2.5, driver = 16, label = &q
 drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label = &quot;1 5/8 in&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="79bf913c.svg" alt="Example block output">
+<img src="31ebfbcf.svg" alt="Example block output">
 </div>
 </div>
 <p>Writing a domain in <code class="md-code-inline">Rational</code>s says the same thing, so <code class="md-code-inline">domain = (1//8, 3)</code> gives a fraction axis without asking, in eighths: the finest denominator its ends use. A <code class="md-code-inline">tickstyle</code> or <code class="md-code-inline">maxden</code> given explicitly wins.</p>
@@ -199,6 +199,6 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1 / 4, nut = 3 / 8, label =
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=4dbb351e"></script>
+  <script src="../assets/materialdocs.js?v=ea9661de"></script>
 </body>
 </html>

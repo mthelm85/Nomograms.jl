@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Four or more variables — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=dd756837">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=4e6a3638">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Four or more variables — Nomograms.jl">
   <meta property="og:title" content="Four or more variables — Nomograms.jl">
@@ -84,7 +84,7 @@ box = compound(stage1, stage2; title = &quot;V = L × W × H&quot;)
 drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = &quot;3 × 4 × 2&quot;))</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="0ac72eeb.svg" alt="Example block output">
+<img src="db726d86.svg" alt="Example block output">
 </div>
 </div>
 <p>The reader lays a line across the first stage, notes where it crosses the shared scale, then pivots about that point and reads the second — which is why that scale is called the turning line. Giving it an empty tick list draws it bare, as here; leave the ticks on and it carries the intermediate value, which is worth doing when the intermediate means something.</p>
@@ -94,7 +94,7 @@ drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = &quot;3 × 4
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
 <pre><code class="language-julia">evaluate(box; L = 3, W = 4, V = 24).H</code></pre>
 </div>
-<pre class="md-output md-output-text"><code class="nohighlight ansi">2.0000000000000004</code></pre>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">2.0</code></pre>
 </div>
 <p>and a combination that cannot close it is refused, naming what stayed unknown. Supplying <code class="md-code-inline">t</code>, <code class="md-code-inline">H</code> and <code class="md-code-inline">V</code>, for instance, pins the product <code class="md-code-inline">L × W</code> but neither factor.</p>
 <p>Alignment is a similarity — rotate, scale, translate — carrying the later stage&#39;s shared scale onto the placed one, checked along the whole domain rather than only at the two points that fixed it. Being affine, it cannot change what either stage computes.</p>
@@ -131,7 +131,7 @@ roots = evaluate_all(gq; a = 1, b = -3, c = 2)
 drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="f6346dad.svg" alt="Example block output">
+<img src="e4aa4620.svg" alt="Example block output">
 </div>
 </div>
 <div class="md-multi-output">
@@ -173,6 +173,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=dd756837"></script>
+  <script src="../assets/materialdocs.js?v=4e6a3638"></script>
 </body>
 </html>
