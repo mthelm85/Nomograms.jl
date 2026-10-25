@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From a formula — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=3a1b80d1">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=6bbe66b6">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="From a formula — Nomograms.jl">
   <meta property="og:title" content="From a formula — Nomograms.jl">
@@ -110,22 +110,62 @@ separability_defect((x, y) -&gt; x^2 + x * y + y, (0.5, 5), (0.5, 5))</code></pr
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(1.9947654639196344e-10, 0.4940947607156235)</code></pre>
 </div>
-<p>The first is separable despite its cross term — it is <code class="md-code-inline">(1 + x)(1 + y) − 1</code> in disguise. The second is not, and <code class="md-code-inline">auto_nomogram</code> says so rather than drawing it:</p>
-<div class="md-multi-output">
-<div class="md-code-block">
-<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
-<pre><code class="language-julia">try
-    auto_nomogram((x, y) -&gt; x^2 + x * y + y, :x =&gt; (0.5, 5), :y =&gt; (0.5, 5))
-catch err
-    println(sprint(showerror, err))
-end</code></pre>
-</div>
-<pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: z = F(x, y) is not separable: there are no transforms with h(z) = f(x) + g(y), so it has no chart on three straight scales (ln|F_x/F_y| fails to split by 0.494). It may still have one with a curved scale or a net, which need a form you derive: see `determinant_nomogram` and `net_nomogram`.</code></pre>
-</div>
+<p>The first is separable despite its cross term — it is <code class="md-code-inline">(1 + x)(1 + y) − 1</code> in disguise. The second is not, so it has no chart on three straight scales. It does have one with a curved scale, which <code class="md-code-inline">auto_nomogram</code> looks for next; see <a href="../10-from-a-formula/#One-curved-scale">One curved scale</a>.</p>
 <h2 id="Recovering-the-transforms" class="md-heading">Recovering the transforms<a href="#Recovering-the-transforms" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>When the test passes, the same identity hands the transforms back. Fixing <span class="md-math md-math-inline">\(y\)</span> at a reference value <span class="md-math md-math-inline">\(y_0\)</span> gives <span class="md-math md-math-inline">\(f&#39;(x)\)</span> up to a constant, fixing <span class="md-math md-math-inline">\(x\)</span> at <span class="md-math md-math-inline">\(x_0\)</span> gives <span class="md-math md-math-inline">\(g&#39;(y)\)</span>, and numerical integration turns each into a <a href="../95-reference/#Nomograms.TabulatedScale"><code class="md-code-inline">TabulatedScale</code></a>. <span class="md-math md-math-inline">\(h\)</span> is tabulated by walking from the corner of the domain that minimises <span class="md-math md-math-inline">\(F\)</span> to the one that maximises it, along which <span class="md-math md-math-inline">\(f\)</span> and <span class="md-math md-math-inline">\(g\)</span> change the same way, so <span class="md-math md-math-inline">\(F\)</span> never has to be inverted.</p>
 <p>The transforms are only fixed up to a common sign, and the result axis is chosen to read upwards. An input the result <em>decreases</em> in then runs downwards, as it must for the lines to agree — the <code class="md-code-inline">cost</code> axis of a profit chart, say.</p>
 <p>Each axis then gets linear or logarithmic ticks according to how its transform spreads its values. If the geometric mean of the domain lands nearer the middle of the axis than the arithmetic mean, the axis is logarithmic in character — even inside a single decade, as with <code class="md-code-inline">log(b, x)</code>&#39;s <code class="md-code-inline">base</code> axis over <code class="md-code-inline">[2, 10]</code>. Shape alone does not settle it, though: over 100 to 200 the only whole logarithmic values are the two ends. So for a log-shaped axis both styles are thinned onto it and whichever lands more labels wins.</p>
+<h2 id="One-curved-scale" class="md-heading">One curved scale<a href="#One-curved-scale" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A formula with no chart on three straight scales may still have one on two straight scales and a curve. The roots of a quadratic are the classic case, and <code class="md-code-inline">auto_nomogram</code> finds it from the formula for the root, with no determinant to derive. A line from <code class="md-code-inline">p</code> to <code class="md-code-inline">q</code> crosses the curve at the larger root of <span class="md-math md-math-inline">\(z^2 + pz + q = 0\)</span>:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">root = auto_nomogram(
+    (p, q) -&gt; (-p + sqrt(p^2 - 4q)) / 2,
+    Variable(:p; domain = (-7, -5)),
+    Variable(:q; domain = (1, 6)),
+    Variable(:root; label = &quot;larger root&quot;);
+    title = &quot;z² + pz + q = 0&quot;,
+)
+drawing(root; isopleths = [isopleth(root; p = -6, q = 5, label = &quot;5&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="b54537b2.svg" alt="Example block output">
+</div>
+</div>
+<p>It is not always the result that goes on the curve. <code class="md-code-inline">x² + xy + y</code>, refused above for straight scales, is linear in <code class="md-code-inline">y</code> and in <code class="md-code-inline">z</code> once <code class="md-code-inline">x</code> is fixed, so it is <code class="md-code-inline">x</code> that curves:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">quad = auto_nomogram((x, y) -&gt; x^2 + x * y + y, :x =&gt; (0.5, 3), :y =&gt; (0.5, 3), :z)
+drawing(quad; isopleths = [isopleth(quad; x = 2, y = 1, label = &quot;7&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="e357ecab.svg" alt="Example block output">
+</div>
+</div>
+<p>Put the relation as <span class="md-math md-math-inline">\(G(u, v, w) = 0\)</span>, with <span class="md-math md-math-inline">\(u\)</span> and <span class="md-math md-math-inline">\(v\)</span> on straight scales and <span class="md-math md-math-inline">\(w\)</span> on the curve. Such a chart exists exactly when there are transforms <span class="md-math md-math-inline">\(f(u)\)</span> and <span class="md-math md-math-inline">\(g(v)\)</span> that make every level set <span class="md-math md-math-inline">\(w = c\)</span> a straight line, <span class="md-math md-math-inline">\(g = m(c)\,f + k(c)\)</span>: put <span class="md-math md-math-inline">\(f\)</span> on one straight axis and <span class="md-math md-math-inline">\(g\)</span> on a parallel one, and the lines for each <span class="md-math md-math-inline">\(c\)</span> all pass through one point, where <span class="md-math md-math-inline">\(c\)</span> goes. Along a level set <span class="md-math md-math-inline">\(dg/df = -\bigl(g&#39;(v)/f&#39;(u)\bigr)\,G_u/G_v\)</span>, so the condition is that <span class="md-math md-math-inline">\(L = \ln|G_u / G_v|\)</span> splits as <span class="md-math md-math-inline">\(\varphi(w) + a(u) - b(v)\)</span>, with <span class="md-math md-math-inline">\(a = \ln f&#39;\)</span> and <span class="md-math md-math-inline">\(b = \ln g&#39;\)</span>. Differentiating once in each of <span class="md-math md-math-inline">\(u\)</span> and <span class="md-math md-math-inline">\(v\)</span> gives, along each level set,</p>
+<div class="md-math md-math-display">
+\[L_{uv} = A\, w_u w_v + B\, w_{uv}, \qquad A = \varphi&#39;&#39;(c),\quad B = \varphi&#39;(c)\]
+</div>
+<p>with <span class="md-math md-math-inline">\(A\)</span> and <span class="md-math md-math-inline">\(B\)</span> constant on the level set. So the test is a two-parameter least-squares fit on each of 25 level sets, and a level set that does not fit to within <span class="md-math md-math-inline">\(10^{-6}\)</span> rules the arrangement out. When every one fits, <span class="md-math md-math-inline">\(B\)</span> gives <span class="md-math md-math-inline">\(a&#39; = L_u - B\,w_u\)</span> and <span class="md-math md-math-inline">\(b&#39; = -(L_v - B\,w_v)\)</span>; two integrations give the straight scales, and the point each level&#39;s line passes through gives the curve. Each of the three variables is tried on the curve in turn, the result first, and the chart is checked against your function like any other.</p>
+<p>The derivatives are third order in the formula, taken exactly by automatic differentiation (<a href="https://github.com/JuliaDiff/ForwardDiff.jl">ForwardDiff.jl</a>) through the formula as you wrote it, which therefore has to accept any number type rather than only <code class="md-code-inline">Float64</code>. A formula with neither kind of chart is refused, with the reason for each arrangement:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">try
+    auto_nomogram((x, y) -&gt; sin(x) + exp(y) + x * y, :x =&gt; (0, 2), :y =&gt; (0, 1))
+catch err
+    println(sprint(showerror, err))
+end</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: z = F(x, y) has no chart on three straight scales (the function is not monotone in :x over (0.0, 2.0), so :x cannot be a straight scale), nor one with a single curved scale:
+  • :z on a curve — its level sets are not straight lines under any transforms of :x and :y (misfit 0.098)
+  • :x on a curve — its level sets are not straight lines under any transforms of :y and :z (misfit 0.0092)
+  • :y on a curve — its level sets are not straight lines under any transforms of :x and :z (misfit 0.94)
+It may still have a chart with more curved scales, or a net, from a form you derive: see `determinant_nomogram` and `net_nomogram`.</code></pre>
+</div>
+<p>Charts with more than one curved scale, and curved stages in a chain of three or more inputs, are not searched for: those still need a form you derive, for <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>.</p>
 <h2 id="More-than-two-inputs" class="md-heading">More than two inputs<a href="#More-than-two-inputs" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>One alignment line relates only three scales, so a formula with three or more inputs becomes a chain of charts linked by bare <em>turning lines</em>. The reader lays a line across the first stage, notes where it crosses the turning line, then pivots there and reads the next. <code class="md-code-inline">auto_nomogram</code> finds the chain itself. Lay a line from amount to temperature and mark where it crosses the bare turning line, then pivot there to volume and read the pressure:</p>
 <div class="md-multi-output">
@@ -177,6 +217,7 @@ end</code></pre>
 <p class="md-admonition-title">How long it takes</p>
 <div class="md-admonition-body">
 <p>The common paths are compiled when the package is installed, so the first chart of a session takes about as long as any other: a fraction of a second for up to four inputs, and a couple of seconds for five, most of it spent comparing layouts. The first five-input chart of a session also compiles for several seconds.</p>
+<p>The search for a curved scale runs only when straight scales fail. Automatic differentiation compiles anew for each formula it meets, so the first curved chart from a given function takes a few seconds; building it again takes a fraction of one.</p>
 </div>
 </div>
       </article>
@@ -189,6 +230,7 @@ end</code></pre>
         <p class="md-toc-title">On this page</p>
           <a class="md-toc-link md-toc-h2" href="#When-a-formula-has-a-chart-at-all">When a formula has a chart at all</a>
           <a class="md-toc-link md-toc-h2" href="#Recovering-the-transforms">Recovering the transforms</a>
+          <a class="md-toc-link md-toc-h2" href="#One-curved-scale">One curved scale</a>
           <a class="md-toc-link md-toc-h2" href="#More-than-two-inputs">More than two inputs</a>
           <a class="md-toc-link md-toc-h2" href="#Nothing-on-trust">Nothing on trust</a>
       </div>
@@ -208,6 +250,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=3a1b80d1"></script>
+  <script src="../assets/materialdocs.js?v=6bbe66b6"></script>
 </body>
 </html>
