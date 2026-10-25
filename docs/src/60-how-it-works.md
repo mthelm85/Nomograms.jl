@@ -166,7 +166,8 @@ formula](10-from-a-formula.md) gives the mathematics; this is the order things h
 signature, `(Float64, …) -> Float64`, one per number of inputs. Every Julia closure has a
 type of its own, and code specialised on it would be compiled again for each formula a user
 writes. Behind the wrapper it compiles once, and `precompile.jl` runs the common paths
-when the package is precompiled, so that compiled code is already cached.
+when the package is precompiled, so that compiled code is already cached. The function as
+given is kept alongside, for the one step that has to differentiate it automatically.
 
 **Testing separability.** For two inputs, [`separability_defect`](@ref) evaluates
 `L = ln|F_x / F_y|` on a 9 × 9 grid inset 2% from the edges of the domain, and measures the
@@ -178,9 +179,9 @@ L(x, y) - L(x, y_0) - L(x_0, y) + L(x_0, y_0) = 0
 
 about the middle of the grid. Derivatives are central differences whose step scales with
 the argument as well as the domain, switching to one-sided formulas at the edges so `F` is
-never called outside the domain it was given. A defect above `1e-6` is an error saying the
-formula has no three-straight-scale chart; so is a derivative that changes sign, since a
-straight scale cannot fold back.
+never called outside the domain it was given. A defect above `1e-6` means the formula has
+no three-straight-scale chart, and the search for a curved one below takes over; so does a
+derivative that changes sign, since a straight scale cannot fold back.
 
 **Recovering the transforms.** If the identity holds, `F_x / F_y = f′(x) / g′(y)`, so
 holding `y` at the middle of its domain gives `f′` and holding `x` gives `g′`, each up to
@@ -207,6 +208,20 @@ transform spreads its values.
 the chart's relation. The finished chart is then solved on a 9 × 9 grid of inputs and every
 answer compared with `F`; a disagreement above `rtol` of the result's range means the chart
 is not returned.
+
+**One curved scale.** When straight scales fail, each variable is tried on a curve in turn,
+the result first. Writing the relation as `G(u, v, w) = 0` with `w` curved, `w(u, v)` is
+found near each level `w = c` by Newton's method in whatever number type it is handed, so
+[ForwardDiff](https://github.com/JuliaDiff/ForwardDiff.jl) dual numbers pass straight
+through and come out with exact derivatives of the implicit function. On 25 level sets, 11
+points each, `L_uv` is fitted as `A w_u w_v + B w_uv`; a relative misfit above `1e-6` on
+any of them rules the arrangement out. The fitted `B(c)` is tabulated, the log-slopes
+`a′ = L_u − B w_u` and `b′ = −(L_v − B w_v)` are integrated twice by the same quadrature as
+above, and 161 levels, spaced more closely toward the ends of the range, each give one line
+`g = m f + k` from one point on their level set. With `f` on the axis `x = 0` and `g` on
+`x = 1`, every alignment line for that level passes through `(1/(1 − m), k/(1 − m))`,
+which is tabulated as the curve. The three scales go to [`determinant_nomogram`](@ref) and
+are checked on the same 9 × 9 grid.
 
 **Chains.** With three or more inputs, each pair `(xᵢ, xⱼ)` is tested as a first stage:
 does `F` depend on it only through one combination? That holds exactly when `F_i / F_j` is

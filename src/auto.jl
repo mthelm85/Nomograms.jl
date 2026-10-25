@@ -200,13 +200,33 @@ end
 # formula, so the cache covers them too.
 struct _Formula{N}
     f::FunctionWrapper{Float64,NTuple{N,Float64}}
+    # The formula as given, for the one place that needs it with other number types: the
+    # search for a curved-scale chart differentiates it automatically, which the
+    # Float64-only wrapper cannot carry. Only formulas with no straight-scale chart get
+    # that far, so ordinary charts keep the fast path.
+    raw::Any
 end
 _Formula(f::_Formula, n::Int) = f
 _Formula(f, n::Int) = _Formula{n}(
     FunctionWrapper{Float64,NTuple{n,Float64}}((args...) -> Float64(f(args...))),
+    f,
 )
 (g::_Formula{N})(args::Vararg{Float64,N}) where {N} = g.f(args...)
 (g::_Formula{N})(args::Vararg{Real,N}) where {N} = g.f(map(Float64, args)...)
+
+# The gist of a straight-scale refusal, for the message that also explains why no curved
+# scale would do.
+function _short_reason(msg::AbstractString)
+    m = match(r"fails to split by ([0-9.eE+-]+)", msg)
+    isnothing(m) || return "ln|F_x/F_y| fails to split by $(m.captures[1])"
+    return first(split(msg, r"[.:] "))
+end
+
+# Whether a refusal on straight scales leaves a curved one worth trying: it does when the
+# formula is not separable, or not monotone in a variable that a curve could carry -- not
+# when the inputs are wrong, or a declared domain is.
+_curved_may_help(msg::AbstractString) =
+    occursin("is not separable", msg) || occursin("is not monotone", msg)
 
 _as_variable(v::Variable) = v
 _as_variable(p::Pair{Symbol}) = Variable(first(p); domain = last(p))
@@ -341,13 +361,23 @@ stage and logarithmic in the second. That second kind needs a net, which has to 
 by hand ([`net_nomogram`](@ref)). If no pairing works, the error lists what went wrong
 with each.
 
+# One curved scale
+
+A formula of two inputs that is not separable may still have a chart on two straight scales
+and one curve — the roots of a quadratic, say. Each variable in turn is tried on the curve:
+with `G(u, v, w) = 0` and `w` curved, such a chart exists exactly when `ln|G_u / G_v|`
+splits as `φ(w) + a(u) − b(v)`, which is tested by a least-squares fit along level sets of
+`w`. The derivatives this needs are taken by automatic differentiation of `F` itself, so
+`F` must accept any number type, not only `Float64`. The first curved chart from a given
+function compiles for a few seconds.
+
 # When it can't
 
-A formula that is not separable has no three-straight-scale chart at all, and the error
-says so. It may still have one with a curved scale or a net, but those need a form derived
-by hand: see [`determinant_nomogram`](@ref) and [`net_nomogram`](@ref). A formula that is
-not monotone in a variable over its domain fails too, since a straight scale cannot fold
-back on itself.
+A formula with neither kind of chart is refused, and the error gives the reason for each
+arrangement tried. It may still have one with more curved scales or a net, but those need
+a form derived by hand: see [`determinant_nomogram`](@ref) and [`net_nomogram`](@ref). A
+formula that is not monotone in a variable over its domain fails too, since a straight
+scale cannot fold back on itself.
 
 # Keywords
 - `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for
@@ -383,8 +413,15 @@ function auto_nomogram(
     allunique([names; vz.name]) ||
         throw(ArgumentError("variable names must be distinct, got $([names; vz.name])"))
     width = float(something(width, 35.0 * max(length(vs) - 1, 2)))
-    length(vs) == 2 && return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
-    return _auto_chain(F, vs, vz; width, height, title, rtol)
+    length(vs) == 2 || return _auto_chain(F, vs, vz; width, height, title, rtol)
+    straight = try
+        return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
+    catch err
+        err isa ArgumentError && _curved_may_help(err.msg) || rethrow()
+        _short_reason(err.msg)
+    end
+    # No chart on three straight scales: try one with a curved scale before giving up.
+    return _auto_curved(F, vs[1], vs[2], vz; width, height, title, rtol, straight)
 end
 
 # With units, the formula is called with quantities -- so it may compute in whatever

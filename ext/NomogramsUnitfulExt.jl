@@ -10,7 +10,8 @@ using Unitful: Unitful, AbstractQuantity, Units, DimensionError, dimension, unit
 
 function Nomograms._strip(u::Units, x::AbstractQuantity, name::Symbol)
     try
-        return Float64(ustrip(u, x))
+        # `float`, not Float64: a curved-scale search differentiates through this.
+        return float(ustrip(u, x))
     catch err
         err isa DimensionError || rethrow()
         throw(

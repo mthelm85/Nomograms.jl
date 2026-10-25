@@ -1,7 +1,8 @@
 # Numerical audit
 
 An audit of the numerical methods Nomograms.jl uses to build, check and solve charts,
-run against the package at commit `73e0d88`. Items 1 and 2 were fixed after it. Every number below comes from a script in
+run against the package at commit `73e0d88`. Items 1 and 2 were fixed after it, and item 6
+built. Every number below comes from a script in
 this folder; `julia dev/audit/setup.jl` creates the environment, then run any `e*.jl`.
 
 ## Summary
@@ -11,9 +12,9 @@ this folder; `julia dev/audit/setup.jl` creates the environment, then run any `e
 | 1 | Root finding on curved scales | **Bug**: missed some pairs of close crossings | **Fixed** |
 | 2 | Text width estimate | **Bug**: could break the no-overlap guarantee | **Fixed** |
 | 3 | Separability and pivot thresholds | Sound, with a wide margin | None |
-| 4 | Finite differences vs automatic differentiation | FD adequate for today's features | Revisit with item 6 |
+| 4 | Finite differences vs automatic differentiation | FD adequate for straight scales | AD used for item 6 |
 | 5 | The built-in accuracy check | Sound, but measures the wrong thing at the small end | Small improvement |
-| 6 | Detecting curved-scale charts (prototype) | Feasible; separates cases cleanly | Design decision needed |
+| 6 | Detecting curved-scale charts (prototype) | Feasible; separates cases cleanly | **Built** |
 
 ## 1. Root finding misses some pairs of close crossings — bug
 
@@ -143,6 +144,15 @@ variable, which automatic differentiation provides and finite differences would 
 reliably. Automatic differentiation cannot pass through the `Float64`-only `_Formula`
 wrapper, so building this means either calling the user's formula unwrapped for detection
 (slower first call) or a wrapper that also accepts dual numbers.
+
+**Built.** `auto_nomogram` now tries a chart with one curved scale when straight scales
+fail, for formulas of two inputs (`src/auto_curved.jl`). `_Formula` keeps the unwrapped
+function beside the fast wrapper, and ForwardDiff differentiates that. Each level set's fit
+must leave a relative residual below 1e-6; the chart is then verified like any other. The
+quadratic's larger root comes out with `z` curved and `x² + xy + y` with `x` curved, both
+agreeing with the formula to about 2e-7 of the result's range; `sin x + eʸ + xy` is refused
+with a reason for each arrangement. The first call for a given function compiles for 2–7 s;
+later calls take 0.03–0.1 s.
 
 ## Still worth asking the community
 

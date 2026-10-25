@@ -158,8 +158,11 @@ end
         catch e
             e isa ArgumentError ? e.msg : rethrow()
         end
-    m = msg(() -> auto_nomogram((x, y) -> x^2 + x * y + y, :x => (0.5, 5), :y => (0.5, 5)))
-    @test occursin("not separable", m)
+    m = msg(
+        () -> auto_nomogram((x, y) -> sin(x) + exp(y) + x * y, :x => (0, 2), :y => (0, 1)),
+    )
+    @test occursin("no chart on three straight scales", m)
+    @test occursin("nor one with a single curved scale", m)
     @test occursin("determinant_nomogram", m)
 
     m = msg(() -> auto_nomogram((x, y) -> (x - 5)^2 + y, :x => (0, 10), :y => (0, 5)))

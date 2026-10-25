@@ -44,6 +44,7 @@ module Nomograms
 using Printf: @sprintf
 
 using FunctionWrappers: FunctionWrapper
+import ForwardDiff
 import LinearAlgebra
 import PrecompileTools
 import Roots
@@ -112,6 +113,7 @@ include("compound.jl")
 include("net.jl")
 include("auto.jl")
 include("auto_chain.jl")
+include("auto_curved.jl")
 include("textwidth.jl")
 include("drawing.jl")
 include("svg.jl")

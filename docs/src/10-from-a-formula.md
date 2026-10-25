@@ -68,15 +68,8 @@ separability_defect((x, y) -> x^2 + x * y + y, (0.5, 5), (0.5, 5))
 ```
 
 The first is separable despite its cross term — it is `(1 + x)(1 + y) − 1` in disguise.
-The second is not, and `auto_nomogram` says so rather than drawing it:
-
-```@example auto
-try
-    auto_nomogram((x, y) -> x^2 + x * y + y, :x => (0.5, 5), :y => (0.5, 5))
-catch err
-    println(sprint(showerror, err))
-end
-```
+The second is not, so it has no chart on three straight scales. It does have one with a
+curved scale, which `auto_nomogram` looks for next; see [One curved scale](#One-curved-scale).
 
 ## Recovering the transforms
 
@@ -97,6 +90,72 @@ arithmetic mean, the axis is logarithmic in character — even inside a single d
 with `log(b, x)`'s `base` axis over `[2, 10]`. Shape alone does not settle it, though: over
 100 to 200 the only whole logarithmic values are the two ends. So for a log-shaped axis
 both styles are thinned onto it and whichever lands more labels wins.
+
+## One curved scale
+
+A formula with no chart on three straight scales may still have one on two straight
+scales and a curve. The roots of a quadratic are the classic case, and `auto_nomogram` finds
+it from the formula for the root, with no determinant to derive. A line from `p` to `q`
+crosses the curve at the larger root of ``z^2 + pz + q = 0``:
+
+```@example auto
+root = auto_nomogram(
+    (p, q) -> (-p + sqrt(p^2 - 4q)) / 2,
+    Variable(:p; domain = (-7, -5)),
+    Variable(:q; domain = (1, 6)),
+    Variable(:root; label = "larger root");
+    title = "z² + pz + q = 0",
+)
+drawing(root; isopleths = [isopleth(root; p = -6, q = 5, label = "5")])
+```
+
+It is not always the result that goes on the curve. `x² + xy + y`, refused above for
+straight scales, is linear in `y` and in `z` once `x` is fixed, so it is `x` that curves:
+
+```@example auto
+quad = auto_nomogram((x, y) -> x^2 + x * y + y, :x => (0.5, 3), :y => (0.5, 3), :z)
+drawing(quad; isopleths = [isopleth(quad; x = 2, y = 1, label = "7")])
+```
+
+Put the relation as ``G(u, v, w) = 0``, with ``u`` and ``v`` on straight scales and ``w``
+on the curve. Such a chart exists exactly when there are transforms ``f(u)`` and ``g(v)``
+that make every level set ``w = c`` a straight line, ``g = m(c)\,f + k(c)``: put ``f`` on
+one straight axis and ``g`` on a parallel one, and the lines for each ``c`` all pass
+through one point, where ``c`` goes. Along a level set
+``dg/df = -\bigl(g'(v)/f'(u)\bigr)\,G_u/G_v``, so the condition is that
+``L = \ln|G_u / G_v|`` splits as ``\varphi(w) + a(u) - b(v)``, with ``a = \ln f'`` and
+``b = \ln g'``. Differentiating once in each of ``u`` and ``v`` gives, along each level
+set,
+
+```math
+L_{uv} = A\, w_u w_v + B\, w_{uv}, \qquad A = \varphi''(c),\quad B = \varphi'(c)
+```
+
+with ``A`` and ``B`` constant on the level set. So the test is a two-parameter least-squares
+fit on each of 25 level sets, and a level set that does not fit to within ``10^{-6}`` rules
+the arrangement out. When every one fits, ``B`` gives ``a' = L_u - B\,w_u`` and
+``b' = -(L_v - B\,w_v)``; two integrations give the straight scales, and the point each
+level's line passes through gives the curve. Each of the three variables is tried on the
+curve in turn, the result first, and the chart is checked against your function like any
+other.
+
+The derivatives are third order in the formula, taken exactly by automatic
+differentiation ([ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl)) through the
+formula as you wrote it, which therefore has to accept any number type rather than only
+`Float64`. A formula with neither kind of chart is refused, with the reason for each
+arrangement:
+
+```@example auto
+try
+    auto_nomogram((x, y) -> sin(x) + exp(y) + x * y, :x => (0, 2), :y => (0, 1))
+catch err
+    println(sprint(showerror, err))
+end
+```
+
+Charts with more than one curved scale, and curved stages in a chain of three or more
+inputs, are not searched for: those still need a form you derive, for
+[`determinant_nomogram`](@ref).
 
 ## More than two inputs
 
@@ -169,3 +228,8 @@ straight scale cannot fold back on itself.
     session takes about as long as any other: a fraction of a second for up to four
     inputs, and a couple of seconds for five, most of it spent comparing layouts. The
     first five-input chart of a session also compiles for several seconds.
+
+    The search for a curved scale runs only when straight scales fail. Automatic
+    differentiation compiles anew for each formula it meets, so the first curved chart
+    from a given function takes a few seconds; building it again takes a fraction of
+    one.

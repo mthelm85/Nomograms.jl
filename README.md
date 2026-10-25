@@ -51,7 +51,9 @@ It applies the classical test for when a formula `z = F(x, y)` can be drawn on t
 straight scales at all — transforms with `h(z) = f(x) + g(y)` exist exactly when
 `ln|F_x / F_y|` splits into a part in `x` plus a part in `y` — and when it can, the same
 identity hands back the transforms by integration. Each axis then gets linear or
-decade-based ticks according to how its transform spreads values out.
+decade-based ticks according to how its transform spreads values out. When there are no
+such transforms, it looks for a chart with one curved scale instead — the roots of a
+quadratic, from the formula for the root.
 
 It takes any number of inputs. With three or more, one alignment line can no longer relate
 them all, so it looks for a pair the formula depends on only through one combination,
@@ -66,8 +68,8 @@ evaluate(gas; n = 1, T = 300, V = 0.024).P   # 103925.0…
 
 Nothing is returned on trust. The finished chart is *solved* over a grid of inputs and
 every answer compared with your function; a chart that disagrees is an error, not a
-result. When a formula has no straight-scale chart, it says so and points you at the
-constructions that can still handle it.
+result. When a formula has no chart on straight scales or with one curved scale, it says
+so and points you at the constructions that can still handle it.
 
 ## What it does
 
@@ -297,11 +299,11 @@ chart cramped at one end can be pulled open, and nothing needs re-deriving.
 ## Status
 
 Version 0.1.0, not yet registered. Implemented and tested: building a chart directly from a
-formula; the parallel-axis, N-chart and general determinant constructions; compound and net
+formula, on straight scales or with one curved scale; the parallel-axis, N-chart and general determinant constructions; compound and net
 charts for four or more variables; projective reshaping; the solver; both renderers; and
 the tick engine.
 
 Not yet implemented: taking an equation in implicit form, such as `1/R ~ 1/R₁ + 1/R₂`,
 rather than a function already solved for its result. That is where a Symbolics.jl front
-end would come in, alongside closed-form transforms where they exist and automatic
-derivation of curved and net layouts for formulas that are not separable.
+end would come in, alongside closed-form transforms where they exist. Nor are nets, charts
+with more than one curved scale, or curved stages in a chain derived automatically.

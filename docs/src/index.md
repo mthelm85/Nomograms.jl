@@ -69,13 +69,14 @@ nom[:R].domain
 ```
 
 Building by hand gives full control over the layout, and reaches charts that no formula
-test can find — curved scales, nets, reshaped layouts. See
+test finds — nets, several curved scales, reshaped layouts. See
 [Building charts](20-constructions.md).
 
 ## Contents
 
 - [From a formula](10-from-a-formula.md) — `auto_nomogram`: when a formula has a chart, how
-  the transforms are found, and charts with three or more inputs.
+  the transforms are found, charts with a curved scale, and charts with three or more
+  inputs.
 - [Building charts](20-constructions.md) — the parallel and N-chart constructions, curved
   scales from the determinant, and reshaping a chart without changing its answers.
 - [Four or more variables](30-more-variables.md) — chaining charts through turning lines,
