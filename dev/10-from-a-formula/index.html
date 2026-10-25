@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From a formula — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=6bbe66b6">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=f9900f8a">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="From a formula — Nomograms.jl">
   <meta property="og:title" content="From a formula — Nomograms.jl">
@@ -216,8 +216,7 @@ end</code></pre>
 <div class="md-admonition md-admonition-note">
 <p class="md-admonition-title">How long it takes</p>
 <div class="md-admonition-body">
-<p>The common paths are compiled when the package is installed, so the first chart of a session takes about as long as any other: a fraction of a second for up to four inputs, and a couple of seconds for five, most of it spent comparing layouts. The first five-input chart of a session also compiles for several seconds.</p>
-<p>The search for a curved scale runs only when straight scales fail. Automatic differentiation compiles anew for each formula it meets, so the first curved chart from a given function takes a few seconds; building it again takes a fraction of one.</p>
+<p>The common paths are compiled when the package is installed, so the first chart of a session takes about as long as any other: a fraction of a second for up to four inputs, and a couple of seconds for five, most of it spent comparing layouts. The first five-input chart of a session also compiles for several seconds. The search for a curved scale runs only when straight scales fail, and its automatic differentiation compiles anew for each formula, so the first curved chart from a given function takes a few seconds; building it again takes a fraction of one.</p>
 </div>
 </div>
       </article>
@@ -250,6 +249,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=6bbe66b6"></script>
+  <script src="../assets/materialdocs.js?v=f9900f8a"></script>
 </body>
 </html>
