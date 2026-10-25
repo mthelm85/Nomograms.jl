@@ -225,7 +225,6 @@ function _tangent_label(n::Point)
     return (atan(t[2], t[1]), (:center, valign))
 end
 
-_textwidth(s::AbstractString, size::Real) = 0.6 * size * length(s)
 
 """
     label_box(pos, text, size, align, rotation) -> (xmin, ymin, xmax, ymax)

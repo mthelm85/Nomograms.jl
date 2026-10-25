@@ -11,3 +11,6 @@ docs/build/
 env
 node_modules
 examples/output/
+
+# The audit scripts build their own environment.
+dev/audit/env/

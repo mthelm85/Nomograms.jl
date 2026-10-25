@@ -52,7 +52,8 @@ end
 
     # pxperunit scales the canvas linearly.
     w(s) = parse(Float64, match(r"width=\"([0-9.]+)\"", s)[1])
-    @test w(svg(nom; pxperunit = 8)) ≈ 2 * w(svg(nom; pxperunit = 4))
+    # (Sizes are printed to two decimals, so doubling can differ in the last place.)
+    @test w(svg(nom; pxperunit = 8)) ≈ 2 * w(svg(nom; pxperunit = 4)) atol = 0.02
 end
 
 @testitem "save_svg writes the file" tags = [:unit] setup = [Render] begin

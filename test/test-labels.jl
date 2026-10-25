@@ -12,16 +12,18 @@ end
 
 @testitem "label_box covers the text for any alignment or rotation" tags = [:unit] begin
     lb = Nomograms.label_box
-    # "ab" at size 10 is 12 wide (0.6 * size * nchars) and 10 tall.
-    @test all(lb((0.0, 0.0), "ab", 10, (:left, :bottom), 0.0) .≈ (0.0, 0.0, 12.0, 10.0))
-    @test all(lb((0.0, 0.0), "ab", 10, (:right, :top), 0.0) .≈ (-12.0, -10.0, 0.0, 0.0))
-    @test all(lb((0.0, 0.0), "ab", 10, (:center, :center), 0.0) .≈ (-6.0, -5.0, 6.0, 5.0))
+    # "ab" at size 10 is as wide as its glyphs and 10 tall.
+    w = Nomograms._textwidth("ab", 10)
+    @test w ≈ 2 * 5.562 atol = 0.01
+    @test all(lb((0.0, 0.0), "ab", 10, (:left, :bottom), 0.0) .≈ (0.0, 0.0, w, 10.0))
+    @test all(lb((0.0, 0.0), "ab", 10, (:right, :top), 0.0) .≈ (-w, -10.0, 0.0, 0.0))
+    @test all(lb((0.0, 0.0), "ab", 10, (:center, :center), 0.0) .≈ (-w / 2, -5.0, w / 2, 5.0))
     # Quarter turn: the box turns with the text. atol, because cos(pi/2) is 6e-17 rather
     # than 0 and isapprox against an exact zero has no tolerance by default.
     @test all(
         isapprox.(
             lb((0.0, 0.0), "ab", 10, (:left, :bottom), pi / 2),
-            (-10.0, 0.0, 0.0, 12.0);
+            (-10.0, 0.0, 0.0, w);
             atol = 1e-12,
         ),
     )
@@ -452,4 +454,31 @@ end
         Nomograms._overlaps(occupied[i], occupied[j], st.collisionpad) for
         i in eachindex(occupied) for j = (i+1):lastindex(occupied)
     )
+end
+
+@testitem "label widths follow the font" tags = [:unit] begin
+    w(s) = Nomograms._textwidth(s, 10.0)
+    # Proportional, as Helvetica is: capitals and wide letters take more room than digits,
+    # and narrow letters far less.
+    @test w("WWWW") > 1.5 * w("0000")
+    @test w("iiii") < 0.5 * w("0000")
+    @test w("WAVELENGTH") > w("wavelength")
+    # Digits are 0.556 em; a fraction label is narrower than a flat estimate.
+    @test w("1000") ≈ 4 * 5.562 atol = 0.01
+    @test w("1 3/8") < 0.6 * 10 * 5
+    # Characters outside the table fall back, wide ones to a full em.
+    @test w("ж") ≈ 6.0
+    @test w("漢") ≈ 10.0
+end
+
+@testitem "capital titles do not overlap" tags = [:unit] setup = [Clash] begin
+    # Titles heavy in wide capitals, on close axes: the estimate this replaced put these
+    # boxes too narrow and let them collide.
+    nom = additive_nomogram(
+        Variable(:a; domain = (0, 10), label = "MAXIMUM WAVELENGTH"),
+        Variable(:b; domain = (0, 10), label = "WAVE HEIGHT (M)"),
+        Variable(:c; label = "WINDOW WIDTH (MM)");
+        width = 40,
+    )
+    @test isempty(Clash.clashes(drawing(nom)))
 end

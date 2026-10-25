@@ -68,9 +68,120 @@ function solve_all_on(s::Scale, p::Point, q::Point)
     lo, hi = s.domain
     g = v -> align_residual(s, v, p, q)
     a, b = _search_bounds(g, lo, hi)
-    roots = Roots.find_zeros(g, a, b)
-    isempty(roots) && return roots
-    return unique!(sort!(clamp.(roots, lo, hi)))
+    L = hypot(_sub(q, p)...)
+    found, res, touch = _crossings(s, g, a, b, L)
+    isempty(found) && return Float64[]
+    found = sort!([(clamp(v, lo, hi), t) for (v, t) in found])
+    merged = _merge_close!(found, s, g, L, res, touch)
+    return [t ? _closest_approach(g, v, lo, hi) : v for (v, t) in merged]
+end
+
+# Every value in [a, b] where the line crosses the scale, found with a guarantee rather than
+# by luck. The residual is a cross product with the fixed vector q - p, so moving a page
+# distance d along the curve changes it by at most L*d, L = |q - p|. A stretch whose end
+# values add up to more than L times its length therefore cannot hide a crossing and is
+# dropped; a sign change brackets one; anything else is halved and looked at again. Two
+# crossings far enough apart to be told apart on the page -- more than `res` -- are both
+# found. Sampling at fixed points, as a general root finder must, misses a pair of close
+# crossings whenever no sample lands in the narrow stretch between them.
+function _crossings(s::Scale, g, a::Float64, b::Float64, L::Float64; n0::Int = 64)
+    vs = collect(range(a, b; length = n0 + 1))
+    ps = [point(s, v) for v in vs]
+    gs = [g(v) for v in vs]
+    total = sum(hypot(_sub(ps[k+1], ps[k])...) for k = 1:n0)
+    res = 1e-7 * max(total, floatmin(Float64))
+    touch = 1e-12 * max(total, floatmin(Float64))
+    # Each root with whether it was found as a touch rather than a sign change.
+    roots = Tuple{Float64,Bool}[(v, false) for (v, gv) in zip(vs, gs) if iszero(gv)]
+    stack = [(vs[k], vs[k+1], gs[k], gs[k+1], ps[k], ps[k+1]) for k = 1:n0]
+    while !isempty(stack)
+        va, vb, ga, gb, pa, pb = pop!(stack)
+        if !iszero(ga) && !iszero(gb) && (ga < 0) != (gb < 0)
+            push!(roots, (Roots.find_zero(g, (va, vb)), false))
+            continue
+        end
+        vm = (va + vb) / 2
+        pm = point(s, vm)
+        gm = g(vm)
+        iszero(gm) && push!(roots, (vm, false))
+        arc = hypot(_sub(pm, pa)...) + hypot(_sub(pb, pm)...)
+        # The midpoint estimate of the arc is short of the true length by a little on a
+        # curve; the margin covers it.
+        abs(ga) + abs(gb) > 1.25 * L * arc && continue
+        if arc <= res
+            # Close enough to see but no sign change: the line touches the curve here, or
+            # misses it by less than anyone could draw. Either way it is one reading.
+            m, v = minimum(((abs(ga), va), (abs(gm), vm), (abs(gb), vb)))
+            m <= L * touch && push!(roots, (v, true))
+            continue
+        end
+        push!(stack, (va, vm, ga, gm, pa, pm), (vm, vb, gm, gb, pm, pb))
+    end
+    return roots, res, touch
+end
+
+# One reading per crossing. Two candidates are the same crossing found twice -- from both
+# sides of a sample, or as touches along a stretch where the line runs alongside the curve
+# -- when they are within the search resolution on the page, or the line never parts from
+# the curve between them by more than a touch. Two genuine crossings close together part
+# by far more than that, and both are kept: evaluate_all answers numerically, not only by
+# eye.
+function _merge_close!(
+    roots::Vector{Tuple{Float64,Bool}},
+    s::Scale,
+    g,
+    L::Float64,
+    res::Float64,
+    touch::Float64,
+)
+    kept = Tuple{Float64,Bool}[]
+    for (r, t) in roots
+        if isempty(kept)
+            push!(kept, (r, t))
+            continue
+        end
+        r0, t0 = kept[end]
+        near = hypot(_sub(point(s, r), point(s, r0))...) <= res
+        alongside = all(u -> abs(g(r0 + u * (r - r0))) <= 2L * touch, (0.25, 0.5, 0.75))
+        if near || alongside
+            # The same crossing: a sign change pins it exactly, so keep that over a touch.
+            t0 && !t && (kept[end] = (r, t))
+        else
+            push!(kept, (r, t))
+        end
+    end
+    return kept
+end
+
+# Where the line comes closest to the curve near a touch: the minimum of |residual|, by
+# golden-section search over a bracket grown until both ends are farther away. A touch is
+# first found only to within the stretch the line runs alongside the curve, which is far
+# wider than the precision a double root deserves.
+function _closest_approach(g, v::Float64, lo::Float64, hi::Float64)
+    f(x) = abs(g(x))
+    h = 1e-9 * max(hi - lo, abs(v), 1.0)
+    a, b = max(lo, v - h), min(hi, v + h)
+    for _ = 1:60
+        (f(a) > f(v) || a == lo) && (f(b) > f(v) || b == hi) && break
+        h *= 2
+        a, b = max(lo, v - h), min(hi, v + h)
+    end
+    φ = (sqrt(5) - 1) / 2
+    c, d = b - φ * (b - a), a + φ * (b - a)
+    fc, fd = f(c), f(d)
+    for _ = 1:200
+        b - a <= 4eps(max(abs(a), abs(b), 1.0)) && break
+        if fc < fd
+            b, d, fd = d, c, fc
+            c = b - φ * (b - a)
+            fc = f(c)
+        else
+            a, c, fc = c, d, fd
+            d = a + φ * (b - a)
+            fd = f(d)
+        end
+    end
+    return (a + b) / 2
 end
 
 """

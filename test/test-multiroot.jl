@@ -188,3 +188,28 @@ end
     @test !haskey(iso.values, :x)
     @test !occursin("NaN", svg(net; isopleths = [iso]))
 end
+
+@testitem "close pairs of crossings are both found" tags = [:unit] begin
+    quad = determinant_nomogram(
+        Variable(:p; domain = (-12, 0)) => p -> (0.0, p),
+        Variable(:q; domain = (0, 36)) => q -> (1.0, q),
+        Variable(:z; domain = (0.2, 6)) => z -> (1 / (1 + z), -z^2 / (1 + z));
+        relation = (p, q, z) -> z^2 + p * z + q,
+    )
+    roots(r1, r2) = sort([s.z for s in evaluate_all(quad; p = -(r1 + r2), q = r1 * r2)])
+    # Readings the sampling search answered with one root or with none.
+    for (r1, r2) in (
+        (1.875681, 1.888816),
+        (5.503971, 5.509928),
+        (2.286601, 2.303993),
+        (0.549891, 0.578583),
+        (3.592094, 3.595524),
+    )
+        @test roots(r1, r2) ≈ [r1, r2] atol = 1e-9
+    end
+    # Down to 1e-4 apart, accurately.
+    @test roots(2.0, 2.0001) ≈ [2.0, 2.0001] atol = 1e-9
+    # A double root is one reading, located precisely; a line just missing finds none.
+    @test roots(2.0, 2.0) ≈ [2.0] atol = 1e-6
+    @test_throws ArgumentError evaluate_all(quad; p = -4.0, q = 4.0 + 1e-6)
+end
