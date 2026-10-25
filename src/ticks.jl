@@ -7,8 +7,11 @@ significant figures.
 function default_tickformat(v::Real)
     x = float(v)
     isfinite(x) || return string(x)
-    if x == round(x) && abs(x) < 1e6
-        return string(Integer(round(x)))
+    # Within rounding error of a whole number counts as one: a derived axis end of
+    # 10000.000000002 is 10000, not 1e4.
+    r = round(x)
+    if abs(x - r) <= 1e-9 * max(1.0, abs(x)) && abs(r) < 1e6
+        return string(Integer(r))
     end
     s = @sprintf("%.4g", x)
     s = replace(s, "e+0" => "e", "e-0" => "e-")

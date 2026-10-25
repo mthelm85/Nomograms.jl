@@ -237,3 +237,22 @@ end
     @test "3/10" in labels && "1/2" in labels
     @test !any(l -> occursin(".", l), labels)
 end
+
+@testitem "a near-whole number prints as one" tags = [:unit] begin
+    f = Nomograms.default_tickformat
+    @test f(10000.000000002) == "10000"
+    @test f(9999.999999998) == "10000"
+    @test f(-0.0) == "0"
+    @test f(0.30000000000000004) == "0.3"
+    @test f(2.5) == "2.5"
+    @test f(1e7) == "1e7"
+    # The derived end of Ohm's law's voltage axis, which used to read "1e4".
+    ohm = multiplicative_nomogram(
+        Variable(:I; domain = (0.001, 10)),
+        Variable(:R; domain = (1, 1000)),
+        Variable(:V),
+    )
+    labels =
+        [t.label for sd in drawing(ohm).scales for t in sd.ticks if !isnothing(t.label)]
+    @test !any(l -> occursin("e", l), labels)
+end

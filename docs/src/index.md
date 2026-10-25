@@ -84,6 +84,8 @@ test can find — curved scales, nets, reshaped layouts. See
   twice.
 - [Drawing](50-drawing.md) — SVG and Makie output, styling, and how ticks and labels are
   placed.
+- [Gallery](55-gallery.md) — a chart built by hand from raw curves, and a range of others
+  with the code that draws them.
 - [How it works](60-how-it-works.md) — under the hood: how a chart is represented,
   constructed, solved, laid out and drawn.
 - [API](95-reference.md) — every exported function and type.
