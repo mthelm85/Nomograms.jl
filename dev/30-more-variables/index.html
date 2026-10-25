@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Four or more variables — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=80be67d4">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=ca95cac8">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Four or more variables — Nomograms.jl">
   <meta property="og:title" content="Four or more variables — Nomograms.jl">
@@ -130,7 +130,7 @@ roots = evaluate_all(gq; a = 1, b = -3, c = 2)
 drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="2216e606.svg" alt="Example block output">
+<img src="f6346dad.svg" alt="Example block output">
 </div>
 </div>
 <div class="md-multi-output">
@@ -144,7 +144,7 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0
 </div>
 <p>Which problem <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> solves depends on what is unknown. With both net variables known the net contributes a single point and it is the ordinary three-point alignment. With one unknown, the line is already fixed by the two scales, and the answer is where it crosses the strand for the known net variable — a curve, which the line may cross twice. Here it does, because a quadratic has two roots.</p>
 <p>The mesh is genuinely two-dimensional only when <code class="md-code-inline">(α : β : γ)</code> sweeps a region. When it sweeps just a curve the net collapses onto a line, and the relation wanted a pivot instead — which is a useful check on whether you have reached for the right construction.</p>
-<p>Strands are scales of <code class="md-code-inline">kind = :grid</code>, drawn lighter than the scales a reader takes values from. Each family is labelled at whichever end it fans out, since at the end where strands converge the labels pile up and get nudged next to the wrong curve; set <code class="md-code-inline">titleend</code> on a <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> to choose by hand.</p>
+<p>Strands are scales of <code class="md-code-inline">kind = :grid</code>, read like any other scale and drawn like one. Each strand is labelled with its value at whichever end its family fans out, since at the end where strands converge the labels pile up and get nudged next to the wrong curve; set <code class="md-code-inline">titleend</code> on a <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> to choose by hand. The family&#39;s own name goes off the end of that row of values, as an axis title goes off the end of its axis. For a dense net that should recede, pass a lighter <code class="md-code-inline">gridcolor</code> to <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> or <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>.</p>
       </article>
       <footer class="md-footer">
 <p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
@@ -172,6 +172,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=80be67d4"></script>
+  <script src="../assets/materialdocs.js?v=ca95cac8"></script>
 </body>
 </html>
