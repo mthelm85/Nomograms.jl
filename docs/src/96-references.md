@@ -44,10 +44,12 @@ works this documentation leans on, and where to go for more.
   ``\partial^2 \ln(F_x / F_y) / \partial x \, \partial y = 0`` — is attributed to
   Saint-Robert by V. A. Esaulov,
   ["The Art of Nomography"](https://kartsci.org/kocomu/computer-history/the-art-of-nomography/),
-  and by
-  ["Géométrie anamorphique II"](https://images.math.cnrs.fr/freeze/Geometrie-Anamorphique-II.html)
-  in *Images des mathématiques* (CNRS), which notes it has been rediscovered many times
-  since. We follow those two accounts; the 1871 paper itself was not consulted.
+  and by Lucien Pirio,
+  ["Géométrie anamorphique II"](https://web.archive.org/web/20230203100329/http://images.math.cnrs.fr/Geometrie-Anamorphique-II.html)
+  in *Images des mathématiques* (CNRS), 16 April 2011, which notes it has been
+  rediscovered many times since (linked as archived in 2023; the original address no
+  longer responds reliably). We follow those two accounts; the 1871 paper itself was not
+  consulted.
 
   The more general problem — which equations can be brought into a chartable form at all —
   was taken up by J. Massau, "Mémoire sur l'intégration graphique et ses applications",

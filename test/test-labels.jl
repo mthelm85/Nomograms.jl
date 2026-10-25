@@ -17,7 +17,9 @@ end
     @test w ≈ 2 * 5.562 atol = 0.01
     @test all(lb((0.0, 0.0), "ab", 10, (:left, :bottom), 0.0) .≈ (0.0, 0.0, w, 10.0))
     @test all(lb((0.0, 0.0), "ab", 10, (:right, :top), 0.0) .≈ (-w, -10.0, 0.0, 0.0))
-    @test all(lb((0.0, 0.0), "ab", 10, (:center, :center), 0.0) .≈ (-w / 2, -5.0, w / 2, 5.0))
+    @test all(
+        lb((0.0, 0.0), "ab", 10, (:center, :center), 0.0) .≈ (-w / 2, -5.0, w / 2, 5.0),
+    )
     # Quarter turn: the box turns with the text. atol, because cos(pi/2) is 6e-17 rather
     # than 0 and isapprox against an exact zero has no tolerance by default.
     @test all(
