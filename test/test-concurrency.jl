@@ -49,7 +49,8 @@
     )
 end
 
-@testitem "a reading agrees with every field's formula" tags = [:unit] setup = [ConcFix] begin
+@testitem "every value read agrees with its field's formula" tags = [:unit] setup =
+    [ConcFix] begin
     psy = ConcFix.psychrometric()
     # From the two axes, from an axis and a field, and from two fields.
     for given in ((T = 30, W = 12), (T = 30, RH = 0.5), (RH = 0.5, h = 60), (W = 8, h = 40))
@@ -69,19 +70,19 @@ end
     @test s.f ≈ 0.0185 atol = 1e-4
 end
 
-@testitem "every crossing is a reading" tags = [:unit] begin
+@testitem "every crossing is found" tags = [:unit] begin
     c = concurrency_chart((x, y) -> (x - 0.5)^2 + y, :x => (0, 1), :y => (0, 1), :z)
     sols = evaluate_all(c; y = 0.1, z = 0.2)
     @test length(sols) == 2
     @test [s.x for s in sols] ≈ [0.5 - sqrt(0.1), 0.5 + sqrt(0.1)]
     @test_throws ArgumentError evaluate(c; y = 0.1, z = 0.2)
-    # A reading can be drawn from either solution.
-    r = reading(c, sols[2]; label = "right")
+    # A crossing can be drawn from either solution.
+    r = crossing(c, sols[2]; label = "right")
     @test r[:x] ≈ 0.5 + sqrt(0.1)
     @test r.point[1] ≈ c.width * (0.5 + sqrt(0.1))
 end
 
-@testitem "readings that cannot be made are refused" tags = [:unit, :validation] setup =
+@testitem "values that fix no point are refused" tags = [:unit, :validation] setup =
     [ConcFix] begin
     psy = ConcFix.psychrometric()
     msg(f) =
@@ -107,7 +108,7 @@ end
         a = 0.5,
         b = 0.5,
     )
-    @test occursin("readings", msg(() -> drawing(psy; isopleths = [iso])))
+    @test occursin("crossings", msg(() -> drawing(psy; isopleths = [iso])))
 end
 
 @testitem "a separable formula is drawn in straight lines" tags = [:unit] begin
@@ -161,8 +162,8 @@ end
     for c in (ConcFix.psychrometric(), ConcFix.moody())
         d = drawing(
             c;
-            readings = [
-                reading(
+            crossings = [
+                crossing(
                     c,
                     first(
                         evaluate_all(
@@ -215,7 +216,7 @@ end
     end
 end
 
-@testitem "units come back on readings" tags = [:unit] begin
+@testitem "units come back on crossings" tags = [:unit] begin
     using Unitful
     bmi = concurrency_chart(
         (m, h) -> m / h^2,
@@ -233,10 +234,10 @@ end
     [ConcFix] begin
     using CairoMakie
     psy = ConcFix.psychrometric()
-    r = reading(psy; T = 30, RH = 0.5, label = "30 °C, 50%")
-    @test startswith(svg(psy; readings = [r]), "<?xml")
-    @test nomogramplot(psy; readings = [r]) isa Figure
-    @test nomogramplot(drawing(psy; readings = [r])) isa Figure
+    r = crossing(psy; T = 30, RH = 0.5, label = "30 °C, 50%")
+    @test startswith(svg(psy; crossings = [r]), "<?xml")
+    @test nomogramplot(psy; crossings = [r]) isa Figure
+    @test nomogramplot(drawing(psy; crossings = [r])) isa Figure
 end
 
 @testitem "a Smith chart reads impedance, angle and wavelength" tags = [:unit] setup =
@@ -260,7 +261,7 @@ end
 @testitem "a chart on its own plane keeps its proportions" tags = [:unit] setup = [ConcFix] begin
     smith = ConcFix.smith()
     @test smith.height ≈ smith.width
-    d = drawing(smith; readings = [reading(smith; r = 1, x = 1, label = "1 + 1j")])
+    d = drawing(smith; crossings = [crossing(smith; r = 1, x = 1, label = "1 + 1j")])
     names = Set(sd.name for sd in d.scales)
     @test !(:frame_top in names) && !(:u in names) && !(:v in names)
     @test :angle in names && :wtg in names
@@ -268,7 +269,7 @@ end
     for n in (:angle, :wtg), t in only(sd for sd in d.scales if sd.name === n).ticks
         @test Nomograms._dot(t.normal, Nomograms._sub(t.position, smith.centre)) > 0
     end
-    # A reading is read out from the centre, across the rings.
+    # A crossing is read out from the centre, across the rings.
     @test d.isopleths[1].segment[1] == smith.centre
     @test length(d.isopleths) == 1
 end

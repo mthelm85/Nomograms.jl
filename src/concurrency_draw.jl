@@ -345,22 +345,22 @@ function _label_spots(piece::Vector{Point}, W::Float64, H::Float64, gap::Float64
 end
 
 """
-    drawing(chart::ConcurrencyChart; style = NomogramStyle(), readings = Reading[])
+    drawing(chart::ConcurrencyChart; style = NomogramStyle(), crossings = Crossing[])
 
 Lay out a [`ConcurrencyChart`](@ref): its axes and frame, each field's curves and their
-labels, and any [`Reading`](@ref)s, each marked with lines dropped to the two axes. Returns
+labels, and any [`Crossing`](@ref)s, each marked with lines dropped to the two axes. Returns
 a [`NomogramDrawing`](@ref), which both renderers draw.
 """
 function drawing(
     c::ConcurrencyChart;
     style::NomogramStyle = NomogramStyle(),
-    readings::AbstractVector{Reading} = Reading[],
+    crossings::AbstractVector{Crossing} = Crossing[],
     isopleths::AbstractVector{Isopleth} = Isopleth[],
 )
     isempty(isopleths) || throw(
         ArgumentError(
-            "a concurrency chart is read at a point, not along a line: mark readings " *
-            "with `reading` and pass them as `readings = [...]`",
+            "a concurrency chart is read at a point, not along a line: mark points " *
+            "with `crossing` and pass them as `crossings = [...]`",
         ),
     )
     W, H = c.width, c.height
@@ -593,11 +593,11 @@ function drawing(
         push!(texts, TextDrawing(text, pos, align))
     end
 
-    # Readings: the point, with lines dropped to both axes -- or on a plane of its own, a
+    # Crossings: the point, with lines dropped to both axes -- or on a plane of its own, a
     # line out from the centre across the rings, which is how those are read.
     isodrawings = IsoplethDrawing[]
     reach = maximum((_dist(q, c.centre) for path in ringpaths for q in path); init = 0.0)
-    for (k, r) in enumerate(readings)
+    for (k, r) in enumerate(crossings)
         p = r.point
         # The label goes beside the point, in the first of the four quarters around it, at
         # increasing distances, that is clear of other labels and of the curves.
@@ -693,9 +693,9 @@ end
 function svg(
     c::ConcurrencyChart;
     style::NomogramStyle = NomogramStyle(),
-    readings::AbstractVector{Reading} = Reading[],
+    crossings::AbstractVector{Crossing} = Crossing[],
     isopleths::AbstractVector{Isopleth} = Isopleth[],
     kwargs...,
 )
-    return svg(drawing(c; style, readings, isopleths); kwargs...)
+    return svg(drawing(c; style, crossings, isopleths); kwargs...)
 end

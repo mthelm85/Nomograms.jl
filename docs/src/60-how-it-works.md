@@ -276,7 +276,7 @@ at least `min_curve_spacing`, and it is split into pieces where it is not.
 across the chart, which is sampled at 400 points for sign changes, each refined by
 bisection. Two fields are solved by Newton's method in the plane, started in every cell of
 a 60-cell grid in which both residuals change sign. Duplicates are merged, and every point
-found is a reading.
+found is a crossing.
 
 **Labels.** Major curves are labelled. Each label tries the ends of its curve's pieces in
 order: past the right or top edge, then continuing the curve from an end inside the frame,

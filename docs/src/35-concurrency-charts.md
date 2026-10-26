@@ -45,7 +45,7 @@ moody = concurrency_chart(
     region = (Re, f) -> roughness(Re, f) >= 0,
     title = "Moody diagram",
 )
-drawing(moody; readings = [reading(moody; Re = 1e5, roughness = 1e-4, label = "f = 0.0185")])
+drawing(moody; crossings = [crossing(moody; Re = 1e5, roughness = 1e-4, label = "f = 0.0185")])
 ```
 
 The axes take `LogScale` transforms, so they are logarithmic, as on the printed chart. The
@@ -64,10 +64,16 @@ evaluate(moody; Re = 1e5, roughness = 1e-4)
 The two values can be two axes, an axis and a field, or two fields. If their curves cross
 more than once, `evaluate` refuses and [`evaluate_all`](@ref) returns every crossing.
 
-To mark a reading on the chart, build it with [`reading`](@ref) and pass it to
-[`drawing`](@ref) as `readings`. The point is drawn with lines dropped to both axes.
-`isopleth` doesn't apply here: an isopleth is a line through an alignment chart, and this
-chart is read at a point.
+To mark a point on the chart, build it with [`crossing`](@ref) and pass it to
+[`drawing`](@ref) as `crossings`. The point is drawn with lines dropped to both axes.
+`isopleth` doesn't apply here: in this package an isopleth is the line laid across an
+alignment chart, and this chart is read at a point.
+
+The word has a longer history with these charts. Vogler called their curves of constant
+value *courbes isoplèthes*, curves of equal quantity, and Lalanne adopted the name.
+d'Ocagne preferred *courbes cotées*, labelled curves, and describes the point where two of
+them meet simply as their *point de rencontre*, their meeting point (*Traité de
+nomographie*, 1899, chapter II).
 
 ## Several families
 
@@ -90,7 +96,7 @@ psy = concurrency_chart(
     region = (T, W) -> vapour(W) <= saturation(T) * (1 + 1e-9),
     title = "Psychrometric chart",
 )
-drawing(psy; readings = [reading(psy; T = 30, RH = 0.5, label = "30 °C, 50%")])
+drawing(psy; crossings = [crossing(psy; T = 30, RH = 0.5, label = "30 °C, 50%")])
 ```
 
 Any two properties fix the state of the air. Given relative humidity and enthalpy, two
@@ -186,7 +192,7 @@ smith = concurrency_chart(
     labelat = (r = :x => 0, x = :r => 0),
     title = "Smith chart",
 )
-drawing(smith; readings = [reading(smith; r = 1, x = 1, label = "1 + j")])
+drawing(smith; crossings = [crossing(smith; r = 1, x = 1, label = "1 + j")])
 ```
 
 The marked load is ``z = 1 + j``. Reading it gives the reflection coefficient, its angle,

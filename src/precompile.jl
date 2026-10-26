@@ -76,7 +76,7 @@ PrecompileTools.@setup_workload begin
             height = 30,
         )
         evaluate(conc; z = 3, w = 2)
-        svg(conc; readings = [reading(conc; x = 2, z = 3, label = "r")])
+        svg(conc; crossings = [crossing(conc; x = 2, z = 3, label = "r")])
         svg(concurrency_chart((x, y) -> x * y, :x => (1, 10), :y => (1, 10)))
         disc = concurrency_chart(
             :u => (-1, 1),
@@ -90,7 +90,7 @@ PrecompileTools.@setup_workload begin
             width = 30,
         )
         evaluate(disc; r = 0.5, a = 30)
-        svg(disc; readings = [reading(disc, first(evaluate_all(disc; r = 0.5, s = 0.5)))])
+        svg(disc; crossings = [crossing(disc, first(evaluate_all(disc; r = 0.5, s = 0.5)))])
 
         svg(
             project(

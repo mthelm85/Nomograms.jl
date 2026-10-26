@@ -27,8 +27,8 @@ their curves cross, and every other value is read there. Variables on rings arou
 chart are read along a line from its centre through the point.
 
 Build one with [`concurrency_chart`](@ref). Solve it with [`evaluate`](@ref) and
-[`evaluate_all`](@ref), given any two of its variables, and mark a reading on it with
-[`reading`](@ref).
+[`evaluate_all`](@ref), given any two of its variables, and mark a point on it with
+[`crossing`](@ref).
 """
 struct ConcurrencyChart <: AbstractNomogram
     x::Scale
@@ -50,19 +50,19 @@ struct ConcurrencyChart <: AbstractNomogram
 end
 
 """
-    Reading
+    Crossing
 
-One point read off a [`ConcurrencyChart`](@ref): every variable's value there, and where
-it is on the page. Build one with [`reading`](@ref) and draw it with
-`drawing(chart; readings = [...])`.
+A point on a [`ConcurrencyChart`](@ref) where curves cross: every variable's value
+there, and where it is on the page. Build one with [`crossing`](@ref) and draw it with
+`drawing(chart; crossings = [...])`.
 """
-struct Reading
+struct Crossing
     values::Dict{Symbol,Float64}
     point::Point
     label::String
 end
 
-Base.getindex(r::Reading, n::Symbol) = r.values[n]
+Base.getindex(r::Crossing, n::Symbol) = r.values[n]
 
 const _AxisArg = Union{Variable,Pair{Symbol,<:Tuple}}
 
@@ -260,7 +260,7 @@ smith = concurrency_chart(
   proportions.
 - `title`.
 - `region`: `(x, y) -> Bool`, the part of the rectangle the chart covers. Fields have no
-  value outside it, so curves stop at its edge and readings there are refused: the
+  value outside it, so curves stop at its edge and nothing there can be read: the
   saturation line of a psychrometric chart, say. Its edge is drawn.
 - `grid = true`: whether to draw lines across the chart at the axes' tick values.
 - `axes = true`: whether `x` and `y` are drawn as axes, or are only the plane's coordinates.
@@ -595,7 +595,7 @@ function _evaluate(c::ConcurrencyChart; values...)
     length(sols) == 1 || throw(
         ArgumentError(
             "the two curves cross at $(length(sols)) points on this chart; use " *
-            "`evaluate_all` to get every reading",
+            "`evaluate_all` to get every crossing",
         ),
     )
     return only(sols)
@@ -605,23 +605,23 @@ evaluate_all(c::ConcurrencyChart; values...) =
     [_with_units(c, sol) for sol in _evaluate_all(c; values...)]
 
 """
-    reading(chart::ConcurrencyChart; label = "", values...) -> Reading
-    reading(chart::ConcurrencyChart, solution::NamedTuple; label = "") -> Reading
+    crossing(chart::ConcurrencyChart; label = "", values...) -> Crossing
+    crossing(chart::ConcurrencyChart, solution::NamedTuple; label = "") -> Crossing
 
-One point on a [`ConcurrencyChart`](@ref), for drawing: `drawing(chart; readings = [r])`
+One point on a [`ConcurrencyChart`](@ref), for drawing: `drawing(chart; crossings = [r])`
 marks it, with lines dropped to both axes. The first form finds the point from two values,
 as [`evaluate`](@ref) does; the second takes a solution you already have, such as one of
 several from [`evaluate_all`](@ref).
 """
-reading(c::ConcurrencyChart; label::AbstractString = "", values...) =
-    _reading(c, _evaluate(c; values...), label)
+crossing(c::ConcurrencyChart; label::AbstractString = "", values...) =
+    _crossing(c, _evaluate(c; values...), label)
 
-reading(c::ConcurrencyChart, sol::NamedTuple; label::AbstractString = "") =
-    _reading(c, _numbers(c, sol), label)
+crossing(c::ConcurrencyChart, sol::NamedTuple; label::AbstractString = "") =
+    _crossing(c, _numbers(c, sol), label)
 
-function _reading(c::ConcurrencyChart, sol::NamedTuple, label::AbstractString)
+function _crossing(c::ConcurrencyChart, sol::NamedTuple, label::AbstractString)
     xpage, _ = _axis_page(c.x, c.width)
     ypage, _ = _axis_page(c.y, c.height)
     P = (xpage(sol[name(c.x)]), ypage(sol[name(c.y)]))
-    return Reading(Dict{Symbol,Float64}(pairs(sol)), P, String(label))
+    return Crossing(Dict{Symbol,Float64}(pairs(sol)), P, String(label))
 end

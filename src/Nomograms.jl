@@ -86,8 +86,8 @@ export
     separability_defect,
     ConcurrencyChart,
     concurrency_chart,
-    Reading,
-    reading,
+    Crossing,
+    crossing,
     # solving
     evaluate,
     evaluate_all,
