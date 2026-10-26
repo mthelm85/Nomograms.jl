@@ -359,3 +359,32 @@ end
     # A family labelled inside the chart is named on a halo too.
     @test any(t -> t.text == "lat" && t.halo, d.texts)
 end
+
+@testitem "a field that jumps is neither drawn nor read along its jump" tags = [:unit] begin
+    # atand(v, u) jumps from 180 to -180 across the negative u axis. Every value in between
+    # seems to be crossed there, and none is.
+    polar = contour_chart(
+        :u => (-1.0, 1.0),
+        :v => (-1.0, 1.0),
+        Variable(:r; domain = (0.0, 1.0), ticks = 0.2:0.2:0.8) => (u, v) -> hypot(u, v),
+        Variable(:az; domain = (-180, 180), ticks = -150:30:150) =>
+            (u, v) -> atand(v, u);
+        axes = false,
+        region = (u, v) -> u^2 + v^2 <= 1.0,
+    )
+    d = drawing(polar)
+    cy = polar.height / 2
+    az = [sd for sd in d.scales if startswith(string(sd.name), "az_")]
+    oncut(sd) = all(p -> abs(p[2] - cy) < 0.6 && p[1] < polar.width / 2, sd.path)
+    @test !any(oncut, az)
+    # Every spoke is still drawn, and every point drawn is on its value.
+    f = Nomograms._field(polar, :az)
+    for sd in az
+        value = parse(Float64, replace(split(string(sd.name), '_')[2], 'm' => '-'))
+        @test all(p -> abs(Nomograms._field_at(polar, f, p) - value) < 0.36, sd.path)
+    end
+    @test length(unique(split(string(sd.name), '_')[2] for sd in az)) == 11
+    # A line across the jump changes sign without crossing the value.
+    @test_throws ArgumentError evaluate(polar; v = 0.0, az = 90)
+    @test evaluate(polar; v = 0.3, az = 150).u ≈ 0.3 / tand(150) atol = 1e-9
+end

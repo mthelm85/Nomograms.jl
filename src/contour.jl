@@ -455,7 +455,8 @@ function _reading_points(c::ContourChart, given::Dict{Symbol,Float64})
         R, C = point(_ring(c, ra), rv), c.centre
         ray(t) = (C[1] + t * (R[1] - C[1]), C[2] + t * (R[2] - C[2]))
         gap(t) = _value_at(c, o, ray(t)) - ov
-        return [P for P in (ray(t) for t in _line_roots(gap, 0.0, 1.0)) if _inside(c, P)]
+        roots = _line_roots(gap, 0.0, 1.0; tol = _root_tol(c, o, ov))
+        return [P for P in (ray(t) for t in roots) if _inside(c, P)]
     elseif a === xn && b === yn
         P = (xpage(va), ypage(vb))
         return _inside(c, P) ? [P] : Point[]
@@ -465,7 +466,10 @@ function _reading_points(c::ContourChart, given::Dict{Symbol,Float64})
         along = a === xn ? (t -> (xpage(va), t)) : (t -> (t, ypage(va)))
         f = _field(c, b)
         g(t) = _field_at(c, f, along(t)) - vb
-        return [along(t) for t in _line_roots(g, 0.0, a === xn ? H : W)]
+        return [
+            along(t) for
+            t in _line_roots(g, 0.0, a === xn ? H : W; tol = _root_tol(c, b, vb))
+        ]
     end
     # Two fields: where their curves cross, refined from every cell of a coarse grid over
     # which both change sign.
@@ -514,8 +518,15 @@ function _newton2(r, P::Point, W::Float64, H::Float64)
     return (clamp(P[1], 0.0, W), clamp(P[2], 0.0, H))
 end
 
-# Roots of g on [lo, hi], from sign changes between samples, each refined by bisection.
-function _line_roots(g, lo::Float64, hi::Float64; n::Int = 400)
+# How close to a value a root must bring a variable to count. A sign change can also be
+# a jump in the field rather than a crossing, and bisection then homes in on the jump; the
+# field there is nowhere near the value, so this rejects it.
+_root_tol(c::ContourChart, n::Symbol, value) =
+    1e-6 * max(abs(value), _variable(c, n).domain[2] - _variable(c, n).domain[1])
+
+# Roots of g on [lo, hi], from sign changes between samples, each refined by bisection and
+# kept only if g is within `tol` of zero there.
+function _line_roots(g, lo::Float64, hi::Float64; n::Int = 400, tol::Real = Inf)
     ts = range(lo, hi; length = n + 1)
     gs = g.(ts)
     roots = Float64[]
@@ -525,7 +536,8 @@ function _line_roots(g, lo::Float64, hi::Float64; n::Int = 400)
         if a == 0
             push!(roots, ts[k])
         elseif b != 0 && sign(a) != sign(b)
-            push!(roots, Roots.find_zero(g, (ts[k], ts[k+1]), Roots.Bisection()))
+            t = Roots.find_zero(g, (ts[k], ts[k+1]), Roots.Bisection())
+            abs(g(t)) <= tol && push!(roots, t)
         end
     end
     isfinite(gs[end]) && gs[end] == 0 && push!(roots, hi)

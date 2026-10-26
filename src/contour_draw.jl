@@ -252,6 +252,11 @@ function _trace_field(c::ContourChart, f::_Field, style::NomogramStyle)
     V = _samples(c, f, Xs, Ys)
     φ = P -> _field_at(c, f, P)
     W, H = c.width, c.height
+    # Marching squares sees a level wherever the samples around a cell straddle it, which
+    # is also true where the field jumps -- atand(v, u) going from 180 to -180 across its
+    # cut -- with no curve there at all. A point is kept only where the field really takes
+    # the curve's value, so a jump leaves a gap rather than a curve of every value.
+    tol = 1e-3 * (f.variable.domain[2] - f.variable.domain[1])
     out = Tuple{Float64,Int,Vector{Vector{Point}}}[]
     for (value, level, gap) in _curve_values(f.variable)
         pieces = Vector{Point}[]
@@ -260,7 +265,7 @@ function _trace_field(c::ContourChart, f::_Field, style::NomogramStyle)
             for P in line
                 P = _project(φ, value, P, W, H)
                 room = isfinite(gap) ? gap / hypot(_gradient(φ, P)...) : Inf
-                if room >= style.min_curve_spacing
+                if room >= style.min_curve_spacing && abs(φ(P) - value) <= tol
                     push!(current, P)
                 else
                     length(current) >= 2 && push!(pieces, current)

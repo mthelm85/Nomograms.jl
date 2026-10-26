@@ -219,6 +219,15 @@ A ring is `variable => value -> (x, y)`: any curve in the plane's coordinates, n
 circle. Its ticks and labels go on the side away from the centre, and its title above or
 below it. `centre` sets the point rings are read from, if it isn't the middle of the plane.
 
+## Fields that jump
+
+A field may jump. An angle from `atand(v, u)` jumps from 180° to −180° across the negative
+`u` axis. Every value in between seems to be crossed there, but none is, so nothing is
+drawn or read along a jump: each point of a curve, and each reading, is checked against the
+field itself. A value reached only at the jump, here ±180°, has no curve. To draw that
+spoke, move the jump elsewhere, for instance with `mod(atand(v, u), 360)` and
+`domain = (0, 360)`, which puts it along the positive `u` axis instead.
+
 ## Current limits
 
 - Every family is drawn in the axis colour. Pass `gridcolor` to [`svg`](@ref) or
