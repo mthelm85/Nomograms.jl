@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gallery — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=eb290b01">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=51eb73ff">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Gallery — Nomograms.jl">
   <meta property="og:title" content="Gallery — Nomograms.jl">
@@ -49,7 +49,7 @@
       <a href="../10-from-a-formula/">From a formula</a>
       <a href="../20-constructions/">Building charts</a>
       <a href="../30-more-variables/">Four or more variables</a>
-      <a href="../35-concurrency-charts/">Concurrency charts</a>
+      <a href="../35-contour-charts/">Contour charts</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/" class="md-nav-active">Gallery</a>
@@ -107,7 +107,7 @@ scales = [
 )</code></pre>
 </div>
 </div>
-<p><strong>4. Check it.</strong> The package derived none of this, so check that the geometry encodes the relation. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and measures each answer against <code class="md-code-inline">relation</code>:</p>
+<p><strong>4. Check it.</strong> The package derived none of this, so check that the geometry encodes the relation. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and measures each answer against <code class="md-code-inline">relation</code>:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -202,13 +202,13 @@ drawing(roots; isopleths = [isopleth(roots; p = -3, q = 2, label = &quot;roots 1
 <img src="303b547b.svg" alt="Example block output">
 </div>
 </div>
-<h2 id="A-net" class="md-heading">A net<a href="#A-net" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>When two variables have to share one point, that point lies on a <a href="../95-reference/#Nomograms.Net"><code class="md-code-inline">Net</code></a>: two families of curves, each named past the end of its row of values.</p>
+<h2 id="A-grid" class="md-heading">A grid<a href="#A-grid" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>When two variables have to share one point, that point lies on a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a>: two families of curves, each named past the end of its row of values.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
-<pre><code class="language-julia">timber = net_nomogram(
-    Net(
+<pre><code class="language-julia">timber = grid_nomogram(
+    Grid(
         Variable(:x; domain = (0.5, 5.0), label = &quot;thickness ratio (x)&quot;),
         Variable(:c; domain = (0.0, 4.0), label = &quot;deflection limit (c)&quot;),
         (x, c) -&gt; (1 / (1 + x), -c / (x * (1 + x))),
@@ -225,7 +225,7 @@ drawing(timber; isopleths = [isopleth(timber; a = 1, b = -3, c = 2)])</code></pr
 </div>
 </div>
 <h2 id="A-chain" class="md-heading">A chain<a href="#A-chain" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Three inputs need two alignment lines with an unmarked turning line between them. <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> finds the chain from the formula. This example uses units, so the pressure comes out in kPa whatever units the inputs are given in:</p>
+<p>Three inputs need two alignment lines with an unmarked pivot line between them. <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> finds the chain from the formula. This example uses units, so the pressure comes out in kPa whatever units the inputs are given in:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -294,8 +294,8 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = &
 <img src="840cf50b.svg" alt="Example block output">
 </div>
 </div>
-<h2 id="A-Wulff-net" class="md-heading">A Wulff net<a href="#A-Wulff-net" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Crystallographers and structural geologists plot directions in space on a Wulff net: the stereographic projection of a sphere&#39;s latitude and longitude lines, with the poles at the top and bottom. It is a <a href="../35-concurrency-charts/">concurrency chart</a> on a plane of its own, like the Smith chart, built from the same three keywords: <code class="md-code-inline">axes = false</code> for the plane, <code class="md-code-inline">rings</code> for the azimuth scale around the edge, and <code class="md-code-inline">labelat</code> to label latitude down the central meridian and longitude along the equator.</p>
+<h2 id="A-Wulff-grid" class="md-heading">A Wulff grid<a href="#A-Wulff-grid" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Crystallographers and structural geologists plot directions in space on a Wulff grid: the stereographic projection of a sphere&#39;s latitude and longitude lines, with the poles at the top and bottom. It is a <a href="../35-contour-charts/">contour chart</a> on a plane of its own, like the Smith chart, built from the same three keywords: <code class="md-code-inline">axes = false</code> for the plane, <code class="md-code-inline">rings</code> for the azimuth scale around the edge, and <code class="md-code-inline">labelat</code> to label latitude down the central meridian and longitude along the equator.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -307,7 +307,7 @@ end
 latitude(u, v) = asind(clamp(sphere(u, v)[2], -1, 1))
 longitude(u, v) = (s = sphere(u, v); atand(s[1], s[3]))
 
-wulff = concurrency_chart(
+wulff = contour_chart(
     :u =&gt; (-1, 1),
     :v =&gt; (-1, 1),
     Variable(:lat; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88,
@@ -321,15 +321,15 @@ wulff = concurrency_chart(
             label = &quot;azimuth (°)&quot;) =&gt; a -&gt; (1.06sind(a), 1.06cosd(a)),
     ],
     labelat = (lat = :lon =&gt; 0, lon = :lat =&gt; 0),
-    title = &quot;Wulff net&quot;,
+    title = &quot;Wulff grid&quot;,
 )
 drawing(wulff; crossings = [crossing(wulff; lat = 30, lon = 40, label = &quot;30°, 40°&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
-<img src="93326856.svg" alt="Example block output">
+<img src="b6b267c6.svg" alt="Example block output">
 </div>
 </div>
-<p>The grid is every 2°, but the 2° meridians stop short of the poles, where they converge, and only every tenth one carries on. Printed nets are drawn the same way. Here it comes from the spacing rule that thins every concurrency chart&#39;s curves, with nothing specific to this chart.</p>
+<p>The grid is every 2°, but the 2° meridians stop short of the poles, where they converge, and only every tenth one carries on. Printed grids are drawn the same way. Here it comes from the spacing rule that thins every contour chart&#39;s curves, with nothing specific to this chart.</p>
 <h2 id="Colours" class="md-heading">Colours<a href="#Colours" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p><a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> accepts colours for the background, axes, text and reading lines, so a chart can match the colour scheme of the page it appears on:</p>
 <div class="md-multi-output">
@@ -360,12 +360,12 @@ drawing(wulff; crossings = [crossing(wulff; lat = 30, lon = 40, label = &quot;30
           <a class="md-toc-link md-toc-h2" href="#Logarithmic-scales">Logarithmic scales</a>
           <a class="md-toc-link md-toc-h2" href="#An-N-chart">An N-chart</a>
           <a class="md-toc-link md-toc-h2" href="#A-curved-scale">A curved scale</a>
-          <a class="md-toc-link md-toc-h2" href="#A-net">A net</a>
+          <a class="md-toc-link md-toc-h2" href="#A-grid">A grid</a>
           <a class="md-toc-link md-toc-h2" href="#A-chain">A chain</a>
           <a class="md-toc-link md-toc-h2" href="#Converging-scales">Converging scales</a>
           <a class="md-toc-link md-toc-h2" href="#A-fan">A fan</a>
           <a class="md-toc-link md-toc-h2" href="#A-ruler">A ruler</a>
-          <a class="md-toc-link md-toc-h2" href="#A-Wulff-net">A Wulff net</a>
+          <a class="md-toc-link md-toc-h2" href="#A-Wulff-grid">A Wulff grid</a>
           <a class="md-toc-link md-toc-h2" href="#Colours">Colours</a>
       </div>
     </aside>
@@ -384,6 +384,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=eb290b01"></script>
+  <script src="../assets/materialdocs.js?v=51eb73ff"></script>
 </body>
 </html>

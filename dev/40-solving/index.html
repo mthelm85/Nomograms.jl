@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Solving — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=a95475be">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=4040edad">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Solving — Nomograms.jl">
   <meta property="og:title" content="Solving — Nomograms.jl">
@@ -49,7 +49,7 @@
       <a href="../10-from-a-formula/">From a formula</a>
       <a href="../20-constructions/">Building charts</a>
       <a href="../30-more-variables/">Four or more variables</a>
-      <a href="../35-concurrency-charts/">Concurrency charts</a>
+      <a href="../35-contour-charts/">Contour charts</a>
       <a href="../40-solving/" class="md-nav-active">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/">Gallery</a>
@@ -96,7 +96,7 @@ evaluate(nom; R1 = 4, R2 = 6)</code></pre>
 </div>
 <h2 id="More-than-one-crossing" class="md-heading">More than one crossing<a href="#More-than-one-crossing" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>A straight line can meet a <em>curved</em> scale more than once, and each crossing is a valid solution of the relation. The usual shortcut is to check the sign of the residual at the two ends of the domain and bisect. That fails in two ways. With an even number of crossings, both ends lie on the same side of the line, so it reports no solution. With an odd number greater than one, it returns one of them arbitrarily and does not tell you there are others.</p>
-<p>Instead, <a href="../95-reference/#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">solve_all_on</code></a> searches the whole domain. <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> still returns a single answer. When there are several, it throws an error that lists them instead of picking one. <a href="../95-reference/#Nomograms.evaluate_all-Tuple{NetNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every solution:</p>
+<p>Instead, <a href="../95-reference/#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">solve_all_on</code></a> searches the whole domain. <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> still returns a single answer. When there are several, it throws an error that lists them instead of picking one. <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every solution:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -125,7 +125,7 @@ end</code></pre>
 </div>
 <p>On a straight scale the residual is an affine function of position, and so monotone, which means there is at most one root. Charts made only of straight scales never meet this case. Searching the whole domain costs around 120 µs per <code class="md-code-inline">evaluate</code> call, against a few microseconds for bracketing, which makes no practical difference when reading charts.</p>
 <h2 id="Checking-a-chart" class="md-heading">Checking a chart<a href="#Checking-a-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p><a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and compares every answer with the chart&#39;s <code class="md-code-inline">relation</code>. For a chart built by <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a>, the relation is the function you passed in. For other charts, it is the separable form the chart was built from, or whatever you passed as <code class="md-code-inline">relation</code>.</p>
+<p><a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and compares every answer with the chart&#39;s <code class="md-code-inline">relation</code>. For a chart built by <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a>, the relation is the function you passed in. For other charts, it is the separable form the chart was built from, or whatever you passed as <code class="md-code-inline">relation</code>.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -198,6 +198,6 @@ end</code></pre>
   <script>hljs.highlightAll();</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=a95475be"></script>
+  <script src="../assets/materialdocs.js?v=4040edad"></script>
 </body>
 </html>

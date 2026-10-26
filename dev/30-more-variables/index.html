@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Four or more variables — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=3750e337">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=292ed9c3">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Four or more variables — Nomograms.jl">
   <meta property="og:title" content="Four or more variables — Nomograms.jl">
@@ -49,7 +49,7 @@
       <a href="../10-from-a-formula/">From a formula</a>
       <a href="../20-constructions/">Building charts</a>
       <a href="../30-more-variables/" class="md-nav-active">Four or more variables</a>
-      <a href="../35-concurrency-charts/">Concurrency charts</a>
+      <a href="../35-contour-charts/">Contour charts</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/">Gallery</a>
@@ -62,7 +62,7 @@
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/30-more-variables.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Four-or-more-variables" class="md-heading">Four or more variables<a href="#Four-or-more-variables" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
 <p>One alignment line can relate only three scales. For more variables there are two approaches: chain charts together through a shared scale, or let one point carry two variables at once. <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> builds chains automatically for formulas that allow them. This page shows how to build either kind by hand.</p>
-<h2 id="Chains-and-turning-lines" class="md-heading">Chains and turning lines<a href="#Chains-and-turning-lines" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<h2 id="Chains-and-pivot-lines" class="md-heading">Chains and pivot lines<a href="#Chains-and-pivot-lines" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>With four variables you need two stages that share an intermediate scale. <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a> positions the stages so that their copies of the shared scale coincide.</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -88,7 +88,7 @@ drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = &quot;3 × 4
 <img src="db726d86.svg" alt="Example block output">
 </div>
 </div>
-<p>To read the chart, lay a line across the first stage and note where it crosses the shared scale. Then pivot about that point and read the second stage. This is why the shared scale is called the turning line. An empty tick list draws it bare, as here. If you leave the ticks on, it shows the intermediate value, which is useful when that value means something on its own.</p>
+<p>To read the chart, lay a line across the first stage and note where it crosses the shared scale. Then pivot about that point and read the second stage. This is why the shared scale is called the pivot line. An empty tick list draws it bare, as here. If you leave the ticks on, it shows the intermediate value, which is useful when that value means something on its own.</p>
 <p>The solver does not work in a fixed direction. It reads any stage with exactly one unknown, adds the answer to the known values, and repeats. So you can give any combination of inputs that closes the chain:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -105,20 +105,20 @@ drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = &quot;3 × 4
 <p>Both stages above are multiplicative, so both place <code class="md-code-inline">t</code> on a logarithmic scale and the two copies coincide. Splitting <code class="md-code-inline">V = (L + W) × H</code> the same way would not work. The first stage puts <code class="md-code-inline">t</code> on a linear scale and the second on a logarithmic one, and moving the stages cannot make those match. <code class="md-code-inline">compound</code> checks for this and throws an error instead of drawing a wrong chart.</p>
 </div>
 </div>
-<p>The stages overlap instead of sitting side by side. A parallel-axis construction puts its result <em>between</em> its inputs, so one input of the first stage always lands inside the second. The sizes of the stages decide where it lands. Here the first stage is 40 wide and the second 130, so <code class="md-code-inline">width</code> falls between the turning line and <code class="md-code-inline">volume</code> instead of on top of <code class="md-code-inline">volume</code>. <code class="md-code-inline">auto_nomogram</code> chooses the sizes itself, and you can use <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> to reshape the result if the layout is still awkward.</p>
-<h2 id="Nets" class="md-heading">Nets<a href="#Nets" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>A turning line works only when the first two variables combine into a single intermediate value. When they do not, one of the three points on an alignment line has to carry two variables at once. That point lies on a <a href="../95-reference/#Nomograms.Net"><code class="md-code-inline">Net</code></a>: a two-parameter surface <code class="md-code-inline">(u, v) -&gt; (x, y)</code>, drawn as a mesh. This is the grid nomogram of the classic texts. It goes back to d&#39;Ocagne, and Doerfler builds it from determinants (see the <a href="../96-references/">Bibliography</a>).</p>
-<p>You derive a net the same way as a curved scale. With <code class="md-code-inline">a</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">f(a)</code> and <code class="md-code-inline">b</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">g(b)</code>, a line passes through a net point exactly when</p>
+<p>The stages overlap instead of sitting side by side. A parallel-axis construction puts its result <em>between</em> its inputs, so one input of the first stage always lands inside the second. The sizes of the stages decide where it lands. Here the first stage is 40 wide and the second 130, so <code class="md-code-inline">width</code> falls between the pivot line and <code class="md-code-inline">volume</code> instead of on top of <code class="md-code-inline">volume</code>. <code class="md-code-inline">auto_nomogram</code> chooses the sizes itself, and you can use <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> to reshape the result if the layout is still awkward.</p>
+<h2 id="Grids" class="md-heading">Grids<a href="#Grids" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A pivot line works only when the first two variables combine into a single intermediate value. When they do not, one of the three points on an alignment line has to carry two variables at once. That point lies on a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a>: a two-parameter surface <code class="md-code-inline">(u, v) -&gt; (x, y)</code>, drawn as a mesh. This is the grid nomogram of the classic texts. It goes back to d&#39;Ocagne, and Doerfler builds it from determinants (see the <a href="../96-references/">Bibliography</a>).</p>
+<p>You derive a grid the same way as a curved scale. With <code class="md-code-inline">a</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">f(a)</code> and <code class="md-code-inline">b</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">g(b)</code>, a line passes through a grid point exactly when</p>
 <div class="md-math md-math-display">
 \[\alpha f(a) + \beta g(b) = \gamma, \qquad
 x_3 = \frac{\beta}{\alpha + \beta}, \quad y_3 = \frac{\gamma}{\alpha + \beta}\]
 </div>
-<p>So any relation that can be written this way, with the coefficients depending only on the two net variables, has a net. The general quadratic <code class="md-code-inline">a·x² + b·x + c = 0</code>, written as <code class="md-code-inline">a·x² + b·x = -c</code>, has <code class="md-code-inline">α = x²</code>, <code class="md-code-inline">β = x</code> and <code class="md-code-inline">γ = -c</code>:</p>
+<p>So any relation that can be written this way, with the coefficients depending only on the two grid variables, has a grid. The general quadratic <code class="md-code-inline">a·x² + b·x + c = 0</code>, written as <code class="md-code-inline">a·x² + b·x = -c</code>, has <code class="md-code-inline">α = x²</code>, <code class="md-code-inline">β = x</code> and <code class="md-code-inline">γ = -c</code>:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
-<pre><code class="language-julia">gq = net_nomogram(
-    Net(
+<pre><code class="language-julia">gq = grid_nomogram(
+    Grid(
         Variable(:x; domain = (0.5, 5)),
         Variable(:c; domain = (0, 4)),
         (x, c) -&gt; (1 / (1 + x), -c / (x * (1 + x))),
@@ -144,9 +144,9 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0
  1.0000000000000009
  1.999999999999998</code></pre>
 </div>
-<p>What <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> does depends on which variable is unknown. If both net variables are known, the net gives a single point and the problem is an ordinary three-point alignment. If one net variable is unknown, the two scales already fix the line, and the answer is where it crosses the strand for the known net variable. That strand is a curve, so the line may cross it twice. Here it does, because a quadratic has two roots.</p>
-<p>The mesh is truly two-dimensional only when <code class="md-code-inline">(α : β : γ)</code> sweeps out a region. If it sweeps out only a curve, the net collapses onto a line, which means the relation needed a turning line instead. This is a useful check that you have chosen the right construction.</p>
-<p>Strands are scales of <code class="md-code-inline">kind = :grid</code>, and they are read and drawn like any other scale. Each strand is labelled with its value at the end where its family spreads apart. At the end where the strands converge, the labels would crowd together and get pushed next to the wrong curve. To choose the end yourself, set <code class="md-code-inline">titleend</code> on the <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>. The family&#39;s name goes past the end of that row of values, as an axis title goes past the end of its axis. To make a dense net less prominent, pass a lighter <code class="md-code-inline">gridcolor</code> to <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> or <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>.</p>
+<p>What <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> does depends on which variable is unknown. If both grid variables are known, the grid gives a single point and the problem is an ordinary three-point alignment. If one grid variable is unknown, the two scales already fix the line, and the answer is where it crosses the strand for the known grid variable. That strand is a curve, so the line may cross it twice. Here it does, because a quadratic has two roots.</p>
+<p>The mesh is truly two-dimensional only when <code class="md-code-inline">(α : β : γ)</code> sweeps out a region. If it sweeps out only a curve, the grid collapses onto a line, which means the relation needed a pivot line instead. This is a useful check that you have chosen the right construction.</p>
+<p>Strands are scales of <code class="md-code-inline">kind = :grid</code>, and they are read and drawn like any other scale. Each strand is labelled with its value at the end where its family spreads apart. At the end where the strands converge, the labels would crowd together and get pushed next to the wrong curve. To choose the end yourself, set <code class="md-code-inline">titleend</code> on the <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>. The family&#39;s name goes past the end of that row of values, as an axis title goes past the end of its axis. To make a dense grid less prominent, pass a lighter <code class="md-code-inline">gridcolor</code> to <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> or <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>.</p>
       </article>
       <footer class="md-footer">
 <p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
@@ -155,8 +155,8 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0
     <aside class="md-toc">
       <div class="md-toc-inner">
         <p class="md-toc-title">On this page</p>
-          <a class="md-toc-link md-toc-h2" href="#Chains-and-turning-lines">Chains and turning lines</a>
-          <a class="md-toc-link md-toc-h2" href="#Nets">Nets</a>
+          <a class="md-toc-link md-toc-h2" href="#Chains-and-pivot-lines">Chains and pivot lines</a>
+          <a class="md-toc-link md-toc-h2" href="#Grids">Grids</a>
       </div>
     </aside>
   </div>
@@ -174,6 +174,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=3750e337"></script>
+  <script src="../assets/materialdocs.js?v=292ed9c3"></script>
 </body>
 </html>

@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Concurrency charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=481f0dd4">
+  <title>Contour charts — Nomograms.jl</title>
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=bd0ff8ca">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <meta name="title" content="Concurrency charts — Nomograms.jl">
-  <meta property="og:title" content="Concurrency charts — Nomograms.jl">
-  <meta property="twitter:title" content="Concurrency charts — Nomograms.jl">
+  <meta name="title" content="Contour charts — Nomograms.jl">
+  <meta property="og:title" content="Contour charts — Nomograms.jl">
+  <meta property="twitter:title" content="Contour charts — Nomograms.jl">
   <meta name="description" content="Documentation for Nomograms.jl.">
   <meta property="og:description" content="Documentation for Nomograms.jl.">
   <meta property="twitter:description" content="Documentation for Nomograms.jl.">
-  <meta property="og:url" content="https://mthelm85.github.io/Nomograms.jl/35-concurrency-charts/">
-  <meta property="twitter:url" content="https://mthelm85.github.io/Nomograms.jl/35-concurrency-charts/">
-  <link rel="canonical" href="https://mthelm85.github.io/Nomograms.jl/35-concurrency-charts/">
+  <meta property="og:url" content="https://mthelm85.github.io/Nomograms.jl/35-contour-charts/">
+  <meta property="twitter:url" content="https://mthelm85.github.io/Nomograms.jl/35-contour-charts/">
+  <link rel="canonical" href="https://mthelm85.github.io/Nomograms.jl/35-contour-charts/">
   <script>
     (function(){
       document.documentElement.classList.add('no-transition');
@@ -49,7 +49,7 @@
       <a href="../10-from-a-formula/">From a formula</a>
       <a href="../20-constructions/">Building charts</a>
       <a href="../30-more-variables/">Four or more variables</a>
-      <a href="../35-concurrency-charts/" class="md-nav-active">Concurrency charts</a>
+      <a href="../35-contour-charts/" class="md-nav-active">Contour charts</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/">Gallery</a>
@@ -59,19 +59,19 @@
     </nav>
     <main class="md-content">
       <article class="md-article">
-      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/35-concurrency-charts.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
-<h1 id="Concurrency-charts" class="md-heading">Concurrency charts<a href="#Concurrency-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
-<p>Every chart elsewhere in this package is read with a straight line laid across its scales. A concurrency chart is read at a point instead. Two variables run along the axes, and every other variable is drawn as a family of curves, one curve per round value. Find where the curves of two values you know cross, and read every other value at that point.</p>
-<p>Charts of this kind are older than alignment charts. d&#39;Ocagne devised the alignment method as a way to replace the crossing curves of the charts of his day with points on a line. They are still the right tool in two cases:</p>
+      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/35-contour-charts.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
+<h1 id="Contour-charts" class="md-heading">Contour charts<a href="#Contour-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
+<p>Every chart elsewhere in this package is read with a straight line laid across its scales. A contour chart is read at a point instead. Two variables run along the axes, and every other variable is drawn as a family of curves, one curve per round value. Find where the curves of two values you know cross, and read every other value at that point.</p>
+<p>Strictly, these are not nomograms. Doerfler&#39;s <em>The Lost Art of Nomography</em> (see the <a href="../96-references/">Bibliography</a>) sets nomograms against the graphs of &quot;families of curves&quot; they replace, and Wikipedia&#39;s definition requires a solution read with a straight line. They are older than nomograms, though: d&#39;Ocagne&#39;s <em>Traité</em> (1899) treats them first, as <em>abaques à entrecroisement</em>, charts read where lines cross, and calls those on two axes <em>abaques cartésiens</em>. His alignment method was devised to replace their crossing curves with points on a line. They are still the right tool in two cases:</p>
 <ul class="md-list-tight">
-<li><p><strong>Any formula has one.</strong> An alignment chart needs the formula to have a special form, which is why <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> sometimes refuses. A concurrency chart only needs the formula&#39;s value at each point.</p>
+<li><p><strong>Any formula has one.</strong> An alignment chart needs the formula to have a special form, which is why <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> sometimes refuses. A contour chart only needs the formula&#39;s value at each point.</p>
 </li>
 <li><p><strong>Many variables can share one sheet.</strong> Any two values fix a point, and you can read as many other values there as there are families of curves. A psychrometric chart shows seven properties of moist air this way.</p>
 </li>
 </ul>
-<p>The price is precision. You read between curves, so a concurrency chart is usually less precise than an alignment chart of the same size. Where an alignment chart exists, it is usually the better choice.</p>
+<p>The price is precision. You read between curves, so a contour chart is usually less precise than an alignment chart of the same size. Where an alignment chart exists, it is usually the better choice.</p>
 <h2 id="A-first-chart" class="md-heading">A first chart<a href="#A-first-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p><a href="../95-reference/#Nomograms.concurrency_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}"><code class="md-code-inline">concurrency_chart</code></a> takes the two axis variables and then any number of <em>fields</em>, each written <code class="md-code-inline">variable =&gt; (x, y) -&gt; value</code>. A field needs only a formula for its value at each point. Here is the Moody diagram for friction in pipes. The Colebrook equation that defines it cannot be solved for the friction factor, but it can be solved for the pipe&#39;s relative roughness, and that is all the chart needs:</p>
+<p><a href="../95-reference/#Nomograms.contour_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}"><code class="md-code-inline">contour_chart</code></a> takes the two axis variables and then any number of <em>fields</em>, each written <code class="md-code-inline">variable =&gt; (x, y) -&gt; value</code>. A field needs only a formula for its value at each point. Here is the Moody diagram for friction in pipes. The Colebrook equation that defines it cannot be solved for the friction factor, but it can be solved for the pipe&#39;s relative roughness, and that is all the chart needs:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -79,7 +79,7 @@
 
 roughness(Re, f) = 3.7 * (10^(-1 / (2sqrt(f))) - 2.51 / (Re * sqrt(f)))
 
-moody = concurrency_chart(
+moody = contour_chart(
     Variable(:Re, LogScale(); domain = (4e3, 1e8), label = &quot;Reynolds number&quot;),
     Variable(:f, LogScale(); domain = (0.008, 0.1), label = &quot;friction factor&quot;),
     Variable(:roughness; domain = (1e-6, 0.05), label = &quot;relative roughness ε/D&quot;) =&gt;
@@ -103,8 +103,8 @@ drawing(moody; crossings = [crossing(moody; Re = 1e5, roughness = 1e-4, label = 
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(Re = 100000.0, f = 0.018513866077471644, roughness = 0.0001)</code></pre>
 </div>
-<p>The two values can be two axes, an axis and a field, or two fields. If their curves cross more than once, <code class="md-code-inline">evaluate</code> refuses and <a href="../95-reference/#Nomograms.evaluate_all-Tuple{NetNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every crossing.</p>
-<p>To mark a point on the chart, build it with <a href="../95-reference/#Nomograms.crossing-Tuple{ConcurrencyChart}"><code class="md-code-inline">crossing</code></a> and pass it to <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> as <code class="md-code-inline">crossings</code>. The point is drawn with lines dropped to both axes. <code class="md-code-inline">isopleth</code> doesn&#39;t apply here: in this package an isopleth is the line laid across an alignment chart, and this chart is read at a point.</p>
+<p>The two values can be two axes, an axis and a field, or two fields. If their curves cross more than once, <code class="md-code-inline">evaluate</code> refuses and <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every crossing.</p>
+<p>To mark a point on the chart, build it with <a href="../95-reference/#Nomograms.crossing-Tuple{ContourChart}"><code class="md-code-inline">crossing</code></a> and pass it to <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> as <code class="md-code-inline">crossings</code>. The point is drawn with lines dropped to both axes. <code class="md-code-inline">isopleth</code> doesn&#39;t apply here: in this package an isopleth is the line laid across an alignment chart, and this chart is read at a point.</p>
 <p>The word has a longer history with these charts. Vogler called their curves of constant value <em>courbes isoplèthes</em>, curves of equal quantity, and Lalanne adopted the name. d&#39;Ocagne preferred <em>courbes cotées</em>, labelled curves, and describes the point where two of them meet simply as their <em>point de rencontre</em>, their meeting point (<em>Traité de nomographie</em>, 1899, chapter II).</p>
 <h2 id="Several-families" class="md-heading">Several families<a href="#Several-families" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>A psychrometric chart has temperature and humidity ratio on its axes, and curves of relative humidity and enthalpy across them. Air can&#39;t hold more water than saturates it, so the chart stops at the saturation line, where the relative humidity is 1:</p>
@@ -115,7 +115,7 @@ drawing(moody; crossings = [crossing(moody; Re = 1e5, roughness = 1e-4, label = 
 saturation(T) = 0.61094 * exp(17.625T / (T + 243.04))  # kPa, Magnus formula
 vapour(W) = W * P / (622 + W)                        # kPa, W in g/kg
 
-psy = concurrency_chart(
+psy = contour_chart(
     Variable(:T; domain = (0, 45), label = &quot;dry-bulb temperature (°C)&quot;),
     Variable(:W; domain = (0, 30), label = &quot;humidity ratio (g/kg)&quot;),
     Variable(:RH; domain = (0.1, 1), ticks = 0.1:0.1:1.0, label = &quot;relative humidity&quot;) =&gt;
@@ -140,11 +140,11 @@ drawing(psy; crossings = [crossing(psy; T = 30, RH = 0.5, label = &quot;30 °C, 
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(T = 28.597216837995994, W = 12.227434056942222, RH = 0.5, h = 60.0)</code></pre>
 </div>
 <h2 id="From-a-formula" class="md-heading">From a formula<a href="#From-a-formula" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>Given a function first, <code class="md-code-inline">concurrency_chart(F, x, y, z)</code> charts <code class="md-code-inline">z = F(x, y)</code>, in the same way <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> takes its arguments. It works for any <code class="md-code-inline">F</code>. Here is the formula <code class="md-code-inline">auto_nomogram</code> refuses:</p>
+<p>Given a function first, <code class="md-code-inline">contour_chart(F, x, y, z)</code> charts <code class="md-code-inline">z = F(x, y)</code>, in the same way <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> takes its arguments. It works for any <code class="md-code-inline">F</code>. Here is the formula <code class="md-code-inline">auto_nomogram</code> refuses:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
-<pre><code class="language-julia">concurrency_chart((x, y) -&gt; sin(x) + exp(y) + x * y, :x =&gt; (0, 2), :y =&gt; (0, 1), :z)</code></pre>
+<pre><code class="language-julia">contour_chart((x, y) -&gt; sin(x) + exp(y) + x * y, :x =&gt; (0, 2), :y =&gt; (0, 1), :z)</code></pre>
 </div>
 <div class="md-output md-output-img">
 <img src="b60d1f54.svg" alt="Example block output">
@@ -154,7 +154,7 @@ drawing(psy; crossings = [crossing(psy; T = 30, RH = 0.5, label = &quot;30 °C, 
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
-<pre><code class="language-julia">concurrency_chart((x, y) -&gt; x * y, :x =&gt; (1, 10), :y =&gt; (1, 10), :z)</code></pre>
+<pre><code class="language-julia">contour_chart((x, y) -&gt; x * y, :x =&gt; (1, 10), :y =&gt; (1, 10), :z)</code></pre>
 </div>
 <div class="md-output md-output-img">
 <img src="3a63ed4c.svg" alt="Example block output">
@@ -183,7 +183,7 @@ drawing(psy; crossings = [crossing(psy; T = 30, RH = 0.5, label = &quot;30 °C, 
 major = [0.2, 0.5, 1, 2, 5, 10, 20]
 minor = [0.1, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.2, 1.4, 1.6, 1.8, 3, 4]
 
-smith = concurrency_chart(
+smith = contour_chart(
     :u =&gt; (-1, 1),
     :v =&gt; (-1, 1),
     Variable(:r; domain = (0, 50), ticks = major, minorticks = minor, label = &quot;resistance&quot;) =&gt;
@@ -264,6 +264,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=481f0dd4"></script>
+  <script src="../assets/materialdocs.js?v=bd0ff8ca"></script>
 </body>
 </html>

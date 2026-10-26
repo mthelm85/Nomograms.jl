@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From a formula — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=2ed4e6fd">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=23a688cf">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="From a formula — Nomograms.jl">
   <meta property="og:title" content="From a formula — Nomograms.jl">
@@ -49,7 +49,7 @@
       <a href="../10-from-a-formula/" class="md-nav-active">From a formula</a>
       <a href="../20-constructions/">Building charts</a>
       <a href="../30-more-variables/">Four or more variables</a>
-      <a href="../35-concurrency-charts/">Concurrency charts</a>
+      <a href="../35-contour-charts/">Contour charts</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/">Gallery</a>
@@ -164,11 +164,11 @@ end</code></pre>
   • :z on a curve — its level sets are not straight lines under any transforms of :x and :y (misfit 0.098)
   • :x on a curve — its level sets are not straight lines under any transforms of :y and :z (misfit 0.0092)
   • :y on a curve — its level sets are not straight lines under any transforms of :x and :z (misfit 0.94)
-It may still have a chart with more curved scales, or a net, from a form you derive: see `determinant_nomogram` and `net_nomogram`. Or draw it as curves of constant value, which any formula has: see `concurrency_chart`.</code></pre>
+It may still have a chart with more curved scales, or a grid, from a form you derive: see `determinant_nomogram` and `grid_nomogram`. Or draw it as curves of constant value, which any formula has: see `contour_chart`.</code></pre>
 </div>
-<p><code class="md-code-inline">auto_nomogram</code> does not search for charts with more than one curved scale, or for curved stages in a chain of three or more inputs. For those, derive the form yourself and use <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>. Any formula of two inputs can also be drawn as a <a href="../35-concurrency-charts/">concurrency chart</a>, which is read where curves cross instead of along a line.</p>
+<p><code class="md-code-inline">auto_nomogram</code> does not search for charts with more than one curved scale, or for curved stages in a chain of three or more inputs. For those, derive the form yourself and use <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>. Any formula of two inputs can also be drawn as a <a href="../35-contour-charts/">contour chart</a>, which is read where curves cross instead of along a line.</p>
 <h2 id="More-than-two-inputs" class="md-heading">More than two inputs<a href="#More-than-two-inputs" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>One alignment line relates only three scales, so a formula with three or more inputs becomes a chain of charts linked by unmarked <em>turning lines</em>. You lay a line across the first stage, note where it crosses the turning line, then pivot about that point to read the next stage. <code class="md-code-inline">auto_nomogram</code> finds the chain for you. In this chart, lay a line from amount to temperature and mark where it crosses the turning line. Then lay a line from that mark to volume and read the pressure:</p>
+<p>One alignment line relates only three scales, so a formula with three or more inputs becomes a chain of charts linked by unmarked <em>pivot lines</em>. You lay a line across the first stage, note where it crosses the pivot line, then pivot about that point to read the next stage. <code class="md-code-inline">auto_nomogram</code> finds the chain for you. In this chart, lay a line from amount to temperature and mark where it crosses the pivot line. Then lay a line from that mark to volume and read the pressure:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -188,7 +188,7 @@ drawing(gas; isopleths = isopleth(gas; n = 1, T = 300, V = 24, label = &quot;104
 </div>
 <p>A formula <span class="md-math md-math-inline">\(F(x, y, w)\)</span> splits this way when it depends on some pair of inputs only through one combination of them, <span class="md-math md-math-inline">\(F = G(T(x, y), w)\)</span>. That holds exactly when <span class="md-math md-math-inline">\(F_x / F_y\)</span> does not depend on <span class="md-math md-math-inline">\(w\)</span>. In that case the level curves of <span class="md-math md-math-inline">\(F\)</span> in the <span class="md-math md-math-inline">\((x, y)\)</span> plane are the same family for every <span class="md-math md-math-inline">\(w\)</span>. The first stage charts the combination <span class="md-math md-math-inline">\(T\)</span>, and the second charts <span class="md-math md-math-inline">\(z\)</span> from <span class="md-math md-math-inline">\(T\)</span> and <span class="md-math md-math-inline">\(w\)</span>. Formulas with more inputs are reduced in the same way, one pair at a time.</p>
 <p>The choice of which pair goes first affects the layout but not the answers. Each stage puts its result between its inputs, closest to the one with the wider span. If the last stage pairs a scale covering several decades with one covering a narrow range, the result axis ends up squeezed against the wide one. To avoid this, <code class="md-code-inline">auto_nomogram</code> builds every workable pairing and keeps the one whose axes are furthest apart. For a product of four inputs, that can mean two pairs joined at the end instead of one long chain. Each earlier stage is then mirrored and resized so that the input it places inside the rest of the chain falls in a gap between two axes instead of on top of one.</p>
-<p>A pair can pass the test and still fail to give a chart. In <code class="md-code-inline">(a + b)·c</code>, the first stage needs <code class="md-code-inline">a + b</code> on a linear scale and the second needs it on a logarithmic one. No layout of straight scales can do both, so this formula needs a <a href="../30-more-variables/">net</a>. <code class="md-code-inline">auto_nomogram</code> tries every pairing, and the error says what went wrong with each:</p>
+<p>A pair can pass the test and still fail to give a chart. In <code class="md-code-inline">(a + b)·c</code>, the first stage needs <code class="md-code-inline">a + b</code> on a linear scale and the second needs it on a logarithmic one. No layout of straight scales can do both, so this formula needs a <a href="../30-more-variables/">grid</a>. <code class="md-code-inline">auto_nomogram</code> tries every pairing, and the error says what went wrong with each:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -199,13 +199,13 @@ catch err
 end</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">ArgumentError: cannot split d = F(a, b, c) into a chain of three-scale charts. Each pair of inputs was tried as the first stage:
-  • :a with :b — the two stages want their combination on different scales, so this pair needs a net rather than a pivot
+  • :a with :b — the two stages want their combination on different scales, so this pair needs a grid rather than a pivot
   • :a with :c — the result does not depend on them through a single combination of the two (defect 1.04)
   • :b with :c — the result does not depend on them through a single combination of the two (defect 1.04)</code></pre>
 </div>
 <h2 id="How-the-result-is-checked" class="md-heading">How the result is checked<a href="#How-the-result-is-checked" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>If the inputs have <a href="../40-solving/#Units">units</a>, <code class="md-code-inline">auto_nomogram</code> first checks the formula&#39;s dimensions. For example, if the result should be in kg/m² and the formula gives kg/m, the formula is refused before any chart is built.</p>
-<p>Once the chart is built, it is solved over a grid of inputs and every answer is compared with your function. If an answer is off by more than <code class="md-code-inline">rtol</code> times the result&#39;s range, no chart is returned: the call throws an error that reports the disagreement it measured. For two inputs, the chart&#39;s <code class="md-code-inline">relation</code> is your function itself, so <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> measures the chart directly against the formula you wrote:</p>
+<p>Once the chart is built, it is solved over a grid of inputs and every answer is compared with your function. If an answer is off by more than <code class="md-code-inline">rtol</code> times the result&#39;s range, no chart is returned: the call throws an error that reports the disagreement it measured. For two inputs, the chart&#39;s <code class="md-code-inline">relation</code> is your function itself, so <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> measures the chart directly against the formula you wrote:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -250,6 +250,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=2ed4e6fd"></script>
+  <script src="../assets/materialdocs.js?v=23a688cf"></script>
 </body>
 </html>

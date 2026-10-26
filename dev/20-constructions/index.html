@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=eaecb838">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=a036f7d0">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -49,7 +49,7 @@
       <a href="../10-from-a-formula/">From a formula</a>
       <a href="../20-constructions/" class="md-nav-active">Building charts</a>
       <a href="../30-more-variables/">Four or more variables</a>
-      <a href="../35-concurrency-charts/">Concurrency charts</a>
+      <a href="../35-contour-charts/">Contour charts</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/">Gallery</a>
@@ -141,7 +141,7 @@ drawing(quad; isopleths = [isopleth(quad, roots[1]; label = &quot;z² − 3z + 2
 </div>
 <p>There are two answers because a quadratic has two roots. On the chart, one alignment line meets the curved scale twice. This chart for the quadratic is a classic one; Doerfler draws it after Adams (1964) and Otto (1963).</p>
 <p>An affine map keeps collinear points collinear, so fitting the curves to the canvas cannot change what the chart computes. This includes the default fit, which scales the two axes by different factors to fill the canvas. Pass <code class="md-code-inline">preserve_aspect = true</code> to scale both axes by the same factor and centre the result.</p>
-<p>Getting the determinant form right is the hardest part of designing a chart by hand, and a chart with a small error in it still draws normally. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and checks each answer against the relation:</p>
+<p>Getting the determinant form right is the hardest part of designing a chart by hand, and a chart with a small error in it still draws normally. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and checks each answer against the relation:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
@@ -178,7 +178,7 @@ drawing(skew; isopleths = [isopleth(skew; R1 = 4, R2 = 6, label = &quot;2.4&quot
 </div>
 <p><a href="../95-reference/#Nomograms.projective_transform-Tuple{Any, Any}"><code class="md-code-inline">projective_transform</code></a> builds the map from four point correspondences. You name the corners of a quadrilateral and where they should end up, instead of writing out nine coefficients. A map whose bottom row is <code class="md-code-inline">[0 0 1]</code> is affine (translation, scaling and shear); any other map adds true perspective.</p>
 <p>A projective map can move the bounding box anywhere, so the result is fitted to the canvas again. That fit is affine, and an affine map composed with a projective one is still projective, so the answers are still unchanged.</p>
-<p>This means you can reshape a chart freely while designing it. You can pull open a region where the ticks are crowded without re-deriving anything, and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{NetNomogram}"><code class="md-code-inline">max_relation_residual</code></a> will confirm that the reshaped chart is still correct.</p>
+<p>This means you can reshape a chart freely while designing it. You can pull open a region where the ticks are crowded without re-deriving anything, and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> will confirm that the reshaped chart is still correct.</p>
 <p>Watch out for the map&#39;s vanishing line, where its denominator is zero. If that line crosses a scale&#39;s domain, points there are sent to infinity. <code class="md-code-inline">project</code> then throws an error naming the affected scale, instead of returning a chart full of <code class="md-code-inline">Inf</code>.</p>
 <h2 id="Fans" class="md-heading">Fans<a href="#Fans" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>Parallel lines meet at a point at infinity, and a projective map can bring that point onto the page. Every axis then runs through it, and the chart becomes a fan of spokes. <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> does this:</p>
@@ -198,7 +198,7 @@ drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = &quot;4 �
 <img src="03e70ceb.svg" alt="Example block output">
 </div>
 </div>
-<p>The fanned chart gives the same answers as the original, and <code class="md-code-inline">fan</code> works on compound charts and nets too. Because straight lines stay straight, the spokes end on a straight chord, not an arc. At the default spread of 90° the tips line up level, and wider fans leave the middle spokes shorter than the outer ones. The map also squeezes everything near the hub, so <code class="md-code-inline">fan</code> lays the chart out both ways round and keeps the one that labels more values. Here the crowded ends of the reciprocal scales, from 4 to 10, went to the rim.</p>
+<p>The fanned chart gives the same answers as the original, and <code class="md-code-inline">fan</code> works on compound charts and grids too. Because straight lines stay straight, the spokes end on a straight chord, not an arc. At the default spread of 90° the tips line up level, and wider fans leave the middle spokes shorter than the outer ones. The map also squeezes everything near the hub, so <code class="md-code-inline">fan</code> lays the chart out both ways round and keeps the one that labels more values. Here the crowded ends of the reciprocal scales, from 4 to 10, went to the rim.</p>
       </article>
       <footer class="md-footer">
 <p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
@@ -229,6 +229,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=eaecb838"></script>
+  <script src="../assets/materialdocs.js?v=a036f7d0"></script>
 </body>
 </html>
