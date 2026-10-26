@@ -3,7 +3,7 @@ module NomogramsMakieExt
 using Makie: Makie, Figure, Axis, DataAspect, Point2f
 using Makie: hidedecorations!, hidespines!, lines!, linesegments!, scatter!, text!
 using Nomograms: Nomograms, AbstractNomogram, NomogramDrawing, NomogramStyle, Isopleth
-using Nomograms: ConcurrencyChart, Crossing
+using Nomograms: ContourChart, Crossing
 using Nomograms: drawing, nomogramplot, nomogramplot!
 
 const DEFAULT_COLORS = Nomograms.DEFAULT_ISOPLETH_COLORS
@@ -202,10 +202,10 @@ function Nomograms.nomogramplot(
     return Nomograms.nomogramplot(drawing(nom; style, isopleths); kwargs...)
 end
 
-# A concurrency chart is marked with crossings, not isopleths.
+# A contour chart is marked with crossings, not isopleths.
 function Nomograms.nomogramplot!(
     ax::Axis,
-    c::ConcurrencyChart;
+    c::ContourChart;
     style::NomogramStyle = NomogramStyle(),
     crossings::AbstractVector{Crossing} = Crossing[],
     isopleths::AbstractVector{Isopleth} = Isopleth[],
@@ -215,7 +215,7 @@ function Nomograms.nomogramplot!(
 end
 
 function Nomograms.nomogramplot(
-    c::ConcurrencyChart;
+    c::ContourChart;
     style::NomogramStyle = NomogramStyle(),
     crossings::AbstractVector{Crossing} = Crossing[],
     isopleths::AbstractVector{Isopleth} = Isopleth[],

@@ -9,7 +9,7 @@ approaches: chain charts together through a shared scale, or let one point carry
 variables at once. [`auto_nomogram`](@ref) builds chains automatically for formulas that
 allow them. This page shows how to build either kind by hand.
 
-## Chains and turning lines
+## Chains and pivot lines
 
 With four variables you need two stages that share an intermediate scale. [`compound`](@ref)
 positions the stages so that their copies of the shared scale coincide.
@@ -35,7 +35,7 @@ drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = "3 × 4 × 2
 
 To read the chart, lay a line across the first stage and note where it crosses the shared
 scale. Then pivot about that point and read the second stage. This is why the shared scale
-is called the turning line. An empty tick list draws it bare, as here. If you leave the
+is called the pivot line. An empty tick list draws it bare, as here. If you leave the
 ticks on, it shows the intermediate value, which is useful when that value means something
 on its own.
 
@@ -66,21 +66,21 @@ similarity is affine, so it cannot change what either stage computes.
 The stages overlap instead of sitting side by side. A parallel-axis construction puts its
 result *between* its inputs, so one input of the first stage always lands inside the
 second. The sizes of the stages decide where it lands. Here the first stage is 40 wide and
-the second 130, so `width` falls between the turning line and `volume` instead of on top of
+the second 130, so `width` falls between the pivot line and `volume` instead of on top of
 `volume`. `auto_nomogram` chooses the sizes itself, and you can use [`project`](@ref) to
 reshape the result if the layout is still awkward.
 
-## Nets
+## Grids
 
-A turning line works only when the first two variables combine into a single intermediate
+A pivot line works only when the first two variables combine into a single intermediate
 value. When they do not, one of the three points on an alignment line has to carry two
-variables at once. That point lies on a [`Net`](@ref): a two-parameter surface
+variables at once. That point lies on a [`Grid`](@ref): a two-parameter surface
 `(u, v) -> (x, y)`, drawn as a mesh. This is the grid nomogram of the classic texts. It
 goes back to d'Ocagne, and Doerfler builds it from determinants (see the
 [Bibliography](96-references.md)).
 
-You derive a net the same way as a curved scale. With `a` on `x = 0` at height `f(a)` and
-`b` on `x = 1` at height `g(b)`, a line passes through a net point exactly when
+You derive a grid the same way as a curved scale. With `a` on `x = 0` at height `f(a)` and
+`b` on `x = 1` at height `g(b)`, a line passes through a grid point exactly when
 
 ```math
 \alpha f(a) + \beta g(b) = \gamma, \qquad
@@ -88,12 +88,12 @@ x_3 = \frac{\beta}{\alpha + \beta}, \quad y_3 = \frac{\gamma}{\alpha + \beta}
 ```
 
 So any relation that can be written this way, with the coefficients depending only on the
-two net variables, has a net. The general quadratic `a·x² + b·x + c = 0`, written as
+two grid variables, has a grid. The general quadratic `a·x² + b·x + c = 0`, written as
 `a·x² + b·x = -c`, has `α = x²`, `β = x` and `γ = -c`:
 
 ```@example more
-gq = net_nomogram(
-    Net(
+gq = grid_nomogram(
+    Grid(
         Variable(:x; domain = (0.5, 5)),
         Variable(:c; domain = (0, 4)),
         (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
@@ -111,20 +111,20 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = "x² − 3x + 2 = 0")])
 [sol.x for sol in roots]
 ```
 
-What [`evaluate`](@ref) does depends on which variable is unknown. If both net variables
-are known, the net gives a single point and the problem is an ordinary three-point
-alignment. If one net variable is unknown, the two scales already fix the line, and the
-answer is where it crosses the strand for the known net variable. That strand is a curve,
+What [`evaluate`](@ref) does depends on which variable is unknown. If both grid variables
+are known, the grid gives a single point and the problem is an ordinary three-point
+alignment. If one grid variable is unknown, the two scales already fix the line, and the
+answer is where it crosses the strand for the known grid variable. That strand is a curve,
 so the line may cross it twice. Here it does, because a quadratic has two roots.
 
 The mesh is truly two-dimensional only when `(α : β : γ)` sweeps out a region. If it
-sweeps out only a curve, the net collapses onto a line, which means the relation needed a
-turning line instead. This is a useful check that you have chosen the right construction.
+sweeps out only a curve, the grid collapses onto a line, which means the relation needed a
+pivot line instead. This is a useful check that you have chosen the right construction.
 
 Strands are scales of `kind = :grid`, and they are read and drawn like any other scale.
 Each strand is labelled with its value at the end where its family spreads apart. At the
 end where the strands converge, the labels would crowd together and get pushed next to the
 wrong curve. To choose the end yourself, set `titleend` on the [`Variable`](@ref). The
 family's name goes past the end of that row of values, as an axis title goes past the end
-of its axis. To make a dense net less prominent, pass a lighter `gridcolor` to
+of its axis. To make a dense grid less prominent, pass a lighter `gridcolor` to
 [`svg`](@ref) or [`nomogramplot`](@ref).

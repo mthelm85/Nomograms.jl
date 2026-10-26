@@ -40,7 +40,7 @@ end
     @test evaluate(four; a = 2, b = 3, c = 4, p = 120).d ≈ 5 rtol = 1e-6
 end
 
-@testitem "the turning lines are bare" tags = [:unit] begin
+@testitem "the pivot lines are bare" tags = [:unit] begin
     vol = auto_nomogram(
         (L, W, H) -> L * W * H,
         :L => (1, 10),
@@ -55,7 +55,7 @@ end
     @test isempty(sd.label)
 end
 
-@testitem "a formula needing a net is refused, pair by pair" tags = [:unit, :validation] begin
+@testitem "a formula needing a grid is refused, pair by pair" tags = [:unit, :validation] begin
     msg(f) =
         try
             f()
@@ -91,7 +91,7 @@ end
             :z,
         ),
     )
-    @test occursin("needs a net rather than a pivot", m)
+    @test occursin("needs a grid rather than a pivot", m)
 
     # Not monotone in one input rules out every pairing that includes it, and the reason
     # names that input.
@@ -194,7 +194,7 @@ end
     @test evaluate(five; a = 1, b = 2, c = 3, d = 4, e = 5).s ≈ 15 rtol = 1e-6
 
     # Lopsided ranges: d spans a fifth of a decade, so a last stage pairing it with a
-    # wide turning line would squeeze the result against that line.
+    # wide pivot line would squeeze the result against that line.
     lop = auto_nomogram(
         (a, b, c, d) -> a * b * c / d,
         :a => (1, 100),

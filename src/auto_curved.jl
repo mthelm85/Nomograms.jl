@@ -364,9 +364,9 @@ function _auto_curved(F::_Formula, vx, vy, vz; width, height, title, rtol, strai
             "$(vz.name) = F($(vx.name), $(vy.name)) has no chart on three straight " *
             "scales ($straight), nor one with a single curved scale:\n" *
             join(reasons, "\n") *
-            "\nIt may still have a chart with more curved scales, or a net, from a form " *
-            "you derive: see `determinant_nomogram` and `net_nomogram`. Or draw it as " *
-            "curves of constant value, which any formula has: see `concurrency_chart`.",
+            "\nIt may still have a chart with more curved scales, or a grid, from a form " *
+            "you derive: see `determinant_nomogram` and `grid_nomogram`. Or draw it as " *
+            "curves of constant value, which any formula has: see `contour_chart`.",
         ),
     )
 end

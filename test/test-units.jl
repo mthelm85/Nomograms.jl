@@ -150,7 +150,7 @@ end
     @test "P (kPa)" in [sd.label for sd in drawing(gas).scales]
 end
 
-@testitem "units on compound charts and nets" tags = [:unit] begin
+@testitem "units on compound charts and grids" tags = [:unit] begin
     using Unitful
 
     stage1 = multiplicative_nomogram(
@@ -168,8 +168,8 @@ end
     @test V ≈ 24u"ft^3" && unit(V) == u"ft^3"
     @test length(isopleth(box; L = 1u"m", W = 4u"ft", H = 2u"ft")) == 2
 
-    gq = net_nomogram(
-        Net(
+    gq = grid_nomogram(
+        Grid(
             Variable(:x; domain = (0.5u"s", 5u"s")),
             Variable(:c; domain = (0, 4)),
             (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),

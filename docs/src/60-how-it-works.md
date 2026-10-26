@@ -12,7 +12,7 @@ The process has five stages, and each one produces what the next one needs:
 
 | stage | produces | source |
 |---|---|---|
-| construction | a chart whose every scale is a curve | `construct.jl`, `compound.jl`, `net.jl`, `fan.jl` |
+| construction | a chart whose every scale is a curve | `construct.jl`, `compound.jl`, `grid.jl`, `fan.jl` |
 | automatic construction | the same, from a formula | `auto.jl`, `auto_chain.jl` |
 | solving | values, and the lines that read them | `solve.jl` |
 | layout | a [`NomogramDrawing`](@ref): pure geometry | `ticks.jl`, `drawing.jl` |
@@ -38,7 +38,7 @@ and nothing else about the picture affects what it computes. So the package stor
 scale as a parametric curve, `value -> (x, y)`, over a domain. A [`Scale`](@ref) holds a
 [`Variable`](@ref) (name, label, tick preferences), the domain it covers, that curve, the
 side its ticks go on, and a `kind`: `:scale` for a scale that a reader takes values from,
-or `:grid` for a strand of a [`Net`](@ref). A [`Nomogram`](@ref) is a list of scales, a
+or `:grid` for a strand of a [`Grid`](@ref). A [`Nomogram`](@ref) is a list of scales, a
 canvas size, a title, and optionally the algebraic `relation` that the scales are meant to
 encode.
 
@@ -67,7 +67,7 @@ p, q = point(u, 3), point(v, 4)
 
 Because every chart comes down to a set of scales, everything after construction (solving,
 ticks, labels and both renderers) is written once, in terms of the curves.
-[`Nomogram`](@ref), [`CompoundNomogram`](@ref) and [`NetNomogram`](@ref) differ only in how
+[`Nomogram`](@ref), [`CompoundNomogram`](@ref) and [`GridNomogram`](@ref) differ only in how
 they are solved. For drawing, all three are an [`AbstractNomogram`](@ref): scales, a canvas
 and a title.
 
@@ -123,11 +123,11 @@ points along the whole domain, because the two copies are not guaranteed to have
 shape. Finally the stages are translated together to the origin and their scales are
 listed from left to right.
 
-**Nets.** A [`Net`](@ref) is a surface `(u, v) -> (x, y)` that fills one of the three
+**Grids.** A [`Grid`](@ref) is a surface `(u, v) -> (x, y)` that fills one of the three
 points on the alignment line. It is drawn as strands: for each round value of one
 variable, the curve traced by the other. Each strand is an ordinary `Scale` of kind
 `:grid`, so the drawing code needs nothing extra. [Four or more
-variables](30-more-variables.md) derives the condition a net has to meet.
+variables](30-more-variables.md) derives the condition a grid has to meet.
 
 Every construction that knows its relation stores it in the chart. This is what allows
 [`max_relation_residual`](@ref) to solve the chart over a grid of inputs and compare each
@@ -155,10 +155,10 @@ single line with every crossing marked. [Solving](40-solving.md) shows each of t
 The other chart types reduce to this case. A [`CompoundNomogram`](@ref) is solved by
 propagation: any stage with exactly one unknown is read, its answer is added to the known
 values, and the pass repeats until nothing is left or no stage can be solved. So any set of
-inputs that closes the chain works, from either end. A [`NetNomogram`](@ref) with both net
+inputs that closes the chain works, from either end. A [`GridNomogram`](@ref) with both grid
 variables known contributes one fixed point, and the problem is the ordinary one. If one
 of them is unknown, the two scales fix the line, and the answer is where the line crosses
-the strand of the known net variable. That strand is a curve, so it may be crossed twice.
+the strand of the known grid variable. That strand is a curve, so it may be crossed twice.
 
 ## From a formula
 
@@ -235,13 +235,13 @@ stage: does `F` depend on that pair only through one combination of them? That h
 exactly when `F_i / F_j` does not change with the other inputs. The test evaluates the log
 of that ratio on a 5 × 5 grid of the pair, and compares it across three settings of each
 of the other inputs. If the pair passes, the combination `T` is `F` with the other inputs
-held at their midpoints, charted by the two-input method onto an unmarked turning line.
+held at their midpoints, charted by the two-input method onto an unmarked pivot line.
 The remainder `G(t, rest…)` needs, for each `t`, some point where `T = t`. The same rising
 path is tabulated once against `t`, so each call of `G` costs an interpolation instead of
 a root search. `G` is then charted the same way, recursively, until two inputs are left.
 
 The stages are joined with `compound`. It fails, and the pairing is rejected, when two
-stages need the turning line on scales of different shapes, as `(a + b)·c` does. The
+stages need the pivot line on scales of different shapes, as `(a + b)·c` does. The
 layout is searched at the same time. For the first two levels of the chain, every
 workable pairing is built, and the one whose narrowest gap between neighbouring axes is
 widest, relative to the chart's width, is kept. Deeper levels take the first pairing that
@@ -251,9 +251,9 @@ between a quarter of the final stage's width and all of it, to put that input mi
 between the axes already there. The assembled chain is checked as a whole against `F` on
 a grid of four values per input.
 
-## Concurrency charts
+## Contour charts
 
-A [`ConcurrencyChart`](@ref) works on the page directly. Each axis maps its values onto the
+A [`ContourChart`](@ref) works on the page directly. Each axis maps its values onto the
 width or height of the frame, linearly in its transform, and each field is a function of
 the page point through the two axis values. A field has no value outside the `region`, or
 where its formula throws or returns something that is not a finite number.

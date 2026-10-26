@@ -50,7 +50,7 @@ end
     @test evaluate(f; R1 = 4, R = 2.4).R2 ≈ 6 rtol = 1e-9
     @test max_relation_residual(f) < 1e-9
 
-    # A compound chart: its turning line is fanned with the rest.
+    # A compound chart: its pivot line is fanned with the rest.
     solar = Fans.solar()
     fs = fan(solar)
     @test fs isa CompoundNomogram
@@ -59,9 +59,9 @@ end
     end
     @test length(isopleth(fs; watts = 50, hours = 4, inv_volts = 1 / 12)) == 2
 
-    # A net, including a reading with two answers.
-    gq = net_nomogram(
-        Net(
+    # A grid, including a reading with two answers.
+    gq = grid_nomogram(
+        Grid(
             Variable(:x; domain = (0.5, 5)),
             Variable(:c; domain = (0, 4)),
             (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
@@ -71,7 +71,7 @@ end
         relation = (x, c, a, b) -> a * x^2 + b * x + c,
     )
     fq = fan(gq)
-    @test fq isa NetNomogram
+    @test fq isa GridNomogram
     @test [s.x for s in evaluate_all(fq; a = 1, b = -3, c = 2)] ≈ [1, 2] rtol = 1e-6
     @test max_relation_residual(fq) < 1e-6
 end

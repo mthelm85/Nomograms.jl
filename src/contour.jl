@@ -1,4 +1,4 @@
-# --- concurrency charts -------------------------------------------------------------------
+# --- contour charts -------------------------------------------------------------------
 #
 # A chart read at a point instead of along a line. Two axis variables span a rectangle, and
 # every other variable -- a field -- is a function of the two, drawn as its curves of
@@ -19,18 +19,18 @@ struct _Field
 end
 
 """
-    ConcurrencyChart
+    ContourChart
 
 A chart read at a point: two axis variables span a rectangle, and every other variable is
 drawn as a family of curves of constant value across it. Any two values fix the point where
 their curves cross, and every other value is read there. Variables on rings around the
 chart are read along a line from its centre through the point.
 
-Build one with [`concurrency_chart`](@ref). Solve it with [`evaluate`](@ref) and
+Build one with [`contour_chart`](@ref). Solve it with [`evaluate`](@ref) and
 [`evaluate_all`](@ref), given any two of its variables, and mark a point on it with
 [`crossing`](@ref).
 """
-struct ConcurrencyChart <: AbstractNomogram
+struct ContourChart <: AbstractNomogram
     x::Scale
     y::Scale
     fields::Vector{_Field}
@@ -52,7 +52,7 @@ end
 """
     Crossing
 
-A point on a [`ConcurrencyChart`](@ref) where curves cross: every variable's value
+A point on a [`ContourChart`](@ref) where curves cross: every variable's value
 there, and where it is on the page. Build one with [`crossing`](@ref) and draw it with
 `drawing(chart; crossings = [...])`.
 """
@@ -90,11 +90,11 @@ function _axis_value(t::ScaleTransform, dom, size::Float64)
     )
 end
 
-_xvalue(c::ConcurrencyChart, X) = c.xvalue(Float64(X))
-_yvalue(c::ConcurrencyChart, Y) = c.yvalue(Float64(Y))
+_xvalue(c::ContourChart, X) = c.xvalue(Float64(X))
+_yvalue(c::ContourChart, Y) = c.yvalue(Float64(Y))
 
 # Whether a page point is in the chart's region; a region that fails to answer says no.
-function _inside(c::ConcurrencyChart, P)
+function _inside(c::ContourChart, P)
     isnothing(c.region) && return true
     return try
         c.region(_xvalue(c, P[1]), _yvalue(c, P[2])) > 0.5
@@ -106,12 +106,12 @@ end
 
 # A field's value at a page point, or NaN where it has none: outside the region, or where
 # the function fails or returns something that is not a finite number.
-function _field_at(c::ConcurrencyChart, f::_Field, P)
+function _field_at(c::ContourChart, f::_Field, P)
     x, y = _xvalue(c, P[1]), _yvalue(c, P[2])
     return _guarded(c, f.value, x, y)
 end
 
-function _guarded(c::ConcurrencyChart, F, x, y)
+function _guarded(c::ContourChart, F, x, y)
     v = try
         isnothing(c.region) || c.region(x, y) > 0.5 || return NaN
         F(x, y)
@@ -123,7 +123,7 @@ function _guarded(c::ConcurrencyChart, F, x, y)
 end
 
 # Every variable's value at a page point, as a function per name.
-function _value_at(c::ConcurrencyChart, n::Symbol, P)
+function _value_at(c::ContourChart, n::Symbol, P)
     n === name(c.x) && return _xvalue(c, P[1])
     n === name(c.y) && return _yvalue(c, P[2])
     _isring(c, n) && return _ring_value(c, _ring(c, n), P)
@@ -132,7 +132,7 @@ end
 
 # A ring is read where a line from the centre through the point meets it, on the point's
 # side of the centre: the radial cursor of a Smith chart.
-function _ring_value(c::ConcurrencyChart, ring::Scale, P)
+function _ring_value(c::ContourChart, ring::Scale, P)
     d = _sub(P, c.centre)
     _norm(d) > 1e-12 * max(c.width, c.height) || return NaN
     roots = solve_all_on(ring, c.centre, P)
@@ -142,19 +142,19 @@ end
 
 _dot(a::Point, b::Point) = a[1] * b[1] + a[2] * b[2]
 
-_ring(c::ConcurrencyChart, n::Symbol) = c.rings[findfirst(r -> name(r) === n, c.rings)]
-_isring(c::ConcurrencyChart, n::Symbol) = any(r -> name(r) === n, c.rings)
+_ring(c::ContourChart, n::Symbol) = c.rings[findfirst(r -> name(r) === n, c.rings)]
+_isring(c::ContourChart, n::Symbol) = any(r -> name(r) === n, c.rings)
 
-function _field(c::ConcurrencyChart, n::Symbol)
+function _field(c::ContourChart, n::Symbol)
     i = findfirst(f -> f.variable.name === n, c.fields)
     isnothing(i) && throw(KeyError(n))
     return c.fields[i]
 end
 
-variablenames(c::ConcurrencyChart) =
+variablenames(c::ContourChart) =
     [name(c.x); name(c.y); [f.variable.name for f in c.fields]; [name(r) for r in c.rings]]
 
-function scale(c::ConcurrencyChart, n::Symbol)
+function scale(c::ContourChart, n::Symbol)
     n === name(c.x) && return c.x
     n === name(c.y) && return c.y
     _isring(c, n) && return _ring(c, n)
@@ -174,7 +174,7 @@ function scale(c::ConcurrencyChart, n::Symbol)
     )
 end
 
-function _variable(c::ConcurrencyChart, n::Symbol)
+function _variable(c::ContourChart, n::Symbol)
     n === name(c.x) && return c.x.variable
     n === name(c.y) && return c.y.variable
     _isring(c, n) && return _ring(c, n).variable
@@ -182,8 +182,8 @@ function _variable(c::ConcurrencyChart, n::Symbol)
     return scale(c, n).variable
 end
 
-function Base.show(io::IO, c::ConcurrencyChart)
-    print(io, "ConcurrencyChart(:$(name(c.x)), :$(name(c.y)); curves of ")
+function Base.show(io::IO, c::ContourChart)
+    print(io, "ContourChart(:$(name(c.x)), :$(name(c.y)); curves of ")
     join(io, (":$(f.variable.name)" for f in c.fields), ", ")
     isempty(c.rings) || print(io, "; rings ", join((":$(name(r))" for r in c.rings), ", "))
     isempty(c.title) || print(io, "; \"", c.title, "\"")
@@ -193,8 +193,8 @@ end
 # --- construction -----------------------------------------------------------------------
 
 """
-    concurrency_chart(x, y, fields...; kwargs...) -> ConcurrencyChart
-    concurrency_chart(F, x, y, [z]; kwargs...) -> ConcurrencyChart
+    contour_chart(x, y, fields...; kwargs...) -> ContourChart
+    contour_chart(F, x, y, [z]; kwargs...) -> ContourChart
 
 A chart read at a point. `x` runs along the bottom and `y` up the left side, each a
 [`Variable`](@ref) with a domain or simply `name => (lo, hi)`. Every other variable is a
@@ -203,7 +203,7 @@ value. Read the chart by finding where the curves of any two known values cross;
 other value is read at that point.
 
 ```julia
-moody = concurrency_chart(
+moody = contour_chart(
     Variable(:Re, LogScale(); domain = (4e3, 1e8), label = "Reynolds number"),
     Variable(:f, LogScale(); domain = (0.008, 0.1), label = "friction factor"),
     Variable(:roughness; domain = (1e-6, 0.05), label = "ε/D") =>
@@ -242,7 +242,7 @@ resistance and reactance as fields:
 
 ```julia
 z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
-smith = concurrency_chart(
+smith = contour_chart(
     :u => (-1, 1),
     :v => (-1, 1),
     Variable(:r; domain = (0, 50), ticks = [0.2, 0.5, 1, 2, 5]) => (u, v) -> real(z(u, v)),
@@ -274,7 +274,7 @@ smith = concurrency_chart(
   band of background colour. `labelat = (r = :x => 0,)` labels a Smith chart's resistance
   circles along its real axis. Other families are labelled where their curves end.
 """
-function concurrency_chart(
+function contour_chart(
     x::_AxisArg,
     y::_AxisArg,
     fields::Pair...;
@@ -293,7 +293,7 @@ function concurrency_chart(
         isnothing(v.domain) &&
             throw(ArgumentError("axis variable :$(v.name) must declare a domain"))
     end
-    isempty(fields) && throw(ArgumentError("a concurrency chart needs at least one field"))
+    isempty(fields) && throw(ArgumentError("a contour chart needs at least one field"))
     fs = _Field[]
     for p in fields
         v = first(p) isa Symbol ? Variable(first(p)) : first(p)
@@ -344,7 +344,7 @@ function concurrency_chart(
         )
         at[k] = (first(p), float(last(p)))
     end
-    c = ConcurrencyChart(
+    c = ContourChart(
         sx,
         sy,
         fs,
@@ -368,7 +368,7 @@ function concurrency_chart(
     return c
 end
 
-function concurrency_chart(
+function contour_chart(
     F,
     x::_AxisArg,
     y::_AxisArg,
@@ -394,25 +394,25 @@ function concurrency_chart(
     catch err
         err isa ArgumentError || rethrow()
     end
-    return concurrency_chart(vx, vy, vz => Fw; kwargs...)
+    return contour_chart(vx, vy, vz => Fw; kwargs...)
 end
 
 # The samples every curve is traced from: a grid over the frame, fine enough that a curve
 # turning within a cell is rare, with the field's value at each node.
 const _GRID_STEP = 0.5
 
-function _grid(c::ConcurrencyChart)
+function _grid(c::ContourChart)
     nx = max(ceil(Int, c.width / _GRID_STEP), 8) + 1
     ny = max(ceil(Int, c.height / _GRID_STEP), 8) + 1
     return collect(range(0.0, c.width; length = nx)),
     collect(range(0.0, c.height; length = ny))
 end
 
-_samples(c::ConcurrencyChart, f::_Field, Xs, Ys) =
+_samples(c::ContourChart, f::_Field, Xs, Ys) =
     [_field_at(c, f, (X, Y)) for X in Xs, Y in Ys]
 
 # A field's variable with its range and tick style settled from the values it takes.
-function _resolved_field_variable(c::ConcurrencyChart, f::_Field)
+function _resolved_field_variable(c::ContourChart, f::_Field)
     v = f.variable
     Xs, Ys = _grid(c)
     vals = filter(isfinite, _samples(c, f, Xs, Ys))
@@ -434,7 +434,7 @@ end
 # --- reading -----------------------------------------------------------------------------
 
 # Every point on the chart where the two given values hold, as page points.
-function _reading_points(c::ConcurrencyChart, given::Dict{Symbol,Float64})
+function _reading_points(c::ContourChart, given::Dict{Symbol,Float64})
     W, H = c.width, c.height
     order = variablenames(c)
     (a, va), (b, vb) = sort!(collect(given); by = p -> findfirst(==(p[1]), order))
@@ -532,14 +532,14 @@ function _line_roots(g, lo::Float64, hi::Float64; n::Int = 400)
     return unique(roots)
 end
 
-function _reading_values(c::ConcurrencyChart, given, P::Point)
+function _reading_values(c::ContourChart, given, P::Point)
     names = variablenames(c)
     return NamedTuple{Tuple(names)}(
         Tuple(haskey(given, n) ? given[n] : _value_at(c, n, P) for n in names),
     )
 end
 
-function _given(c::ConcurrencyChart, values)
+function _given(c::ContourChart, values)
     known = variablenames(c)
     given = Dict{Symbol,Float64}()
     for (k, v) in pairs(values)
@@ -554,7 +554,7 @@ function _given(c::ConcurrencyChart, values)
     end
     length(given) == 2 || throw(
         ArgumentError(
-            "a concurrency chart is read from two values, which fix a point; " *
+            "a contour chart is read from two values, which fix a point; " *
             "$(length(given)) were given",
         ),
     )
@@ -571,7 +571,7 @@ function _given(c::ConcurrencyChart, values)
     return given
 end
 
-function _evaluate_all(c::ConcurrencyChart; values...)
+function _evaluate_all(c::ContourChart; values...)
     given = _given(c, values)
     pts = sort!(_reading_points(c, given))
     if isempty(pts)
@@ -582,15 +582,15 @@ function _evaluate_all(c::ConcurrencyChart; values...)
 end
 
 """
-    evaluate(chart::ConcurrencyChart; values...) -> NamedTuple
+    evaluate(chart::ContourChart; values...) -> NamedTuple
 
-Read a [`ConcurrencyChart`](@ref): given any two of its variables, find the point where
+Read a [`ContourChart`](@ref): given any two of its variables, find the point where
 both hold and return every variable's value there. Throws if there is no such point, or
 more than one; [`evaluate_all`](@ref) returns them all.
 """
-evaluate(c::ConcurrencyChart; values...) = _with_units(c, _evaluate(c; values...))
+evaluate(c::ContourChart; values...) = _with_units(c, _evaluate(c; values...))
 
-function _evaluate(c::ConcurrencyChart; values...)
+function _evaluate(c::ContourChart; values...)
     sols = _evaluate_all(c; values...)
     length(sols) == 1 || throw(
         ArgumentError(
@@ -601,25 +601,25 @@ function _evaluate(c::ConcurrencyChart; values...)
     return only(sols)
 end
 
-evaluate_all(c::ConcurrencyChart; values...) =
+evaluate_all(c::ContourChart; values...) =
     [_with_units(c, sol) for sol in _evaluate_all(c; values...)]
 
 """
-    crossing(chart::ConcurrencyChart; label = "", values...) -> Crossing
-    crossing(chart::ConcurrencyChart, solution::NamedTuple; label = "") -> Crossing
+    crossing(chart::ContourChart; label = "", values...) -> Crossing
+    crossing(chart::ContourChart, solution::NamedTuple; label = "") -> Crossing
 
-One point on a [`ConcurrencyChart`](@ref), for drawing: `drawing(chart; crossings = [r])`
+One point on a [`ContourChart`](@ref), for drawing: `drawing(chart; crossings = [r])`
 marks it, with lines dropped to both axes. The first form finds the point from two values,
 as [`evaluate`](@ref) does; the second takes a solution you already have, such as one of
 several from [`evaluate_all`](@ref).
 """
-crossing(c::ConcurrencyChart; label::AbstractString = "", values...) =
+crossing(c::ContourChart; label::AbstractString = "", values...) =
     _crossing(c, _evaluate(c; values...), label)
 
-crossing(c::ConcurrencyChart, sol::NamedTuple; label::AbstractString = "") =
+crossing(c::ContourChart, sol::NamedTuple; label::AbstractString = "") =
     _crossing(c, _numbers(c, sol), label)
 
-function _crossing(c::ConcurrencyChart, sol::NamedTuple, label::AbstractString)
+function _crossing(c::ContourChart, sol::NamedTuple, label::AbstractString)
     xpage, _ = _axis_page(c.x, c.width)
     ypage, _ = _axis_page(c.y, c.height)
     P = (xpage(sol[name(c.x)]), ypage(sol[name(c.y)]))

@@ -58,7 +58,7 @@ quadratic, from the formula for the root.
 It takes any number of inputs. With three or more, one alignment line can no longer relate
 them all, so it looks for a pair the formula depends on only through one combination,
 charts that combination as a first stage, and continues from there — the result is a
-chain of stages linked by bare turning lines:
+chain of stages linked by bare pivot lines:
 
 ```julia
 gas = auto_nomogram((n, T, V) -> n * 8.314 * T / V,
@@ -225,7 +225,7 @@ evaluate(nom; L = 3, W = 4, V = 24).H  # 2.0 — any direction the chain allows
 
 To read the chart, lay a line across the first stage and note where it crosses the shared
 scale. Then pivot about that point and read the second stage. This is why the shared scale
-is called the turning line. An empty tick list draws it bare, as above.
+is called the pivot line. An empty tick list draws it bare, as above.
 
 The solver reads any stage with exactly one unknown, adds the answer to the known values,
 and repeats. So you can give any combination of inputs that closes the chain. A
@@ -238,17 +238,17 @@ same way would not work, because one stage would put `t` on a linear scale and t
 a logarithmic one. `compound` checks for this and throws an error instead of drawing a
 wrong chart.
 
-### Nets
+### Grids
 
-A turning line works only when two variables combine into one intermediate value. When they
+A pivot line works only when two variables combine into one intermediate value. When they
 do not, as in the general quadratic `a·x² + b·x + c = 0`, one of the three points on the
-line has to carry two variables at once. That point lies on a **net**: a mesh of curves,
+line has to carry two variables at once. That point lies on a **grid**: a mesh of curves,
 `(u, v) -> (x, y)`.
 
 ```julia
 # a·x² + b·x = -c gives α = x², β = x, γ = -c, hence the surface below.
-nom = net_nomogram(
-    Net(Variable(:x; domain = (0.5, 5)), Variable(:c; domain = (0, 4)),
+nom = grid_nomogram(
+    Grid(Variable(:x; domain = (0.5, 5)), Variable(:c; domain = (0, 4)),
         (x, c) -> (1 / (1 + x), -c / (x * (1 + x)))),
     Variable(:a; domain = (0.5, 3)) => a -> (0.0, a),
     Variable(:b; domain = (-6, 0)) => b -> (1.0, b);
@@ -293,20 +293,20 @@ re-deriving anything.
 - [`examples/projective.jl`](examples/projective.jl) — reshaping a chart without changing
   what it computes.
 - [`examples/box_volume.jl`](examples/box_volume.jl) — four variables over two stages, with
-  a blank turning line.
+  a blank pivot line.
 - [`examples/general_quadratic.jl`](examples/general_quadratic.jl) — four variables that
-  no pivot can link, on a net.
+  no pivot can link, on a grid.
 - [`examples/from_formula.jl`](examples/from_formula.jl) — compound growth, parallel
   resistors and BMI, each from the formula as written.
 
 ## Status
 
 Version 0.1.0, not yet registered. Implemented and tested: building a chart directly from a
-formula, on straight scales or with one curved scale; the parallel-axis, N-chart and general determinant constructions; compound and net
-charts for four or more variables; concurrency charts, read where curves cross; projective
+formula, on straight scales or with one curved scale; the parallel-axis, N-chart and general determinant constructions; compound and grid
+charts for four or more variables; contour charts, read where curves cross; projective
 reshaping; the solver; both renderers; and the tick engine.
 
 Not yet implemented: taking an equation in implicit form, such as `1/R ~ 1/R₁ + 1/R₂`,
 rather than a function already solved for its result. That is where a Symbolics.jl front
-end would come in, alongside closed-form transforms where they exist. Nor are nets, charts
+end would come in, alongside closed-form transforms where they exist. Nor are grids, charts
 with more than one curved scale, or curved stages in a chain derived automatically.

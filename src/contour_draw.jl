@@ -1,4 +1,4 @@
-# --- concurrency charts: tracing and drawing --------------------------------------------
+# --- contour charts: tracing and drawing --------------------------------------------
 
 # Marching squares: the level `c` of the samples `V` on the grid, as polylines through the
 # points where it crosses the grid's edges. An edge is keyed `(1, i, j)` from node (i, j)
@@ -148,7 +148,7 @@ _restyle(st::NomogramStyle; kwargs...) =
 # reads across the lines. A curve that never crosses it is labelled where it comes closest,
 # moved a little towards the centre so that the label stays on the chart. Nothing if every
 # place overlaps a label already down.
-function _inline_label(c::ConcurrencyChart, text, pieces, (other, value), style, occupied)
+function _inline_label(c::ContourChart, text, pieces, (other, value), style, occupied)
     spots = Tuple{Float64,Point,Point}[]
     for piece in pieces
         g = [_value_at(c, other, P) - value for P in piece]
@@ -247,7 +247,7 @@ end
 
 # One family's curves on the page: for each value, the pieces of its curve that stand far
 # enough from their neighbours. `(value, level, pieces)` per value with anything to draw.
-function _trace_field(c::ConcurrencyChart, f::_Field, style::NomogramStyle)
+function _trace_field(c::ContourChart, f::_Field, style::NomogramStyle)
     Xs, Ys = _grid(c)
     V = _samples(c, f, Xs, Ys)
     φ = P -> _field_at(c, f, P)
@@ -276,7 +276,7 @@ function _trace_field(c::ConcurrencyChart, f::_Field, style::NomogramStyle)
 end
 
 # Lines across the chart at an axis's tick values, clipped to the region.
-function _gridlines(c::ConcurrencyChart, axis::Symbol, values)
+function _gridlines(c::ContourChart, axis::Symbol, values)
     W, H = c.width, c.height
     span, across = axis === :x ? (W, H) : (H, W)
     topage, _ = _axis_page(axis === :x ? c.x : c.y, span)
@@ -304,7 +304,7 @@ end
 # The edge of the chart's region, where it runs inside the frame: traced on the grid and
 # placed on each grid edge it crosses by bisection, so it is exact to well within a stroke
 # however coarse the grid.
-function _region_outline(c::ConcurrencyChart)
+function _region_outline(c::ContourChart)
     isnothing(c.region) && return Vector{Point}[]
     Xs, Ys = _grid(c)
     V = [_inside(c, (X, Y)) ? 1.0 : 0.0 for X in Xs, Y in Ys]
@@ -345,21 +345,21 @@ function _label_spots(piece::Vector{Point}, W::Float64, H::Float64, gap::Float64
 end
 
 """
-    drawing(chart::ConcurrencyChart; style = NomogramStyle(), crossings = Crossing[])
+    drawing(chart::ContourChart; style = NomogramStyle(), crossings = Crossing[])
 
-Lay out a [`ConcurrencyChart`](@ref): its axes and frame, each field's curves and their
+Lay out a [`ContourChart`](@ref): its axes and frame, each field's curves and their
 labels, and any [`Crossing`](@ref)s, each marked with lines dropped to the two axes. Returns
 a [`NomogramDrawing`](@ref), which both renderers draw.
 """
 function drawing(
-    c::ConcurrencyChart;
+    c::ContourChart;
     style::NomogramStyle = NomogramStyle(),
     crossings::AbstractVector{Crossing} = Crossing[],
     isopleths::AbstractVector{Isopleth} = Isopleth[],
 )
     isempty(isopleths) || throw(
         ArgumentError(
-            "a concurrency chart is read at a point, not along a line: mark points " *
+            "a contour chart is read at a point, not along a line: mark points " *
             "with `crossing` and pass them as `crossings = [...]`",
         ),
     )
@@ -693,7 +693,7 @@ function drawing(
 end
 
 function svg(
-    c::ConcurrencyChart;
+    c::ContourChart;
     style::NomogramStyle = NomogramStyle(),
     crossings::AbstractVector{Crossing} = Crossing[],
     isopleths::AbstractVector{Isopleth} = Isopleth[],

@@ -173,8 +173,8 @@ end
     one = isopleth(quad; p = -1, q = 0.25)
     @test one[:z] ≈ 0.5 rtol = 1e-6
 
-    net = net_nomogram(
-        Net(
+    grid = grid_nomogram(
+        Grid(
             Variable(:x; domain = (0.5, 5)),
             Variable(:c; domain = (0, 4)),
             (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),
@@ -183,10 +183,10 @@ end
         Variable(:b; domain = (-6, 0)) => b -> (1.0, b);
         relation = (x, c, a, b) -> a * x^2 + b * x + c,
     )
-    iso = isopleth(net; a = 1, b = -3, c = 2)
+    iso = isopleth(grid; a = 1, b = -3, c = 2)
     @test length(iso.points) == 4
     @test !haskey(iso.values, :x)
-    @test !occursin("NaN", svg(net; isopleths = [iso]))
+    @test !occursin("NaN", svg(grid; isopleths = [iso]))
 end
 
 @testitem "close pairs of crossings are both found" tags = [:unit] begin

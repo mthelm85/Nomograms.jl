@@ -171,7 +171,7 @@ end
           Nomograms.isopleth_style(2, colors, dashes)
 end
 
-@testitem "an empty tick list draws a bare turning line" tags = [:unit] setup = [Comp] begin
+@testitem "an empty tick list draws a bare pivot line" tags = [:unit] setup = [Comp] begin
     _, _, plain = Comp.volume(; blank = false)
     _, _, blank = Comp.volume(; blank = true)
     tick_count(nom) = length(only(sd for sd in drawing(nom).scales if sd.name === :t).ticks)

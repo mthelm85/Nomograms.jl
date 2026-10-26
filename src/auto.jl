@@ -354,13 +354,13 @@ One alignment line relates three scales, so `F(x, y, w)` is drawn as a chain of
 depend on some pair of its inputs only through a single combination of them, `t = T(x, y)`,
 which holds exactly when `F_x / F_y` does not depend on `w`. The first stage then charts
 `t`, the second charts `z` from `t` and `w`, and the reader pivots between them on an
-unmarked turning line. More inputs are reduced in the same way, one pair at a time.
+unmarked pivot line. More inputs are reduced in the same way, one pair at a time.
 
 Every pairing is tried. A pairing can fail for two reasons. `F` may not depend on the pair
 through a single combination at all. Or it may, but the two stages need the intermediate on
 different scales. The standard example is `(x + y)·w`, where the first stage needs a linear
-scale and the second a logarithmic one. That case needs a net, which you have to derive by
-hand ([`net_nomogram`](@ref)). If no pairing works, the error lists what went wrong with
+scale and the second a logarithmic one. That case needs a grid, which you have to derive by
+hand ([`grid_nomogram`](@ref)). If no pairing works, the error lists what went wrong with
 each.
 
 # One curved scale
@@ -376,13 +376,13 @@ from a given function takes a few seconds to compile.
 # Formulas with no chart
 
 A formula with neither kind of chart is refused, and the error gives the reason for each
-arrangement tried. The formula may still have a chart with more curved scales or a net, but
+arrangement tried. The formula may still have a chart with more curved scales or a grid, but
 you have to derive the form by hand: see [`determinant_nomogram`](@ref) and
-[`net_nomogram`](@ref). A formula that is not monotone in a variable over its domain is also
+[`grid_nomogram`](@ref). A formula that is not monotone in a variable over its domain is also
 refused, because a straight scale cannot fold back on itself.
 
 Any formula of two inputs can still be drawn as curves of constant value, read where they
-cross: see [`concurrency_chart`](@ref).
+cross: see [`contour_chart`](@ref).
 
 # Keywords
 - `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for two
@@ -476,8 +476,8 @@ function _auto_two(
                 "transforms with h($(vz.name)) = f($(vx.name)) + g($(vy.name)), so it " *
                 "has no chart on three straight scales (ln|F_x/F_y| fails to split by " *
                 "$(round(defect; sigdigits = 3))). It may still have one with a curved " *
-                "scale or a net, which need a form you derive: see " *
-                "`determinant_nomogram` and `net_nomogram`.",
+                "scale or a grid, which need a form you derive: see " *
+                "`determinant_nomogram` and `grid_nomogram`.",
             ),
         )
     end

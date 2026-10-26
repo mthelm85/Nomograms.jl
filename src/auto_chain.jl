@@ -150,7 +150,7 @@ function _pivot_on(
         throw(
             ArgumentError(
                 "the two stages want their combination on different scales, so this " *
-                "pair needs a net rather than a pivot",
+                "pair needs a grid rather than a pivot",
             ),
         )
     end
@@ -176,28 +176,28 @@ function _remainder(F, v::Val, i, j, slot, along, s_of_t)
     end
 end
 
-# The turning line sits between the first stage's inputs, so one of them always lands
+# The pivot line sits between the first stage's inputs, so one of them always lands
 # inside the rest of the chain -- and left to chance, on top of one of its axes. So choose
 # which input goes inside and how wide the stage is, aiming the inside input at the middle
 # of a gap between the axes already there, and keep whichever choice leaves the new axes
 # furthest from their neighbours for the width it takes -- otherwise a lopsided stage
 # would fling its outside input a long way to buy a little room inside. An input that is
-# itself a turning line goes outside: the stage feeding it straddles it in turn and needs
+# itself a pivot line goes outside: the stage feeding it straddles it in turn and needs
 # the room. The stage is never wider than the
-# last one, nor narrower than a quarter of it. The turning line always reads upwards, so
+# last one, nor narrower than a quarter of it. The pivot line always reads upwards, so
 # whichever way the stages are aligned, swapping the inputs mirrors the stage about it.
 function _fit_first_stage(first_stage, assembled, stage, downstream, tname, width)
     consumer = only(st for st in downstream if tname in variablenames(st))
     x(n) = (s = assembled[n]; point(s, sum(s.domain) / 2)[1])
     xt = x(tname)
     inward = sign(x(name(consumer.scales[3])) - xt)
-    # Everything as signed offsets from the turning line, positive into the chain.
-    # A turning line belongs to two stages; it is one axis.
+    # Everything as signed offsets from the pivot line, positive into the chain.
+    # A pivot line belongs to two stages; it is one axis.
     others = unique(name(s) for st in downstream for s in st.scales)
     placed = sort!([inward * (x(n) - xt) for n in others])
     inputs = [name(s) for s in stage.scales[1:2]]
     offsets = [inward * (x(n) - xt) for n in inputs]
-    pivots = [_is_turning_line(n) for n in inputs]
+    pivots = [_is_pivot_line(n) for n in inputs]
     gaps = [(placed[k] + placed[k+1]) / 2 for k = 1:(length(placed)-1) if placed[k] >= 0]
 
     best = (spread = -Inf, w = stage.width, swapped = false)
@@ -205,7 +205,7 @@ function _fit_first_stage(first_stage, assembled, stage, downstream, tname, widt
         o = swapped ? -offsets : offsets
         inside = findfirst(>(0), o)
         isnothing(inside) && continue
-        # Mirror so that a turning-line input stays outside, unless both are.
+        # Mirror so that a pivot-line input stays outside, unless both are.
         any(pivots) && !all(pivots) && pivots[inside] && continue
         for target in gaps
             w = clamp(stage.width * target / o[inside], width / 4, width)
@@ -224,7 +224,7 @@ function _fit_first_stage(first_stage, assembled, stage, downstream, tname, widt
     return first_stage(best.w, best.swapped)
 end
 
-_is_turning_line(n::Symbol) = occursin(r"^_t\d+$", string(n))
+_is_pivot_line(n::Symbol) = occursin(r"^_t\d+$", string(n))
 
 # The narrowest gap between neighbouring axes of a chain, as a fraction of its width.
 function _spacing(stages)

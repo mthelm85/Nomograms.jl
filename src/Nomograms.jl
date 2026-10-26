@@ -65,8 +65,8 @@ export
     AbstractNomogram,
     Nomogram,
     CompoundNomogram,
-    Net,
-    NetNomogram,
+    Grid,
+    GridNomogram,
     Isopleth,
     point,
     variablenames,
@@ -80,12 +80,12 @@ export
     projective_transform,
     fan,
     compound,
-    net_nomogram,
-    netpoint,
+    grid_nomogram,
+    gridpoint,
     auto_nomogram,
     separability_defect,
-    ConcurrencyChart,
-    concurrency_chart,
+    ContourChart,
+    contour_chart,
     Crossing,
     crossing,
     # solving
@@ -113,15 +113,15 @@ include("ticks.jl")
 include("construct.jl")
 include("solve.jl")
 include("compound.jl")
-include("net.jl")
+include("grid.jl")
 include("auto.jl")
 include("auto_chain.jl")
 include("auto_curved.jl")
 include("textwidth.jl")
 include("drawing.jl")
 include("svg.jl")
-include("concurrency.jl")
-include("concurrency_draw.jl")
+include("contour.jl")
+include("contour_draw.jl")
 include("fan.jl")
 include("precompile.jl")
 

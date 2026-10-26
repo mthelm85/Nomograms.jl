@@ -66,7 +66,7 @@ PrecompileTools.@setup_workload begin
         )
         max_relation_residual(quad)
 
-        conc = concurrency_chart(
+        conc = contour_chart(
             Variable(:x, LogScale(); domain = (1, 10)),
             Variable(:y; domain = (0, 1)),
             Variable(:z) => (x, y) -> x * (1 + y),
@@ -77,8 +77,8 @@ PrecompileTools.@setup_workload begin
         )
         evaluate(conc; z = 3, w = 2)
         svg(conc; crossings = [crossing(conc; x = 2, z = 3, label = "r")])
-        svg(concurrency_chart((x, y) -> x * y, :x => (1, 10), :y => (1, 10)))
-        disc = concurrency_chart(
+        svg(contour_chart((x, y) -> x * y, :x => (1, 10), :y => (1, 10)))
+        disc = contour_chart(
             :u => (-1, 1),
             :v => (-1, 1),
             :r => (u, v) -> hypot(u, v),

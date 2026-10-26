@@ -70,7 +70,7 @@ nom[:R].domain
 ```
 
 Building a chart by hand gives you full control over its layout. It also lets you make
-charts that `auto_nomogram` cannot find, such as nets, charts with several curved scales,
+charts that `auto_nomogram` cannot find, such as grids, charts with several curved scales,
 and reshaped layouts. See [Building charts](20-constructions.md).
 
 ## Contents
@@ -80,9 +80,9 @@ and reshaped layouts. See [Building charts](20-constructions.md).
   more inputs.
 - [Building charts](20-constructions.md): the parallel and N-chart constructions, curved
   scales from the determinant, and reshaping a chart without changing its answers.
-- [Four or more variables](30-more-variables.md): chaining charts through turning lines,
-  and nets for relations a chain cannot handle.
-- [Concurrency charts](35-concurrency-charts.md): charts read where curves cross, which
+- [Four or more variables](30-more-variables.md): chaining charts through pivot lines,
+  and grids for relations a chain cannot handle.
+- [Contour charts](35-contour-charts.md): charts read where curves cross, which
   any formula has, and which can carry many variables on one sheet.
 - [Solving](40-solving.md): reading charts numerically, and why a line can cross a scale
   twice.

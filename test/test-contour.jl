@@ -1,4 +1,4 @@
-@testmodule ConcFix begin
+@testmodule ContourFix begin
     using Nomograms
 
     const P = 101.325
@@ -7,7 +7,7 @@
     rh(T, W) = pv(W) / ps(T)
     enthalpy(T, W) = 1.006T + W / 1000 * (2501 + 1.86T)
 
-    psychrometric() = concurrency_chart(
+    psychrometric() = contour_chart(
         Variable(:T; domain = (0, 45), label = "dry-bulb temperature (°C)"),
         Variable(:W; domain = (0, 30), label = "humidity ratio (g/kg)"),
         Variable(:RH; domain = (0.1, 1), ticks = 0.1:0.1:1.0) => rh,
@@ -16,7 +16,7 @@
     )
 
     rough(Re, f) = 3.7 * (10^(-1 / (2sqrt(f))) - 2.51 / (Re * sqrt(f)))
-    moody() = concurrency_chart(
+    moody() = contour_chart(
         Variable(:Re, LogScale(); domain = (4e3, 1e8)),
         Variable(:f, LogScale(); domain = (0.008, 0.1)),
         Variable(:roughness; domain = (1e-6, 0.05)) => rough;
@@ -26,7 +26,7 @@
     z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
     const RMAJ = [0.2, 0.5, 1, 2, 5, 10, 20]
     const RMIN = [0.1, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.2, 1.4, 1.6, 1.8, 3, 4]
-    smith() = concurrency_chart(
+    smith() = contour_chart(
         :u => (-1, 1),
         :v => (-1, 1),
         Variable(:r; domain = (0, 50), ticks = RMAJ, minorticks = RMIN) =>
@@ -50,28 +50,28 @@
 end
 
 @testitem "every value read agrees with its field's formula" tags = [:unit] setup =
-    [ConcFix] begin
-    psy = ConcFix.psychrometric()
+    [ContourFix] begin
+    psy = ContourFix.psychrometric()
     # From the two axes, from an axis and a field, and from two fields.
     for given in ((T = 30, W = 12), (T = 30, RH = 0.5), (RH = 0.5, h = 60), (W = 8, h = 40))
         s = evaluate(psy; given...)
         for (k, v) in pairs(given)
             @test s[k] == v
         end
-        @test s.RH ≈ ConcFix.rh(s.T, s.W) rtol = 1e-9
-        @test s.h ≈ ConcFix.enthalpy(s.T, s.W) rtol = 1e-9
+        @test s.RH ≈ ContourFix.rh(s.T, s.W) rtol = 1e-9
+        @test s.h ≈ ContourFix.enthalpy(s.T, s.W) rtol = 1e-9
     end
     # Air at 30 °C and half saturated carries about 13.3 g of water per kg.
     @test evaluate(psy; T = 30, RH = 0.5).W ≈ 13.28 atol = 0.01
 
-    moody = ConcFix.moody()
+    moody = ContourFix.moody()
     s = evaluate(moody; Re = 1e5, roughness = 1e-4)
-    @test ConcFix.rough(s.Re, s.f) ≈ 1e-4 rtol = 1e-9
+    @test ContourFix.rough(s.Re, s.f) ≈ 1e-4 rtol = 1e-9
     @test s.f ≈ 0.0185 atol = 1e-4
 end
 
 @testitem "every crossing is found" tags = [:unit] begin
-    c = concurrency_chart((x, y) -> (x - 0.5)^2 + y, :x => (0, 1), :y => (0, 1), :z)
+    c = contour_chart((x, y) -> (x - 0.5)^2 + y, :x => (0, 1), :y => (0, 1), :z)
     sols = evaluate_all(c; y = 0.1, z = 0.2)
     @test length(sols) == 2
     @test [s.x for s in sols] ≈ [0.5 - sqrt(0.1), 0.5 + sqrt(0.1)]
@@ -83,8 +83,8 @@ end
 end
 
 @testitem "values that fix no point are refused" tags = [:unit, :validation] setup =
-    [ConcFix] begin
-    psy = ConcFix.psychrometric()
+    [ContourFix] begin
+    psy = ContourFix.psychrometric()
     msg(f) =
         try
             f()
@@ -112,7 +112,7 @@ end
 end
 
 @testitem "a separable formula is drawn in straight lines" tags = [:unit] begin
-    c = concurrency_chart((x, y) -> x * y, :x => (1, 10), :y => (1, 10), :z)
+    c = contour_chart((x, y) -> x * y, :x => (1, 10), :y => (1, 10), :z)
     # The transforms auto_nomogram recovers: logarithmic, so the axes read like log paper.
     @test c.x.variable.transform isa Nomograms.TabulatedScale
     d = drawing(c)
@@ -129,13 +129,13 @@ end
 
     # Not separable: still a chart, with curved lines, and it still reads correctly.
     F(x, y) = sin(x) + exp(y) + x * y
-    g = concurrency_chart(F, :x => (0, 2), :y => (0, 1))
+    g = contour_chart(F, :x => (0, 2), :y => (0, 1))
     s = evaluate(g; x = 1, z = 3)
     @test F(s.x, s.y) ≈ 3 rtol = 1e-9
 end
 
-@testitem "curves thin out where they crowd" tags = [:unit] setup = [ConcFix] begin
-    moody = ConcFix.moody()
+@testitem "curves thin out where they crowd" tags = [:unit] setup = [ContourFix] begin
+    moody = ContourFix.moody()
     f = only(moody.fields)
     drawn(sp) = sum(
         Nomograms._length(p) for (_, _, ps) in
@@ -158,8 +158,8 @@ end
 end
 
 @testitem "labels never overlap, and the region's edge is drawn" tags = [:unit] setup =
-    [ConcFix] begin
-    for c in (ConcFix.psychrometric(), ConcFix.moody())
+    [ContourFix] begin
+    for c in (ContourFix.psychrometric(), ContourFix.moody())
         d = drawing(
             c;
             crossings = [
@@ -218,7 +218,7 @@ end
 
 @testitem "units come back on crossings" tags = [:unit] begin
     using Unitful
-    bmi = concurrency_chart(
+    bmi = contour_chart(
         (m, h) -> m / h^2,
         Variable(:mass; domain = (40u"kg", 150u"kg")),
         Variable(:height; domain = (1.4u"m", 2.1u"m")),
@@ -230,10 +230,10 @@ end
         1e-9
 end
 
-@testitem "concurrency charts render in both backends" tags = [:integration] setup =
-    [ConcFix] begin
+@testitem "contour charts render in both backends" tags = [:integration] setup =
+    [ContourFix] begin
     using CairoMakie
-    psy = ConcFix.psychrometric()
+    psy = ContourFix.psychrometric()
     r = crossing(psy; T = 30, RH = 0.5, label = "30 °C, 50%")
     @test startswith(svg(psy; crossings = [r]), "<?xml")
     @test nomogramplot(psy; crossings = [r]) isa Figure
@@ -241,8 +241,8 @@ end
 end
 
 @testitem "a Smith chart reads impedance, angle and wavelength" tags = [:unit] setup =
-    [ConcFix] begin
-    smith = ConcFix.smith()
+    [ContourFix] begin
+    smith = ContourFix.smith()
     # z = 1 + 1j has reflection coefficient (z - 1)/(z + 1) = 0.2 + 0.4j.
     s = evaluate(smith; r = 1, x = 1)
     @test s.u ≈ 0.2 atol = 1e-9
@@ -258,8 +258,9 @@ end
     @test_throws ArgumentError evaluate(smith; angle = 30, wtg = 0.1)
 end
 
-@testitem "a chart on its own plane keeps its proportions" tags = [:unit] setup = [ConcFix] begin
-    smith = ConcFix.smith()
+@testitem "a chart on its own plane keeps its proportions" tags = [:unit] setup =
+    [ContourFix] begin
+    smith = ContourFix.smith()
     @test smith.height ≈ smith.width
     d = drawing(smith; crossings = [crossing(smith; r = 1, x = 1, label = "1 + 1j")])
     names = Set(sd.name for sd in d.scales)
@@ -275,20 +276,20 @@ end
 end
 
 @testitem "labels can be set along curves, where they cross another" tags = [:unit] setup =
-    [ConcFix] begin
-    smith = ConcFix.smith()
+    [ContourFix] begin
+    smith = ContourFix.smith()
     d = drawing(smith)
     inline = [t for t in d.texts if t.halo]
     @test !isempty(inline)
     @test all(t -> -pi / 2 < t.rotation <= pi / 2, inline)
     # Resistance circles are labelled on the real axis, where x = 0.
-    for r in ConcFix.RMAJ
+    for r in ContourFix.RMAJ
         t = findfirst(t -> t.text == Nomograms.default_tickformat(r), inline)
         isnothing(t) && continue
         @test inline[t].pos[2] ≈ smith.centre[2] atol = 0.05
     end
     @test occursin("paint-order", svg(d))
-    @test_throws ArgumentError concurrency_chart(
+    @test_throws ArgumentError contour_chart(
         :u => (-1, 1),
         :v => (-1, 1),
         :w => (u, v) -> u + v;
@@ -325,9 +326,9 @@ end
     )
 end
 
-@testitem "a Wulff net reads the stereographic projection" tags = [:unit] begin
+@testitem "a Wulff grid reads the stereographic projection" tags = [:unit] begin
     sphere(u, v) = (r2 = u^2 + v^2; (2u, 2v, 1 - r2) ./ (1 + r2))
-    wulff = concurrency_chart(
+    wulff = contour_chart(
         :u => (-1, 1),
         :v => (-1, 1),
         Variable(:lat; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88) =>

@@ -3,12 +3,12 @@
 
 Redraw a chart with its axes as spokes radiating from one centre. The fanned chart gives
 exactly the same answers as the original. The result is the same kind of chart as `nom`: a
-[`Nomogram`](@ref), a [`CompoundNomogram`](@ref) or a [`NetNomogram`](@ref).
+[`Nomogram`](@ref), a [`CompoundNomogram`](@ref) or a [`GridNomogram`](@ref).
 
 Parallel lines meet at a point at infinity, and a projective map can bring that point onto
 the page. Collinear points stay collinear under such a map, so the chart still works (see
 [`project`](@ref)). Every vertical axis becomes a spoke through the new point, including the
-turning lines of a [`compound`](@ref) chart and the strands of a net.
+pivot lines of a [`compound`](@ref) chart and the strands of a grid.
 
 Straight lines stay straight, so the far ends of the spokes lie on a straight chord, not an
 arc, and the middle spokes are shorter than the outer ones; the wider the fan, the bigger
@@ -99,10 +99,10 @@ function _remap(cn::CompoundNomogram, g, w, h, title)
     return CompoundNomogram(stages, [_remap(s, g) for s in cn.scales], w, h, title)
 end
 
-function _remap(nn::NetNomogram, g, w, h, title)
-    net = Net(nn.net.u, nn.net.v, (u, v) -> g(nn.net.surface(u, v)))
-    return NetNomogram(
-        net,
+function _remap(nn::GridNomogram, g, w, h, title)
+    grid = Grid(nn.grid.u, nn.grid.v, (u, v) -> g(nn.grid.surface(u, v)))
+    return GridNomogram(
+        grid,
         _remap(nn.a, g),
         _remap(nn.b, g),
         [_remap(s, g) for s in nn.scales],

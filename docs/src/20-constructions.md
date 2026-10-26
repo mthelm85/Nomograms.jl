@@ -194,7 +194,7 @@ drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = "4 ∥ 6 =
 ```
 
 The fanned chart gives the same answers as the original, and `fan` works on compound
-charts and nets too. Because straight lines stay straight, the spokes end on a straight
+charts and grids too. Because straight lines stay straight, the spokes end on a straight
 chord, not an arc. At the default spread of 90° the tips line up level, and wider fans
 leave the middle spokes shorter than the outer ones. The map also squeezes everything near
 the hub, so `fan` lays the chart out both ways round and keeps the one that labels more

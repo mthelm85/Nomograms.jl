@@ -33,12 +33,12 @@ strokes, 6px major ticks, 3px of label padding and 10px labels.
   a label is hard to read, and the tick mark still shows where the value falls.
 - `collisionpad`: extra clearance required between two labels.
 - `axislinewidth`, `gridlinewidth`, `tickwidth`, `isoplethwidth`: stroke widths. The
-  grid width applies to the strands of a [`Net`](@ref). Its strands are read like any
+  grid width applies to the strands of a [`Grid`](@ref). Its strands are read like any
   other scale, so by default they match the axes; make it thinner, or pass `gridcolor`
-  to [`svg`](@ref) or [`nomogramplot`](@ref), for a lighter net.
+  to [`svg`](@ref) or [`nomogramplot`](@ref), for a lighter grid.
 - `isopleth_overhang`: how far an alignment line extends past the outermost scale.
 - `markersize`: radius of the dot where an isopleth meets a scale.
-- `min_curve_spacing`: on a [`ConcurrencyChart`](@ref), a curve is drawn only where it is
+- `min_curve_spacing`: on a [`ContourChart`](@ref), a curve is drawn only where it is
   at least this far from its neighbours, judged against the curves at least as round as
   it is. A crowded family thins out locally, as on a Smith chart, rather than everywhere.
 """
@@ -122,8 +122,8 @@ end
     TextDrawing
 
 Text drawn on its own rather than as part of a scale, in [`NomogramDrawing`](@ref)'s
-`texts`: the name of one of a net's families, whose strands carry only their values, or a
-value set along a curve inside a [`ConcurrencyChart`](@ref).
+`texts`: the name of one of a grid's families, whose strands carry only their values, or a
+value set along a curve inside a [`ContourChart`](@ref).
 
 `size` is `:title` or `:tick`, for the style's title or tick-label size. `rotation` is in
 radians. `halo` asks for a band of background colour around the letters, so that text set
@@ -400,7 +400,7 @@ function thin_ticks(
     # The ends of the domain go down first: a reader needs to know where an axis stops,
     # so a round tick that crowds an endpoint is the one to sacrifice, not the endpoint.
     # An explicitly empty tick list is a request for a bare line, though -- a compound
-    # nomogram's turning line is usually drawn blank -- so it overrides this.
+    # nomogram's pivot line is usually drawn blank -- so it overrides this.
     blank = !isnothing(v.ticks) && isempty(v.ticks)
     bare = Float64[]
     if style.endpoint_ticks && !blank
@@ -632,10 +632,10 @@ function _clear_spot(text, ends, style, occupied, walls, own)
     error("unreachable: \"$text\" found no clear place")
 end
 
-# Titles that belong to no single scale -- the names of a net's two families, whose
+# Titles that belong to no single scale -- the names of a grid's two families, whose
 # strands are labelled only with their values. A chart supplies them as text with the
 # places it would like them, `(anchor, align, away)` as for a scale's title, given where
-# the scale titles went; only a net has any.
+# the scale titles went; only a grid has any.
 _extra_titles(::AbstractNomogram, titles, paths, style) = Tuple{String,Vector{Any}}[]
 
 _box_centre(b::NTuple{4,Float64}) = ((b[1] + b[3]) / 2, (b[2] + b[4]) / 2)

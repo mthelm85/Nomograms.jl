@@ -49,7 +49,7 @@ denominators (10 here), or 16 if they are all whole numbers. An explicit `tickst
 - `titleend`: which end of the scale the title goes past: `:start` or `:stop` for the low or
   high end of the domain, or `:auto` for whichever end is higher on the page. Set this when
   the automatic choice puts the title somewhere crowded, as happens for the strands of a
-  [`Net`](@ref) that converge at one end.
+  [`Grid`](@ref) that converge at one end.
 """
 struct Variable
     name::Symbol
@@ -201,7 +201,7 @@ end
     Scale(variable, domain, curve, side, kind = :scale)
 
 `kind` is `:scale` for a scale a reader takes a value from, or `:grid` for one strand of a
-[`Net`](@ref). Strands are read like scales and drawn like them, but carry no ticks, and
+[`Grid`](@ref). Strands are read like scales and drawn like them, but carry no ticks, and
 a renderer's `gridcolor` can draw them lighter.
 """
 Scale(v::Variable, domain, curve, side::Symbol) = Scale(v, domain, curve, side, :scale)

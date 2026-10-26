@@ -372,7 +372,7 @@ end
 
 @testitem "titles never overlap, however close the axes" tags = [:unit] setup = [Clash] begin
     # The chart this was reported on: a compound whose second stage puts its result 2.4
-    # units from the turning line, with titles a good deal wider than that.
+    # units from the pivot line, with titles a good deal wider than that.
     stage1 = multiplicative_nomogram(
         Variable(:watts; domain = (5.0, 200.0), label = "Appliance Watts"),
         Variable(:hours; domain = (0.5, 12.0), label = "Daily Runtime (h)"),

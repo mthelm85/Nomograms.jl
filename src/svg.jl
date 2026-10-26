@@ -107,8 +107,8 @@ other packages. To put the chart in a Makie `Figure`, load Makie as well (see
 - `padding = 2.0`: margin in chart units, added outside the computed bounding box.
 - `background = "white"`, `axiscolor`, `textcolor`, `isoplethcolors`: colours, as any
   string an SVG renderer accepts. Pass `background = "none"` for a transparent chart.
-- `gridcolor`: the colour of a net's strands and their labels. By default they are drawn
-  like the axes, since they are read like them; pass a lighter colour to make a dense net
+- `gridcolor`: the colour of a grid's strands and their labels. By default they are drawn
+  like the axes, since they are read like them; pass a lighter colour to make a dense grid
   less prominent.
 - `font`: CSS font stack for all text.
 """

@@ -162,16 +162,16 @@ end
 `auto_nomogram` does not search for charts with more than one curved scale, or for curved
 stages in a chain of three or more inputs. For those, derive the form yourself and use
 [`determinant_nomogram`](@ref). Any formula of two inputs can also be drawn as a
-[concurrency chart](35-concurrency-charts.md), which is read where curves cross instead of
+[contour chart](35-contour-charts.md), which is read where curves cross instead of
 along a line.
 
 ## More than two inputs
 
 One alignment line relates only three scales, so a formula with three or more inputs
-becomes a chain of charts linked by unmarked *turning lines*. You lay a line across the
-first stage, note where it crosses the turning line, then pivot about that point to read
+becomes a chain of charts linked by unmarked *pivot lines*. You lay a line across the
+first stage, note where it crosses the pivot line, then pivot about that point to read
 the next stage. `auto_nomogram` finds the chain for you. In this chart, lay a line from
-amount to temperature and mark where it crosses the turning line. Then lay a line from
+amount to temperature and mark where it crosses the pivot line. Then lay a line from
 that mark to volume and read the pressure:
 
 ```@example auto
@@ -204,7 +204,7 @@ chain falls in a gap between two axes instead of on top of one.
 
 A pair can pass the test and still fail to give a chart. In `(a + b)·c`, the first stage
 needs `a + b` on a linear scale and the second needs it on a logarithmic one. No layout of
-straight scales can do both, so this formula needs a [net](30-more-variables.md).
+straight scales can do both, so this formula needs a [grid](30-more-variables.md).
 `auto_nomogram` tries every pairing, and the error says what went wrong with each:
 
 ```@example auto

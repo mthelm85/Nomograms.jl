@@ -8,7 +8,7 @@ A single alignment line relates at most three scales, so a four-variable relatio
 into two, `g(a, b) = t` and `h(t, c) = d`, which share the intermediate `t`. The reader lays
 a line across the first stage to find where it crosses the shared scale, then pivots about
 that point and reads the second stage. This is why the shared scale is often called the
-pivot or turning line.
+pivot or pivot line.
 
 Build one with [`compound`](@ref), which positions the stages so their shared scales
 coincide. Drawing works exactly as for a single nomogram; solving propagates values from

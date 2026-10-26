@@ -191,9 +191,9 @@ end
         :p,
     )
     @test a[:n].variable.tickstyle === :integer
-    # Net strands are labelled in the variable's own style.
-    gq = net_nomogram(
-        Net(
+    # Grid strands are labelled in the variable's own style.
+    gq = grid_nomogram(
+        Grid(
             Variable(:x; domain = (0.5, 2)),
             Variable(:c; domain = (0, 1), tickstyle = :fraction, maxden = 4),
             (x, c) -> (1 / (1 + x), -c / (x * (1 + x))),

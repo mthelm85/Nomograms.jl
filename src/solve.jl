@@ -265,7 +265,7 @@ _with_units(nom::AbstractNomogram, sol::NamedTuple) =
 _numbers(nom::AbstractNomogram, sol::NamedTuple) =
     NamedTuple{keys(sol)}(Tuple(_number(_variable(nom, n), sol[n]) for n in keys(sol)))
 
-# The variable behind a name. A net's own two variables have no scale of their own.
+# The variable behind a name. A grid's own two variables have no scale of their own.
 _variable(nom::AbstractNomogram, n::Symbol) = scale(nom, n).variable
 
 """

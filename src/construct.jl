@@ -503,8 +503,8 @@ end
 
 # Measure the curves, map their combined bounding box onto the canvas, and build the
 # scales. Returns the fit alongside them, because a caller may hold geometry that is not a
-# scale -- a Net's surface -- and has to move it the same way. Shared by
-# `determinant_nomogram`, `project` and `net_nomogram`, which all start from curves in
+# scale -- a Grid's surface -- and has to move it the same way. Shared by
+# `determinant_nomogram`, `project` and `grid_nomogram`, which all start from curves in
 # coordinates of their own choosing.
 function _fitted_scales(
     vars::Vector{Variable},
