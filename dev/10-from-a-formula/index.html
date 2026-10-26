@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>From a formula — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=e264079a">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=3adb6d74">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="From a formula — Nomograms.jl">
   <meta property="og:title" content="From a formula — Nomograms.jl">
@@ -49,6 +49,7 @@
       <a href="../10-from-a-formula/" class="md-nav-active">From a formula</a>
       <a href="../20-constructions/">Building charts</a>
       <a href="../30-more-variables/">Four or more variables</a>
+      <a href="../35-concurrency-charts/">Concurrency charts</a>
       <a href="../40-solving/">Solving</a>
       <a href="../50-drawing/">Drawing</a>
       <a href="../55-gallery/">Gallery</a>
@@ -163,9 +164,9 @@ end</code></pre>
   • :z on a curve — its level sets are not straight lines under any transforms of :x and :y (misfit 0.098)
   • :x on a curve — its level sets are not straight lines under any transforms of :y and :z (misfit 0.0092)
   • :y on a curve — its level sets are not straight lines under any transforms of :x and :z (misfit 0.94)
-It may still have a chart with more curved scales, or a net, from a form you derive: see `determinant_nomogram` and `net_nomogram`.</code></pre>
+It may still have a chart with more curved scales, or a net, from a form you derive: see `determinant_nomogram` and `net_nomogram`. Or draw it as curves of constant value, which any formula has: see `concurrency_chart`.</code></pre>
 </div>
-<p><code class="md-code-inline">auto_nomogram</code> does not search for charts with more than one curved scale, or for curved stages in a chain of three or more inputs. For those, derive the form yourself and use <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>.</p>
+<p><code class="md-code-inline">auto_nomogram</code> does not search for charts with more than one curved scale, or for curved stages in a chain of three or more inputs. For those, derive the form yourself and use <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>. Any formula of two inputs can also be drawn as a <a href="../35-concurrency-charts/">concurrency chart</a>, which is read where curves cross instead of along a line.</p>
 <h2 id="More-than-two-inputs" class="md-heading">More than two inputs<a href="#More-than-two-inputs" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>One alignment line relates only three scales, so a formula with three or more inputs becomes a chain of charts linked by unmarked <em>turning lines</em>. You lay a line across the first stage, note where it crosses the turning line, then pivot about that point to read the next stage. <code class="md-code-inline">auto_nomogram</code> finds the chain for you. In this chart, lay a line from amount to temperature and mark where it crosses the turning line. Then lay a line from that mark to volume and read the pressure:</p>
 <div class="md-multi-output">
@@ -249,6 +250,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=e264079a"></script>
+  <script src="../assets/materialdocs.js?v=3adb6d74"></script>
 </body>
 </html>
