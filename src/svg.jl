@@ -72,6 +72,7 @@ function _text(
     rotation::Real,
     fill::AbstractString,
     weight::AbstractString = "",
+    extra::AbstractString = "",
 )
     x, y = X(pos[1]), Y(pos[2])
     transform = if iszero(rotation)
@@ -85,7 +86,7 @@ function _text(
         """$indent<text x="$(_num(x))" y="$(_num(y))" font-size="$(_num(size))" """ *
         """text-anchor="$(_svg_anchor(align[1]))" """ *
         """dominant-baseline="$(_svg_baseline(align[2]))" """ *
-        """fill="$(_esc(fill))"$bold$transform>$(_esc(text))</text>""",
+        """fill="$(_esc(fill))"$bold$transform$extra>$(_esc(text))</text>""",
     )
     return nothing
 end
@@ -216,8 +217,27 @@ viewBox="0 0 $(_num(W)) $(_num(H))">
         println(io, "    </g>")
     end
 
+    # A halo is a stroke in the background colour, painted under the letters.
+    halo = background == "none" ? "white" : background
     for t in d.texts
-        _text(io, "    ", X, Y, t.pos, t.text, st.titlesize * k, t.align, 0.0, textcolor)
+        extra =
+            t.halo ?
+            """ stroke="$(_esc(halo))" stroke-width="$(_num(0.6 * k))" """ *
+            """stroke-linejoin="round" paint-order="stroke\"""" : ""
+        _text(
+            io,
+            "    ",
+            X,
+            Y,
+            t.pos,
+            t.text,
+            _textsize(t, st) * k,
+            t.align,
+            t.rotation,
+            textcolor,
+            "",
+            extra,
+        )
     end
 
     for (i, iso) in enumerate(d.isopleths)

@@ -282,7 +282,19 @@ found is a reading.
 order: past the right or top edge, then continuing the curve from an end inside the frame,
 then past the left or bottom edge. It takes the first spot that overlaps no other label and
 crosses no line except its own curve. The lines are bucketed into square cells so that each
-check only looks at nearby segments.
+check only looks at nearby segments. A family given in `labelat` is labelled instead where
+each curve crosses the named curve of another variable, found by a sign change of that
+variable along the traced points; a curve that never crosses it is labelled where it comes
+closest. Such a label is turned to run along its curve, kept upright, and drawn on a halo.
+
+**Rings.** A ring is a [`Scale`](@ref) like any axis, so its ticks come from the same
+engine. Its side is fixed by orientation rather than by the usual ordering of the two
+normals: the normal is turned a quarter clockwise or anticlockwise from the direction
+values increase, whichever points away from the centre, so labels stay outside all the
+way round. Its labels run along the ring, and are tested against neighbouring lines in
+their own turned frame, since the upright box of turned text is much larger than the text.
+A ring is read by the same line solver as an alignment chart, along the line from the
+centre through the point, keeping the crossing on the point's side.
 
 ## Layout: from curves to geometry
 

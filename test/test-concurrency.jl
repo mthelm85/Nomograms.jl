@@ -22,6 +22,31 @@
         Variable(:roughness; domain = (1e-6, 0.05)) => rough;
         region = (Re, f) -> rough(Re, f) >= 0,
     )
+
+    z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
+    const RMAJ = [0.2, 0.5, 1, 2, 5, 10, 20]
+    const RMIN = [0.1, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.2, 1.4, 1.6, 1.8, 3, 4]
+    smith() = concurrency_chart(
+        :u => (-1, 1),
+        :v => (-1, 1),
+        Variable(:r; domain = (0, 50), ticks = RMAJ, minorticks = RMIN) =>
+            (u, v) -> real(z(u, v)),
+        Variable(
+            :x;
+            domain = (-50, 50),
+            ticks = [0; RMAJ; -RMAJ],
+            minorticks = [RMIN; -RMIN],
+        ) => (u, v) -> imag(z(u, v));
+        axes = false,
+        region = (u, v) -> u^2 + v^2 <= 1,
+        rings = [
+            Variable(:angle; domain = (-180, 180), ticks = -150:30:180) =>
+                θ -> (1.06cosd(θ), 1.06sind(θ)),
+            Variable(:wtg; domain = (0, 0.5), ticks = 0:0.05:0.45) =>
+                l -> (1.17cos(π - 4π * l), 1.17sin(π - 4π * l)),
+        ],
+        labelat = (r = :x => 0, x = :r => 0),
+    )
 end
 
 @testitem "a reading agrees with every field's formula" tags = [:unit] setup = [ConcFix] begin
@@ -212,4 +237,89 @@ end
     @test startswith(svg(psy; readings = [r]), "<?xml")
     @test nomogramplot(psy; readings = [r]) isa Figure
     @test nomogramplot(drawing(psy; readings = [r])) isa Figure
+end
+
+@testitem "a Smith chart reads impedance, angle and wavelength" tags = [:unit] setup =
+    [ConcFix] begin
+    smith = ConcFix.smith()
+    # z = 1 + 1j has reflection coefficient (z - 1)/(z + 1) = 0.2 + 0.4j.
+    s = evaluate(smith; r = 1, x = 1)
+    @test s.u ≈ 0.2 atol = 1e-9
+    @test s.v ≈ 0.4 atol = 1e-9
+    @test s.angle ≈ atand(0.4, 0.2) atol = 1e-6
+    # Wavelengths toward the generator run clockwise from 0 at the left.
+    @test s.wtg ≈ (180 - atand(0.4, 0.2)) / 720 atol = 1e-6
+    # A ring value and a field: found along the line out from the centre.
+    back = evaluate(smith; x = 1, wtg = s.wtg)
+    @test back.r ≈ 1 atol = 1e-6
+    # The r = 1 circle passes through the centre, so that line meets it twice.
+    @test length(evaluate_all(smith; r = 1, angle = s.angle)) == 2
+    @test_throws ArgumentError evaluate(smith; angle = 30, wtg = 0.1)
+end
+
+@testitem "a chart on its own plane keeps its proportions" tags = [:unit] setup = [ConcFix] begin
+    smith = ConcFix.smith()
+    @test smith.height ≈ smith.width
+    d = drawing(smith; readings = [reading(smith; r = 1, x = 1, label = "1 + 1j")])
+    names = Set(sd.name for sd in d.scales)
+    @test !(:frame_top in names) && !(:u in names) && !(:v in names)
+    @test :angle in names && :wtg in names
+    # Ring ticks point away from the centre all the way round.
+    for n in (:angle, :wtg), t in only(sd for sd in d.scales if sd.name === n).ticks
+        @test Nomograms._dot(t.normal, Nomograms._sub(t.position, smith.centre)) > 0
+    end
+    # A reading is read out from the centre, across the rings.
+    @test d.isopleths[1].segment[1] == smith.centre
+    @test length(d.isopleths) == 1
+end
+
+@testitem "labels can be set along curves, where they cross another" tags = [:unit] setup =
+    [ConcFix] begin
+    smith = ConcFix.smith()
+    d = drawing(smith)
+    inline = [t for t in d.texts if t.halo]
+    @test !isempty(inline)
+    @test all(t -> -pi / 2 < t.rotation <= pi / 2, inline)
+    # Resistance circles are labelled on the real axis, where x = 0.
+    for r in ConcFix.RMAJ
+        t = findfirst(t -> t.text == Nomograms.default_tickformat(r), inline)
+        isnothing(t) && continue
+        @test inline[t].pos[2] ≈ smith.centre[2] atol = 0.05
+    end
+    @test occursin("paint-order", svg(d))
+    @test_throws ArgumentError concurrency_chart(
+        :u => (-1, 1),
+        :v => (-1, 1),
+        :w => (u, v) -> u + v;
+        labelat = (q = :u => 0,),
+    )
+end
+
+@testitem "a turned label is struck only by lines that cross it" tags = [:unit] begin
+    pos, text, size = (0.0, 0.0), "WWWWWWWW", 2.5
+    rot = pi / 4
+    # The upright box of the turned text reaches this corner; the text does not.
+    box = Nomograms.label_box(pos, text, size, (:center, :center), rot)
+    corner = (box[3] - 0.5, box[4] - 0.5)
+    @test Nomograms.segment_hits_box(corner, (box[3] + 1, box[4] + 1), box, 0.0)
+    @test !Nomograms._segment_hits_label(
+        corner,
+        (box[3] + 1, box[4] + 1),
+        pos,
+        text,
+        size,
+        (:center, :center),
+        rot,
+        0.0,
+    )
+    @test Nomograms._segment_hits_label(
+        (-1.0, 1.0),
+        (1.0, -1.0),
+        pos,
+        text,
+        size,
+        (:center, :center),
+        rot,
+        0.0,
+    )
 end

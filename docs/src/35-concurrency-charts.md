@@ -137,14 +137,82 @@ this on its left side.
 
 The roundest curves are labelled where they leave the chart, past the right or top edge if
 they can be. A label that would overlap another label, or cross a curve, is left off. Each
-family's name goes beside its row of labels.
+family's name goes beside its row of labels. To label a family inside the chart instead,
+see `labelat` below.
+
+## Charts on another grid: the Smith chart
+
+The Smith chart reads the impedance of a load on a transmission line. Its plane is the
+reflection coefficient ``Γ = (z - 1)/(z + 1)``, where ``z = r + jx`` is the impedance
+divided by the line's characteristic impedance. Resistance ``r`` and reactance ``x`` are
+fields on that plane: circles of constant ``r`` and arcs of constant ``x``, all inside the
+unit circle.
+
+Three keywords draw it:
+
+- `axes = false` makes the two axis variables, here the real and imaginary parts `u` and
+  `v` of ``Γ``, coordinates of the plane only. Nothing is drawn for them, and the plane
+  keeps its proportions so that circles stay round. They are still variables you can read.
+- `rings` puts scales around the chart. A ring is read along a line from the chart's
+  centre through the point, as a Smith chart's angle and wavelength scales are read with
+  a straightedge pivoted at the centre.
+- `labelat` labels a family inside the chart, where each of its curves crosses a given
+  curve of another variable. Here the resistance circles are labelled where they cross the
+  real axis, `x = 0`, and the reactance arcs where they meet the rim, `r = 0`. The labels
+  run along their curves, on a band of background colour so that they read across the
+  grid.
+
+```@example conc
+z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
+major = [0.2, 0.5, 1, 2, 5, 10, 20]
+minor = [0.1, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.2, 1.4, 1.6, 1.8, 3, 4]
+
+smith = concurrency_chart(
+    :u => (-1, 1),
+    :v => (-1, 1),
+    Variable(:r; domain = (0, 50), ticks = major, minorticks = minor, label = "resistance") =>
+        (u, v) -> real(z(u, v)),
+    Variable(:x; domain = (-50, 50), ticks = [0; major; -major], minorticks = [minor; -minor],
+        label = "reactance") => (u, v) -> imag(z(u, v));
+    axes = false,
+    region = (u, v) -> u^2 + v^2 <= 1,
+    rings = [
+        Variable(:angle; domain = (-180, 180), ticks = -150:30:180, minorticks = -180:10:180,
+            label = "angle of reflection coefficient (°)") => θ -> (1.06cosd(θ), 1.06sind(θ)),
+        Variable(:wtg; domain = (0, 0.5), ticks = 0:0.05:0.45, minorticks = 0:0.01:0.5,
+            label = "wavelengths toward generator") =>
+            l -> (1.17cos(π - 4π * l), 1.17sin(π - 4π * l)),
+    ],
+    labelat = (r = :x => 0, x = :r => 0),
+    title = "Smith chart",
+)
+drawing(smith; readings = [reading(smith; r = 1, x = 1, label = "1 + j")])
+```
+
+The marked load is ``z = 1 + j``. Reading it gives the reflection coefficient, its angle,
+and the load's position on the wavelength scale:
+
+```@example conc
+evaluate(smith; r = 1, x = 1)
+```
+
+Moving along a lossless line turns ``Γ`` about the centre, so the impedance a distance away
+is read by going round the circle through the point by that many wavelengths. `evaluate`
+works from a ring value too: given the reactance and a position on the wavelength scale,
+it finds the point along the line out from the centre.
+
+```@example conc
+evaluate(smith; x = 1, wtg = 0.162)
+```
+
+A ring is `variable => value -> (x, y)`: any curve in the plane's coordinates, not only a
+circle. Its ticks and labels go on the side away from the centre, and its title above or
+below it. `centre` sets the point rings are read from, if it isn't the middle of the plane.
 
 ## Current limits
 
-- Labels sit at the ends of curves. Charts that label curves along their length, inside
-  the chart, aren't supported yet.
 - Every family is drawn in the axis colour. Pass `gridcolor` to [`svg`](@ref) or
   [`nomogramplot`](@ref) to draw all the curves lighter; you can't yet colour families
   individually.
-- The axes are straight and at right angles. Charts drawn on another grid, such as the
-  Smith chart, aren't supported yet.
+- Labels inside the chart are placed where curves cross a curve you name. There is no
+  search for the clearest spot along a curve.

@@ -29,6 +29,7 @@ function Nomograms.nomogramplot!(
     isoplethdashes = DEFAULT_DASHES,
     font = Makie.automatic,
     titlefont = :bold,
+    halocolor = :white,
 )
     st = d.style
     k = float(pxperunit)
@@ -96,10 +97,13 @@ function Nomograms.nomogramplot!(
             ax,
             _p(t.pos);
             text = t.text,
-            fontsize = st.titlesize * k,
+            fontsize = Nomograms._textsize(t, st) * k,
             align = t.align,
+            rotation = t.rotation,
             color = textcolor,
             font = font,
+            strokecolor = halocolor,
+            strokewidth = t.halo ? 0.6 * k : 0.0,
         )
     end
 
@@ -179,7 +183,13 @@ function Nomograms.nomogramplot(
     )
     hidedecorations!(ax)
     hidespines!(ax)
-    Nomograms.nomogramplot!(ax, d; pxperunit = k, kwargs...)
+    # Halos match the figure, unless asked otherwise.
+    Nomograms.nomogramplot!(
+        ax,
+        d;
+        pxperunit = k,
+        merge((; halocolor = backgroundcolor), kwargs)...,
+    )
     return fig
 end
 

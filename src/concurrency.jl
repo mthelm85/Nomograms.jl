@@ -23,7 +23,8 @@ end
 
 A chart read at a point: two axis variables span a rectangle, and every other variable is
 drawn as a family of curves of constant value across it. Any two values fix the point where
-their curves cross, and every other value is read there.
+their curves cross, and every other value is read there. Variables on rings around the
+chart are read along a line from its centre through the point.
 
 Build one with [`concurrency_chart`](@ref). Solve it with [`evaluate`](@ref) and
 [`evaluate_all`](@ref), given any two of its variables, and mark a reading on it with
@@ -42,6 +43,10 @@ struct ConcurrencyChart <: AbstractNomogram
     # Page coordinate to axis value, compiled once: tracing calls these millions of times.
     xvalue::FunctionWrapper{Float64,Tuple{Float64}}
     yvalue::FunctionWrapper{Float64,Tuple{Float64}}
+    axes::Bool
+    rings::Vector{Scale}
+    centre::Point
+    labelat::Dict{Symbol,Tuple{Symbol,Float64}}
 end
 
 """
@@ -121,8 +126,24 @@ end
 function _value_at(c::ConcurrencyChart, n::Symbol, P)
     n === name(c.x) && return _xvalue(c, P[1])
     n === name(c.y) && return _yvalue(c, P[2])
+    _isring(c, n) && return _ring_value(c, _ring(c, n), P)
     return _field_at(c, _field(c, n), P)
 end
+
+# A ring is read where a line from the centre through the point meets it, on the point's
+# side of the centre: the radial cursor of a Smith chart.
+function _ring_value(c::ConcurrencyChart, ring::Scale, P)
+    d = _sub(P, c.centre)
+    _norm(d) > 1e-12 * max(c.width, c.height) || return NaN
+    roots = solve_all_on(ring, c.centre, P)
+    ahead = [r for r in roots if _dot(_sub(point(ring, r), c.centre), d) > 0]
+    return isempty(ahead) ? NaN : first(ahead)
+end
+
+_dot(a::Point, b::Point) = a[1] * b[1] + a[2] * b[2]
+
+_ring(c::ConcurrencyChart, n::Symbol) = c.rings[findfirst(r -> name(r) === n, c.rings)]
+_isring(c::ConcurrencyChart, n::Symbol) = any(r -> name(r) === n, c.rings)
 
 function _field(c::ConcurrencyChart, n::Symbol)
     i = findfirst(f -> f.variable.name === n, c.fields)
@@ -131,11 +152,12 @@ function _field(c::ConcurrencyChart, n::Symbol)
 end
 
 variablenames(c::ConcurrencyChart) =
-    [name(c.x); name(c.y); [f.variable.name for f in c.fields]]
+    [name(c.x); name(c.y); [f.variable.name for f in c.fields]; [name(r) for r in c.rings]]
 
 function scale(c::ConcurrencyChart, n::Symbol)
     n === name(c.x) && return c.x
     n === name(c.y) && return c.y
+    _isring(c, n) && return _ring(c, n)
     if any(f -> f.variable.name === n, c.fields)
         throw(
             ArgumentError(
@@ -155,6 +177,7 @@ end
 function _variable(c::ConcurrencyChart, n::Symbol)
     n === name(c.x) && return c.x.variable
     n === name(c.y) && return c.y.variable
+    _isring(c, n) && return _ring(c, n).variable
     any(f -> f.variable.name === n, c.fields) && return _field(c, n).variable
     return scale(c, n).variable
 end
@@ -162,6 +185,7 @@ end
 function Base.show(io::IO, c::ConcurrencyChart)
     print(io, "ConcurrencyChart(:$(name(c.x)), :$(name(c.y)); curves of ")
     join(io, (":$(f.variable.name)" for f in c.fields), ", ")
+    isempty(c.rings) || print(io, "; rings ", join((":$(name(r))" for r in c.rings), ", "))
     isempty(c.title) || print(io, "; \"", c.title, "\"")
     print(io, ")")
 end
@@ -210,23 +234,59 @@ decades or more. Each curve is drawn only where it stands at least `min_curve_sp
 at least as round as it is, so a crowded family thins out locally rather than everywhere.
 The roundest curves are labelled where they leave the chart, when there is room.
 
+# Charts on another grid
+With `axes = false` the two axis variables are coordinates of a plane rather than scales:
+nothing is drawn for them, and the plane keeps its proportions, so a circle stays round.
+The Smith chart is drawn this way, on the plane of the reflection coefficient, with
+resistance and reactance as fields:
+
+```julia
+z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
+smith = concurrency_chart(
+    :u => (-1, 1),
+    :v => (-1, 1),
+    Variable(:r; domain = (0, 50), ticks = [0.2, 0.5, 1, 2, 5]) => (u, v) -> real(z(u, v)),
+    Variable(:x; domain = (-50, 50), ticks = [-2, -1, 0, 1, 2]) => (u, v) -> imag(z(u, v));
+    axes = false,
+    region = (u, v) -> u^2 + v^2 <= 1,
+    rings = [Variable(:angle; domain = (-180, 180)) => θ -> (1.08cosd(θ), 1.08sind(θ))],
+    labelat = (r = :x => 0,),
+)
+```
+
 # Keywords
-- `width = 100`, `height = 75`: the size of the plotting rectangle, in chart units.
+- `width = 100`: the width of the chart, in chart units.
+- `height`: its height; 75 by default, or with `axes = false`, whatever keeps the plane's
+  proportions.
 - `title`.
 - `region`: `(x, y) -> Bool`, the part of the rectangle the chart covers. Fields have no
   value outside it, so curves stop at its edge and readings there are refused: the
-  saturation line of a psychrometric chart, say.
+  saturation line of a psychrometric chart, say. Its edge is drawn.
 - `grid = true`: whether to draw lines across the chart at the axes' tick values.
+- `axes = true`: whether `x` and `y` are drawn as axes, or are only the plane's coordinates.
+- `rings`: scales around the chart, each `variable => value -> (x, y)`, a curve in the
+  plane's coordinates. A ring is read along a line from `centre` through the point, and
+  takes part in [`evaluate`](@ref) like any other variable.
+- `centre`: the point rings are read from, in the plane's coordinates; the middle of the
+  plane by default.
+- `labelat`: where to label a family inside the chart, as `field = other => value`: each
+  curve is labelled where it crosses the curve `other = value`, set along the curve on a
+  band of background colour. `labelat = (r = :x => 0,)` labels a Smith chart's resistance
+  circles along its real axis. Other families are labelled where their curves end.
 """
 function concurrency_chart(
     x::_AxisArg,
     y::_AxisArg,
     fields::Pair...;
     width::Real = 100.0,
-    height::Real = 75.0,
+    height::Union{Nothing,Real} = nothing,
     title::AbstractString = "",
     region = nothing,
     grid::Bool = true,
+    axes::Bool = true,
+    rings = (),
+    centre = nothing,
+    labelat = (;),
 )
     vx, vy = _as_variable(x), _as_variable(y)
     for v in (vx, vy)
@@ -244,9 +304,16 @@ function concurrency_chart(
         )
         push!(fs, _Field(v, _Formula(last(p), 2)))
     end
-    names = [vx.name; vy.name; [f.variable.name for f in fs]]
+    ringvars = Variable[_as_variable(first(r)) for r in rings]
+    for v in ringvars
+        isnothing(v.domain) &&
+            throw(ArgumentError("ring variable :$(v.name) must declare a domain"))
+    end
+    names = [vx.name; vy.name; [f.variable.name for f in fs]; [v.name for v in ringvars]]
     allunique(names) || throw(ArgumentError("variable names must be distinct, got $names"))
-    W, H = float(width), float(height)
+    W = float(width)
+    span(v) = abs(transform(v.transform, v.domain[2]) - transform(v.transform, v.domain[1]))
+    H = float(something(height, axes ? 75.0 : W * span(vy) / span(vx)))
     W > 0 && H > 0 || throw(ArgumentError("width and height must be positive"))
     # Ticks outside the frame: below the x axis and left of the y axis.
     vx = rebuild(vx; side = :left)
@@ -256,18 +323,43 @@ function concurrency_chart(
     sx = Scale(vx, vx.domain, v -> (xpage(v), 0.0), :left)
     sy = Scale(vy, vy.domain, v -> (0.0, ypage(v)), :left)
     reg = isnothing(region) ? nothing : _Formula((a, b) -> region(a, b) ? 1.0 : 0.0, 2)
+    page(P) = (xpage(P[1]), ypage(P[2]))
+    C = page(something(centre, (sum(vx.domain) / 2, sum(vy.domain) / 2)))
+    # A ring's ticks and labels go outwards, away from the centre, all the way round.
+    rs = Scale[]
+    for (v, r) in zip(ringvars, rings)
+        f = last(r)
+        curve = t -> page(f(t))
+        t = sum(v.domain) / 2
+        d = _tangent(Scale(v, v.domain, curve, :left), t)
+        side = _dot((-d[2], d[1]), _sub(curve(t), C)) > 0 ? :ccw : :cw
+        push!(rs, Scale(v, v.domain, curve, side))
+    end
+    at = Dict{Symbol,Tuple{Symbol,Float64}}()
+    for (k, p) in pairs(labelat)
+        any(f -> f.variable.name === k, fs) ||
+            throw(ArgumentError("labelat names :$k, which is not a field of this chart"))
+        first(p) in names || throw(
+            ArgumentError("labelat for :$k names :$(first(p)), which is not a variable"),
+        )
+        at[k] = (first(p), float(last(p)))
+    end
     c = ConcurrencyChart(
         sx,
         sy,
         fs,
         reg,
         grid,
-        [sx, sy],
+        [sx; sy; rs],
         W,
         H,
         String(title),
         _axis_value(vx, W),
         _axis_value(vy, H),
+        axes,
+        rs,
+        C,
+        at,
     )
     # Settle each field's range and tick style now, so that drawing and solving agree.
     for (i, f) in enumerate(c.fields)
@@ -349,7 +441,22 @@ function _reading_points(c::ConcurrencyChart, given::Dict{Symbol,Float64})
     xn, yn = name(c.x), name(c.y)
     xpage, _ = _axis_page(c.x, W)
     ypage, _ = _axis_page(c.y, H)
-    if a === xn && b === yn
+    if _isring(c, a) || _isring(c, b)
+        # A ring value fixes a line out from the centre; the other value is found along it.
+        _isring(c, a) &&
+            _isring(c, b) &&
+            throw(
+                ArgumentError(
+                    "two ring values fix only a line through the centre, not a point; give " *
+                    "one ring value and one value from the chart itself",
+                ),
+            )
+        (ra, rv), (o, ov) = _isring(c, a) ? ((a, va), (b, vb)) : ((b, vb), (a, va))
+        R, C = point(_ring(c, ra), rv), c.centre
+        ray(t) = (C[1] + t * (R[1] - C[1]), C[2] + t * (R[2] - C[2]))
+        gap(t) = _value_at(c, o, ray(t)) - ov
+        return [P for P in (ray(t) for t in _line_roots(gap, 0.0, 1.0)) if _inside(c, P)]
+    elseif a === xn && b === yn
         P = (xpage(va), ypage(vb))
         return _inside(c, P) ? [P] : Point[]
     elseif a === xn || a === yn
@@ -452,7 +559,7 @@ function _given(c::ConcurrencyChart, values)
         ),
     )
     for (k, v) in given
-        k in (name(c.x), name(c.y)) || continue
+        (k in (name(c.x), name(c.y)) || _isring(c, k)) || continue
         lo, hi = _variable(c, k).domain
         lo - 1e-9 * max(1.0, abs(lo)) <= v <= hi + 1e-9 * max(1.0, abs(hi)) || throw(
             ArgumentError(

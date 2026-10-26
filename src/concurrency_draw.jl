@@ -139,6 +139,50 @@ function _simplify(pts::Vector{Point}, tol::Float64)
     return pts[keep]
 end
 
+# A copy of a style with some settings changed.
+_restyle(st::NomogramStyle; kwargs...) =
+    NomogramStyle(; (f => getfield(st, f) for f in fieldnames(NomogramStyle))..., kwargs...)
+
+# A label set along one of a family's curves, where it crosses the curve `other = value`:
+# centred on the crossing, turned to run along the curve and kept upright, on a halo so it
+# reads across the lines. A curve that never crosses it is labelled where it comes closest,
+# moved a little towards the centre so that the label stays on the chart. Nothing if every
+# place overlaps a label already down.
+function _inline_label(c::ConcurrencyChart, text, pieces, (other, value), style, occupied)
+    spots = Tuple{Float64,Point,Point}[]
+    for piece in pieces
+        g = [_value_at(c, other, P) - value for P in piece]
+        crossed = false
+        for i = 1:(length(piece)-1)
+            a, b = g[i], g[i+1]
+            (isfinite(a) && isfinite(b)) || continue
+            (a == 0 || (b != 0 && sign(a) != sign(b))) || continue
+            t = a == b ? 0.0 : a / (a - b)
+            P = _offset(piece[i], _sub(piece[i+1], piece[i]), t)
+            push!(spots, (0.0, P, _sub(piece[i+1], piece[i])))
+            crossed = true
+        end
+        crossed && continue
+        i = argmin(k -> isfinite(g[k]) ? abs(g[k]) : Inf, eachindex(piece))
+        isfinite(g[i]) || continue
+        j = i == length(piece) ? i - 1 : i
+        P = _offset(piece[i], _unit(_sub(c.centre, piece[i])), style.ticklabelsize)
+        push!(spots, (abs(g[i]), P, _sub(piece[j+1], piece[j])))
+    end
+    sort!(spots; by = first)
+    for (_, P, d) in spots
+        rot = atan(d[2], d[1])
+        rot > pi / 2 && (rot -= pi)
+        rot <= -pi / 2 && (rot += pi)
+        box = label_box(P, text, style.ticklabelsize, (:center, :center), rot)
+        style.resolve_collisions &&
+            any(b -> _overlaps(box, b, style.collisionpad), occupied) &&
+            continue
+        return TextDrawing(text, P, (:center, :center), rot, true, :tick)
+    end
+    return nothing
+end
+
 # Line segments bucketed by the square cells of side `size` they pass through, so that a
 # label's box need be tested only against the segments near it. Each line carries an
 # owner, and a label is never struck by a line it owns.
@@ -323,21 +367,48 @@ function drawing(
     occupied = NTuple{4,Float64}[]
     nowhere = ((0.0, 0.0), (:center, :center))
 
-    # The two axes, with ticks, and the rest of the frame, bare.
-    xticks = thin_ticks(c.x, candidate_ticks(c.x.variable, c.x.domain)..., style)
-    yticks = thin_ticks(c.y, candidate_ticks(c.y.variable, c.y.domain)..., style)
-    frame = [
-        ScaleDrawing(name(c.x), "", [(0.0, 0.0), (W, 0.0)], xticks, nowhere..., :scale),
-        ScaleDrawing(name(c.y), "", [(0.0, 0.0), (0.0, H)], yticks, nowhere..., :scale),
-        ScaleDrawing(:frame_top, "", [(0.0, H), (W, H)], TickMark[], nowhere..., :scale),
-        ScaleDrawing(:frame_right, "", [(W, 0.0), (W, H)], TickMark[], nowhere..., :scale),
-    ]
+    # The two axes, with ticks, and the rest of the frame, bare. A chart on a plane of
+    # its own has none of these.
+    xticks = yticks = TickMark[]
+    frame = ScaleDrawing[]
+    if c.axes
+        xticks = thin_ticks(c.x, candidate_ticks(c.x.variable, c.x.domain)..., style)
+        yticks = thin_ticks(c.y, candidate_ticks(c.y.variable, c.y.domain)..., style)
+        frame = [
+            ScaleDrawing(name(c.x), "", [(0.0, 0.0), (W, 0.0)], xticks, nowhere..., :scale),
+            ScaleDrawing(name(c.y), "", [(0.0, 0.0), (0.0, H)], yticks, nowhere..., :scale),
+            ScaleDrawing(
+                :frame_top,
+                "",
+                [(0.0, H), (W, H)],
+                TickMark[],
+                nowhere...,
+                :scale,
+            ),
+            ScaleDrawing(
+                :frame_right,
+                "",
+                [(W, 0.0), (W, H)],
+                TickMark[],
+                nowhere...,
+                :scale,
+            ),
+        ]
+    end
     # The region's edge is part of the frame: curves stop at it.
     for (k, path) in enumerate(_region_outline(c))
         push!(
             frame,
             ScaleDrawing(Symbol(:region_, k), "", path, TickMark[], nowhere..., :scale),
         )
+    end
+    # Rings are ordinary scales, ticked and labelled outwards, with the labels set along
+    # the ring so that they fit in the band between one ring and the next.
+    ringpaths = [_path(r) for r in c.rings]
+    ringstyle = _restyle(style; ticklabelrotation = :tangent)
+    for (r, path) in zip(c.rings, ringpaths)
+        ticks = thin_ticks(r, candidate_ticks(r.variable, r.domain)..., ringstyle)
+        push!(frame, ScaleDrawing(name(r), "", path, ticks, nowhere..., :scale))
     end
     if style.resolve_collisions
         _resolve_tick_collisions!(frame, style, occupied, Tuple{Point,Point}[])
@@ -354,12 +425,41 @@ function drawing(
     texts = TextDrawing[]
     walls = [(k, seg) for (k, sd) in enumerate(frame) for seg in _segments(sd.path)]
     lowest = minimum((b[2] for b in occupied); init = -style.majorticklength)
-    for (s, ends, own) in (
-        (c.x, [((W / 2, lowest - style.ticklabelgap), (:center, :top), (0.0, -1.0))], 1),
-        (c.y, [((0.0, H + style.titlegap), (:center, :bottom), (0.0, 1.0))], 2),
-    )
+    titled =
+        c.axes ?
+        [
+            (
+                c.x,
+                [((W / 2, lowest - style.ticklabelgap), (:center, :top), (0.0, -1.0))],
+                1,
+            ),
+            (c.y, [((0.0, H + style.titlegap), (:center, :bottom), (0.0, 1.0))], 2),
+        ] : Any[]
+    for (s, ends, own) in titled
         text = axislabel(s.variable)
         isempty(text) && continue
+        pos, align =
+            style.resolve_collisions ?
+            _clear_spot(text, ends, style, occupied, walls, own) : (ends[1][1], ends[1][2])
+        push!(texts, TextDrawing(text, pos, align))
+    end
+    # A ring that closes on itself has no end to put its title past: it goes above the
+    # ring, or below it, moving out until clear. An open one is titled past its end, as an
+    # axis is.
+    for (r, path) in zip(c.rings, ringpaths)
+        text = axislabel(r.variable)
+        isempty(text) && continue
+        own = findfirst(sd -> sd.name === name(r), frame)
+        closed = _dist(path[1], path[end]) <= 1e-6 * max(W, H)
+        ends = if closed
+            top, bottom = argmax(q -> q[2], path), argmin(q -> q[2], path)
+            [
+                ((top[1], top[2] + style.titlegap), (:center, :bottom), (0.0, 1.0)),
+                ((bottom[1], bottom[2] - style.titlegap), (:center, :top), (0.0, -1.0)),
+            ]
+        else
+            _title_ends(r, path, style)
+        end
         pos, align =
             style.resolve_collisions ?
             _clear_spot(text, ends, style, occupied, walls, own) : (ends[1][1], ends[1][2])
@@ -368,7 +468,7 @@ function drawing(
 
     # Lines across at the axes' ticks, then every field's curves.
     curves = ScaleDrawing[]
-    if c.grid
+    if c.axes && c.grid
         for (axis, ticks) in ((:x, xticks), (:y, yticks))
             lines = _gridlines(c, axis, [t.value for t in ticks if t.level == 1])
             for (k, path) in enumerate(lines)
@@ -409,7 +509,15 @@ function drawing(
         for (value, level, pieces) in family
             text = v.tickformat(value)
             label, labelpos, labelalign, labelled = "", (0.0, 0.0), (:center, :center), 0
-            if level == 1
+            if level == 1 && haskey(c.labelat, v.name)
+                t = _inline_label(c, text, pieces, c.labelat[v.name], style, occupied)
+                if !isnothing(t)
+                    push!(texts, t)
+                    box = label_box(t.pos, t.text, style.ticklabelsize, t.align, t.rotation)
+                    push!(occupied, box)
+                    push!(boxes, box)
+                end
+            elseif level == 1
                 spots = [
                     (rank, k, anchor, align) for (k, piece) in enumerate(pieces) for
                     (rank, anchor, align) in _label_spots(piece, W, H, style.ticklabelgap)
@@ -485,8 +593,10 @@ function drawing(
         push!(texts, TextDrawing(text, pos, align))
     end
 
-    # Readings: the point, with lines dropped to both axes.
+    # Readings: the point, with lines dropped to both axes -- or on a plane of its own, a
+    # line out from the centre across the rings, which is how those are read.
     isodrawings = IsoplethDrawing[]
+    reach = maximum((_dist(q, c.centre) for path in ringpaths for q in path); init = 0.0)
     for (k, r) in enumerate(readings)
         p = r.point
         # The label goes beside the point, in the first of the four quarters around it, at
@@ -512,11 +622,25 @@ function drawing(
                 label_box(labelpos, r.label, style.ticklabelsize, labelalign, 0.0),
             )
         end
-        push!(
-            isodrawings,
-            IsoplethDrawing(((p[1], 0.0), p), [p], r.label, labelpos, labelalign, k),
-        )
-        push!(isodrawings, IsoplethDrawing(((0.0, p[2]), p), Point[], "", p, labelalign, k))
+        if c.axes
+            push!(
+                isodrawings,
+                IsoplethDrawing(((p[1], 0.0), p), [p], r.label, labelpos, labelalign, k),
+            )
+            push!(
+                isodrawings,
+                IsoplethDrawing(((0.0, p[2]), p), Point[], "", p, labelalign, k),
+            )
+        else
+            d = _sub(p, c.centre)
+            far =
+                reach > 0 && _norm(d) > 0 ?
+                _offset(c.centre, _unit(d), reach + style.ticklabelgap) : p
+            push!(
+                isodrawings,
+                IsoplethDrawing((c.centre, far), [p], r.label, labelpos, labelalign, k),
+            )
+        end
     end
 
     scaledrawings = [frame; curves]
@@ -538,9 +662,11 @@ function drawing(
         )
     end
     for t in texts
-        _expand_box!(bb, label_box(t.pos, t.text, style.titlesize, t.align, 0.0))
+        _expand_box!(bb, label_box(t.pos, t.text, _textsize(t, style), t.align, t.rotation))
     end
     for iso in isodrawings
+        _expand!(bb, iso.segment[1])
+        _expand!(bb, iso.segment[2])
         isempty(iso.label) && continue
         _expand_box!(
             bb,

@@ -121,14 +121,26 @@ end
 """
     TextDrawing
 
-A title drawn on its own rather than off the end of a scale: the name of one of a net's
-families, whose strands carry only their values. In [`NomogramDrawing`](@ref)'s `texts`.
+Text drawn on its own rather than as part of a scale, in [`NomogramDrawing`](@ref)'s
+`texts`: the name of one of a net's families, whose strands carry only their values, or a
+value set along a curve inside a [`ConcurrencyChart`](@ref).
+
+`size` is `:title` or `:tick`, for the style's title or tick-label size. `rotation` is in
+radians. `halo` asks for a band of background colour around the letters, so that text set
+across lines stays legible.
 """
 struct TextDrawing
     text::String
     pos::Point
     align::NTuple{2,Symbol}
+    rotation::Float64
+    halo::Bool
+    size::Symbol
 end
+
+TextDrawing(text, pos, align) = TextDrawing(text, pos, align, 0.0, false, :title)
+
+_textsize(t::TextDrawing, st) = t.size === :tick ? st.ticklabelsize : st.titlesize
 
 """
     NomogramDrawing
@@ -194,8 +206,15 @@ function side_normals(t::Point)
 end
 
 # Unit normal pointing to whichever side of the axis the ticks and labels belong on.
+# `:left` and `:right` are fixed by ordering the two normals, which keeps a gently curved
+# scale's labels on one side but would flip them partway round a closed one. A scale that
+# turns right round, such as a ring around a chart, uses `:ccw` or `:cw` instead: the
+# normal turned a quarter anticlockwise or clockwise from the direction values increase.
 function _normal(s::Scale, v::Float64)
-    left, right = side_normals(_tangent(s, v))
+    t = _tangent(s, v)
+    s.side === :ccw && return (-t[2], t[1])
+    s.side === :cw && return (t[2], -t[1])
+    left, right = side_normals(t)
     return s.side === :left ? left : right
 end
 
@@ -282,6 +301,29 @@ function segment_hits_box(a::Point, b::Point, box::NTuple{4,Float64}, pad::Real)
         end
     end
     return t0 <= t1
+end
+
+# Whether a segment crosses a label, allowing for the label's rotation: the segment is
+# turned into the label's own frame, where its box is upright. The upright bounding box of
+# turned text is far larger than the text, and would strike lines the text clears.
+function _segment_hits_label(
+    a::Point,
+    b::Point,
+    pos::Point,
+    text,
+    size,
+    align,
+    rotation,
+    pad,
+)
+    box = label_box(pos, text, size, align, 0.0)
+    iszero(rotation) && return segment_hits_box(a, b, box, pad)
+    c, s = cos(rotation), sin(rotation)
+    turn(p) = (
+        pos[1] + c * (p[1] - pos[1]) + s * (p[2] - pos[2]),
+        pos[2] - s * (p[1] - pos[1]) + c * (p[2] - pos[2]),
+    )
+    return segment_hits_box(turn(a), turn(b), box, pad)
 end
 
 _overlaps(a::NTuple{4,Float64}, b::NTuple{4,Float64}, pad::Real) =
@@ -652,7 +694,16 @@ function _resolve_tick_collisions!(
         t = sd.ticks[i]
         (t.level == level && !isnothing(t.label)) || continue
         box = label_box(t.labelpos, t.label, style.ticklabelsize, t.align, t.rotation)
-        hits(seg) = segment_hits_box(seg[1], seg[2], box, style.collisionpad)
+        hits(seg) = _segment_hits_label(
+            seg[1],
+            seg[2],
+            t.labelpos,
+            t.label,
+            style.ticklabelsize,
+            t.align,
+            t.rotation,
+            style.collisionpad,
+        )
         struck = any(hits, segments) || any(w -> w[1] != j && hits(w[2]), walls)
         if struck || any(b -> _overlaps(box, b, style.collisionpad), occupied)
             sd.ticks[i] = _unlabel(t)
