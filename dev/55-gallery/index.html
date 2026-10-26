@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gallery — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=87ea03d8">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=eb290b01">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Gallery — Nomograms.jl">
   <meta property="og:title" content="Gallery — Nomograms.jl">
@@ -294,6 +294,42 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = &
 <img src="840cf50b.svg" alt="Example block output">
 </div>
 </div>
+<h2 id="A-Wulff-net" class="md-heading">A Wulff net<a href="#A-Wulff-net" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Crystallographers and structural geologists plot directions in space on a Wulff net: the stereographic projection of a sphere&#39;s latitude and longitude lines, with the poles at the top and bottom. It is a <a href="../35-concurrency-charts/">concurrency chart</a> on a plane of its own, like the Smith chart, built from the same three keywords: <code class="md-code-inline">axes = false</code> for the plane, <code class="md-code-inline">rings</code> for the azimuth scale around the edge, and <code class="md-code-inline">labelat</code> to label latitude down the central meridian and longitude along the equator.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia"># The point of the unit sphere that projects to (u, v).
+function sphere(u, v)
+    r2 = u^2 + v^2
+    return (2u / (1 + r2), 2v / (1 + r2), (1 - r2) / (1 + r2))
+end
+latitude(u, v) = asind(clamp(sphere(u, v)[2], -1, 1))
+longitude(u, v) = (s = sphere(u, v); atand(s[1], s[3]))
+
+wulff = concurrency_chart(
+    :u =&gt; (-1, 1),
+    :v =&gt; (-1, 1),
+    Variable(:lat; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88,
+        label = &quot;latitude (°)&quot;) =&gt; latitude,
+    Variable(:lon; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88,
+        label = &quot;longitude (°)&quot;) =&gt; longitude;
+    axes = false,
+    region = (u, v) -&gt; u^2 + v^2 &lt;= 1,
+    rings = [
+        Variable(:azimuth; domain = (0, 360), ticks = 0:30:330, minorticks = 0:10:360,
+            label = &quot;azimuth (°)&quot;) =&gt; a -&gt; (1.06sind(a), 1.06cosd(a)),
+    ],
+    labelat = (lat = :lon =&gt; 0, lon = :lat =&gt; 0),
+    title = &quot;Wulff net&quot;,
+)
+drawing(wulff; crossings = [crossing(wulff; lat = 30, lon = 40, label = &quot;30°, 40°&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="93326856.svg" alt="Example block output">
+</div>
+</div>
+<p>The grid is every 2°, but the 2° meridians stop short of the poles, where they converge, and only every tenth one carries on. Printed nets are drawn the same way. Here it comes from the spacing rule that thins every concurrency chart&#39;s curves, with nothing specific to this chart.</p>
 <h2 id="Colours" class="md-heading">Colours<a href="#Colours" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p><a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> accepts colours for the background, axes, text and reading lines, so a chart can match the colour scheme of the page it appears on:</p>
 <div class="md-multi-output">
@@ -329,6 +365,7 @@ drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = &
           <a class="md-toc-link md-toc-h2" href="#Converging-scales">Converging scales</a>
           <a class="md-toc-link md-toc-h2" href="#A-fan">A fan</a>
           <a class="md-toc-link md-toc-h2" href="#A-ruler">A ruler</a>
+          <a class="md-toc-link md-toc-h2" href="#A-Wulff-net">A Wulff net</a>
           <a class="md-toc-link md-toc-h2" href="#Colours">Colours</a>
       </div>
     </aside>
@@ -347,6 +384,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=87ea03d8"></script>
+  <script src="../assets/materialdocs.js?v=eb290b01"></script>
 </body>
 </html>

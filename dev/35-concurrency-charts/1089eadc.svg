@@ -336,8 +336,8 @@
     <text x="435.97" y="224.54" font-size="10.00" text-anchor="middle" dominant-baseline="central" fill="#1a1a1a" transform="rotate(-25.16 435.97 224.54)" stroke="white" stroke-width="2.40" stroke-linejoin="round" paint-order="stroke">5</text>
     <text x="445.40" y="260.25" font-size="10.00" text-anchor="middle" dominant-baseline="central" fill="#1a1a1a" transform="rotate(-20.50 445.40 260.25)" stroke="white" stroke-width="2.40" stroke-linejoin="round" paint-order="stroke">10</text>
     <text x="449.25" y="278.56" font-size="10.00" text-anchor="middle" dominant-baseline="central" fill="#1a1a1a" transform="rotate(-17.50 449.25 278.56)" stroke="white" stroke-width="2.40" stroke-linejoin="round" paint-order="stroke">20</text>
-    <text x="529.11" y="297.36" font-size="11.60" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">resistance</text>
-    <text x="112.44" y="99.02" font-size="11.60" text-anchor="end" dominant-baseline="auto" fill="#1a1a1a">reactance</text>
+    <text x="529.11" y="297.36" font-size="11.60" text-anchor="start" dominant-baseline="central" fill="#1a1a1a" stroke="white" stroke-width="2.40" stroke-linejoin="round" paint-order="stroke">resistance</text>
+    <text x="112.44" y="99.02" font-size="11.60" text-anchor="end" dominant-baseline="auto" fill="#1a1a1a" stroke="white" stroke-width="2.40" stroke-linejoin="round" paint-order="stroke">reactance</text>
     <g id="isopleth-1">
       <line x1="261.20" y1="297.36" x2="367.28" y2="85.20" stroke="#2a78d6" stroke-width="1.60"/>
       <circle cx="301.20" cy="217.36" r="3.20" fill="#2a78d6"/>
