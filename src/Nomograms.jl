@@ -84,6 +84,10 @@ export
     netpoint,
     auto_nomogram,
     separability_defect,
+    ConcurrencyChart,
+    concurrency_chart,
+    Reading,
+    reading,
     # solving
     evaluate,
     evaluate_all,
@@ -116,6 +120,8 @@ include("auto_curved.jl")
 include("textwidth.jl")
 include("drawing.jl")
 include("svg.jl")
+include("concurrency.jl")
+include("concurrency_draw.jl")
 include("fan.jl")
 include("precompile.jl")
 

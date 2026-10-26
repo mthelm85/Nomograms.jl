@@ -161,7 +161,9 @@ end
 
 `auto_nomogram` does not search for charts with more than one curved scale, or for curved
 stages in a chain of three or more inputs. For those, derive the form yourself and use
-[`determinant_nomogram`](@ref).
+[`determinant_nomogram`](@ref). Any formula of two inputs can also be drawn as a
+[concurrency chart](35-concurrency-charts.md), which is read where curves cross instead of
+along a line.
 
 ## More than two inputs
 

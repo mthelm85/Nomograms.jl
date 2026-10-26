@@ -365,7 +365,8 @@ function _auto_curved(F::_Formula, vx, vy, vz; width, height, title, rtol, strai
             "scales ($straight), nor one with a single curved scale:\n" *
             join(reasons, "\n") *
             "\nIt may still have a chart with more curved scales, or a net, from a form " *
-            "you derive: see `determinant_nomogram` and `net_nomogram`.",
+            "you derive: see `determinant_nomogram` and `net_nomogram`. Or draw it as " *
+            "curves of constant value, which any formula has: see `concurrency_chart`.",
         ),
     )
 end

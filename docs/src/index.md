@@ -82,6 +82,8 @@ and reshaped layouts. See [Building charts](20-constructions.md).
   scales from the determinant, and reshaping a chart without changing its answers.
 - [Four or more variables](30-more-variables.md): chaining charts through turning lines,
   and nets for relations a chain cannot handle.
+- [Concurrency charts](35-concurrency-charts.md): charts read where curves cross, which
+  any formula has, and which can carry many variables on one sheet.
 - [Solving](40-solving.md): reading charts numerically, and why a line can cross a scale
   twice.
 - [Drawing](50-drawing.md): SVG and Makie output, styling, and how ticks and labels are

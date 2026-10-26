@@ -303,8 +303,8 @@ re-deriving anything.
 
 Version 0.1.0, not yet registered. Implemented and tested: building a chart directly from a
 formula, on straight scales or with one curved scale; the parallel-axis, N-chart and general determinant constructions; compound and net
-charts for four or more variables; projective reshaping; the solver; both renderers; and
-the tick engine.
+charts for four or more variables; concurrency charts, read where curves cross; projective
+reshaping; the solver; both renderers; and the tick engine.
 
 Not yet implemented: taking an equation in implicit form, such as `1/R ~ 1/R₁ + 1/R₂`,
 rather than a function already solved for its result. That is where a Symbolics.jl front

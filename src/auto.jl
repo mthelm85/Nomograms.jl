@@ -381,6 +381,9 @@ you have to derive the form by hand: see [`determinant_nomogram`](@ref) and
 [`net_nomogram`](@ref). A formula that is not monotone in a variable over its domain is also
 refused, because a straight scale cannot fold back on itself.
 
+Any formula of two inputs can still be drawn as curves of constant value, read where they
+cross: see [`concurrency_chart`](@ref).
+
 # Keywords
 - `width`, `height`, `title`: as for the other constructions. `width` defaults to 70 for two
   inputs. In a chain it is the width of the last stage, and the default grows with the

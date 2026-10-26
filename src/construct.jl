@@ -5,6 +5,7 @@ function rebuild(
     domain = v.domain,
     tickstyle::Symbol = v.tickstyle,
     unit = v.unit,
+    side::Symbol = v.side,
 )
     return Variable(
         v.name,
@@ -15,7 +16,7 @@ function rebuild(
         minorticks = v.minorticks,
         tickformat = v.tickformat,
         tickstyle,
-        side = v.side,
+        side,
         titleend = v.titleend,
         maxden = v.maxden,
         unit,

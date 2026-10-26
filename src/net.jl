@@ -490,33 +490,11 @@ function _extra_titles(nn::NetNomogram, titles, paths, style)
                 0.0,
             ) for i in idx
         ]
-        centre(b) = ((b[1] + b[3]) / 2, (b[2] + b[4]) / 2)
-        cs = centre.(boxes)
-        if length(cs) == 1
-            path = paths[idx[1]]
-            near = argmin(p -> _dist(p, cs[1]), (path[1], path[end]))
-            away = _unit(_sub(cs[1], near))
-            pairs = [(1, away)]
-        else
-            (a, b) = argmax(
-                ij -> _dist(cs[ij[1]], cs[ij[2]]),
-                [(i, j) for i in eachindex(cs) for j in eachindex(cs)],
-            )
-            da, db = _unit(_sub(cs[a], cs[b])), _unit(_sub(cs[b], cs[a]))
-            # Higher end first, ties to the left, as for a scale's title.
-            first_a =
-                cs[a][2] > cs[b][2] + 1e-9 ||
-                (abs(cs[a][2] - cs[b][2]) <= 1e-9 && cs[a][1] <= cs[b][1])
-            pairs = first_a ? [(a, da), (b, db)] : [(b, db), (a, da)]
-        end
-        ends = Any[]
-        for (k, d) in pairs
-            bx = boxes[k]
-            half = abs(d[1]) * (bx[3] - bx[1]) / 2 + abs(d[2]) * (bx[4] - bx[2]) / 2
-            anchor = _offset(cs[k], d, half + style.titlegap / 2)
-            push!(ends, (anchor, align_for(d), d))
-        end
-        push!(out, (text, ends))
+        # With one strand there is no row: follow the strand's own label outwards.
+        path = paths[idx[1]]
+        c1 = _box_centre(boxes[1])
+        away = _unit(_sub(c1, argmin(p -> _dist(p, c1), (path[1], path[end]))))
+        push!(out, (text, _row_title_ends(boxes, style, away)))
     end
     return out
 end

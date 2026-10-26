@@ -38,6 +38,9 @@ strokes, 6px major ticks, 3px of label padding and 10px labels.
   to [`svg`](@ref) or [`nomogramplot`](@ref), for a lighter net.
 - `isopleth_overhang`: how far an alignment line extends past the outermost scale.
 - `markersize`: radius of the dot where an isopleth meets a scale.
+- `min_curve_spacing`: on a [`ConcurrencyChart`](@ref), a curve is drawn only where it is
+  at least this far from its neighbours, judged against the curves at least as round as
+  it is. A crowded family thins out locally, as on a Smith chart, rather than everywhere.
 """
 Base.@kwdef struct NomogramStyle
     majorticklength::Float64 = 1.5
@@ -61,6 +64,7 @@ Base.@kwdef struct NomogramStyle
     isoplethwidth::Float64 = 0.4
     isopleth_overhang::Float64 = 5.0
     markersize::Float64 = 0.8
+    min_curve_spacing::Float64 = 1.2
 end
 
 """
@@ -591,6 +595,40 @@ end
 # places it would like them, `(anchor, align, away)` as for a scale's title, given where
 # the scale titles went; only a net has any.
 _extra_titles(::AbstractNomogram, titles, paths, style) = Tuple{String,Vector{Any}}[]
+
+_box_centre(b::NTuple{4,Float64}) = ((b[1] + b[3]) / 2, (b[2] + b[4]) / 2)
+
+# Where a family's name can go, given the boxes of its row of value labels: off either end
+# of the row, the higher end first and ties to the left, as for a scale's title. A single
+# label is no row, and the name follows it outwards along `single`.
+function _row_title_ends(
+    boxes::Vector{NTuple{4,Float64}},
+    style::NomogramStyle,
+    single::Point,
+)
+    cs = _box_centre.(boxes)
+    if length(cs) == 1
+        pairs = [(1, single)]
+    else
+        (a, b) = argmax(
+            ij -> _dist(cs[ij[1]], cs[ij[2]]),
+            [(i, j) for i in eachindex(cs) for j in eachindex(cs)],
+        )
+        da, db = _unit(_sub(cs[a], cs[b])), _unit(_sub(cs[b], cs[a]))
+        first_a =
+            cs[a][2] > cs[b][2] + 1e-9 ||
+            (abs(cs[a][2] - cs[b][2]) <= 1e-9 && cs[a][1] <= cs[b][1])
+        pairs = first_a ? [(a, da), (b, db)] : [(b, db), (a, da)]
+    end
+    ends = Any[]
+    for (k, d) in pairs
+        bx = boxes[k]
+        half = abs(d[1]) * (bx[3] - bx[1]) / 2 + abs(d[2]) * (bx[4] - bx[2]) / 2
+        anchor = _offset(cs[k], d, half + style.titlegap / 2)
+        push!(ends, (anchor, align_for(d), d))
+    end
+    return ends
+end
 
 # Tick labels are thinned per scale by distance along their own axis, which says nothing
 # about labels belonging to other scales. Non-parallel layouts bring scales together, so

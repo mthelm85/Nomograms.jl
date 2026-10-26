@@ -251,6 +251,39 @@ between a quarter of the final stage's width and all of it, to put that input mi
 between the axes already there. The assembled chain is checked as a whole against `F` on
 a grid of four values per input.
 
+## Concurrency charts
+
+A [`ConcurrencyChart`](@ref) works on the page directly. Each axis maps its values onto the
+width or height of the frame, linearly in its transform, and each field is a function of
+the page point through the two axis values. A field has no value outside the `region`, or
+where its formula throws or returns something that is not a finite number.
+
+**Tracing.** A field is sampled on a grid whose cells are half a chart unit across. Each
+curve is traced through the grid by marching squares, and a saddle cell is resolved by the
+value at its centre. Every traced point is then moved exactly onto its curve by Newton
+steps along the field's gradient. A point on the frame's edge moves only along the edge,
+so curves end exactly at the frame. The region's edge is traced the same way, but each of
+its points is placed by bisection along its grid edge, because the region only answers in
+or out.
+
+**Spacing.** Each candidate value has a rank: majors before minors, then by the same tiers
+that grade tick lengths. Its *gap* is the distance in value to the nearest other candidate
+of equal or higher rank. Two neighbouring curves then stand `gap / |∇φ|` apart on the page,
+so the spacing is known at every traced point. A curve is kept only where that spacing is
+at least `min_curve_spacing`, and it is split into pieces where it is not.
+
+**Reading.** Two axis values give the point directly. An axis value and a field give a line
+across the chart, which is sampled at 400 points for sign changes, each refined by
+bisection. Two fields are solved by Newton's method in the plane, started in every cell of
+a 60-cell grid in which both residuals change sign. Duplicates are merged, and every point
+found is a reading.
+
+**Labels.** Major curves are labelled. Each label tries the ends of its curve's pieces in
+order: past the right or top edge, then continuing the curve from an end inside the frame,
+then past the left or bottom edge. It takes the first spot that overlaps no other label and
+crosses no line except its own curve. The lines are bucketed into square cells so that each
+check only looks at nearby segments.
+
 ## Layout: from curves to geometry
 
 [`drawing`](@ref) turns a chart into a [`NomogramDrawing`](@ref): polylines, tick marks with

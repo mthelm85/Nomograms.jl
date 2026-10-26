@@ -66,6 +66,19 @@ PrecompileTools.@setup_workload begin
         )
         max_relation_residual(quad)
 
+        conc = concurrency_chart(
+            Variable(:x, LogScale(); domain = (1, 10)),
+            Variable(:y; domain = (0, 1)),
+            Variable(:z) => (x, y) -> x * (1 + y),
+            Variable(:w) => (x, y) -> x - y;
+            region = (x, y) -> y <= x,
+            width = 40,
+            height = 30,
+        )
+        evaluate(conc; z = 3, w = 2)
+        svg(conc; readings = [reading(conc; x = 2, z = 3, label = "r")])
+        svg(concurrency_chart((x, y) -> x * y, :x => (1, 10), :y => (1, 10)))
+
         svg(
             project(
                 nom,

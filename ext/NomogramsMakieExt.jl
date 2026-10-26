@@ -3,6 +3,7 @@ module NomogramsMakieExt
 using Makie: Makie, Figure, Axis, DataAspect, Point2f
 using Makie: hidedecorations!, hidespines!, lines!, linesegments!, scatter!, text!
 using Nomograms: Nomograms, AbstractNomogram, NomogramDrawing, NomogramStyle, Isopleth
+using Nomograms: ConcurrencyChart, Reading
 using Nomograms: drawing, nomogramplot, nomogramplot!
 
 const DEFAULT_COLORS = Nomograms.DEFAULT_ISOPLETH_COLORS
@@ -189,6 +190,28 @@ function Nomograms.nomogramplot(
     kwargs...,
 )
     return Nomograms.nomogramplot(drawing(nom; style, isopleths); kwargs...)
+end
+
+# A concurrency chart is marked with readings, not isopleths.
+function Nomograms.nomogramplot!(
+    ax::Axis,
+    c::ConcurrencyChart;
+    style::NomogramStyle = NomogramStyle(),
+    readings::AbstractVector{Reading} = Reading[],
+    isopleths::AbstractVector{Isopleth} = Isopleth[],
+    kwargs...,
+)
+    return Nomograms.nomogramplot!(ax, drawing(c; style, readings, isopleths); kwargs...)
+end
+
+function Nomograms.nomogramplot(
+    c::ConcurrencyChart;
+    style::NomogramStyle = NomogramStyle(),
+    readings::AbstractVector{Reading} = Reading[],
+    isopleths::AbstractVector{Isopleth} = Isopleth[],
+    kwargs...,
+)
+    return Nomograms.nomogramplot(drawing(c; style, readings, isopleths); kwargs...)
 end
 
 end # module
