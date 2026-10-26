@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concurrency charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=3ad38b0d">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=4c683dfe">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Concurrency charts — Nomograms.jl">
   <meta property="og:title" content="Concurrency charts — Nomograms.jl">
@@ -163,14 +163,72 @@ drawing(psy; readings = [reading(psy; T = 30, RH = 0.5, label = &quot;30 °C, 50
 <h2 id="How-the-curves-are-chosen" class="md-heading">How the curves are chosen<a href="#How-the-curves-are-chosen" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>Each field gets curves at round values across the range it takes on the chart, or across its <code class="md-code-inline">domain</code> if it declares one. They are chosen the way an axis&#39;s ticks are, so <code class="md-code-inline">ticks</code>, <code class="md-code-inline">tickstyle</code> and <code class="md-code-inline">tickformat</code> on a field&#39;s <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> all work.</p>
 <p>A family&#39;s curves bunch together wherever the field changes quickly. Before a curve is drawn at a point, it is checked against its neighbours: it is drawn only where it stands at least <a href="../95-reference/#Nomograms.NomogramStyle"><code class="md-code-inline">NomogramStyle</code></a>&#39;s <code class="md-code-inline">min_curve_spacing</code> from the nearest curve that is at least as round. The distance comes from the field&#39;s gradient, so it is known at every point rather than estimated. A crowded family therefore thins out locally. The finer values stop where they would run together, and the rounder ones carry on. The Moody diagram above shows this on its left side.</p>
-<p>The roundest curves are labelled where they leave the chart, past the right or top edge if they can be. A label that would overlap another label, or cross a curve, is left off. Each family&#39;s name goes beside its row of labels.</p>
+<p>The roundest curves are labelled where they leave the chart, past the right or top edge if they can be. A label that would overlap another label, or cross a curve, is left off. Each family&#39;s name goes beside its row of labels. To label a family inside the chart instead, see <code class="md-code-inline">labelat</code> below.</p>
+<h2 id="Charts-on-another-grid:-the-Smith-chart" class="md-heading">Charts on another grid: the Smith chart<a href="#Charts-on-another-grid:-the-Smith-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>The Smith chart reads the impedance of a load on a transmission line. Its plane is the reflection coefficient <span class="md-math md-math-inline">\(Γ = (z - 1)/(z + 1)\)</span>, where <span class="md-math md-math-inline">\(z = r + jx\)</span> is the impedance divided by the line&#39;s characteristic impedance. Resistance <span class="md-math md-math-inline">\(r\)</span> and reactance <span class="md-math md-math-inline">\(x\)</span> are fields on that plane: circles of constant <span class="md-math md-math-inline">\(r\)</span> and arcs of constant <span class="md-math md-math-inline">\(x\)</span>, all inside the unit circle.</p>
+<p>Three keywords draw it:</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">axes = false</code> makes the two axis variables, here the real and imaginary parts <code class="md-code-inline">u</code> and <code class="md-code-inline">v</code> of <span class="md-math md-math-inline">\(Γ\)</span>, coordinates of the plane only. Nothing is drawn for them, and the plane keeps its proportions so that circles stay round. They are still variables you can read.</p>
+</li>
+<li><p><code class="md-code-inline">rings</code> puts scales around the chart. A ring is read along a line from the chart&#39;s centre through the point, as a Smith chart&#39;s angle and wavelength scales are read with a straightedge pivoted at the centre.</p>
+</li>
+<li><p><code class="md-code-inline">labelat</code> labels a family inside the chart, where each of its curves crosses a given curve of another variable. Here the resistance circles are labelled where they cross the real axis, <code class="md-code-inline">x = 0</code>, and the reactance arcs where they meet the rim, <code class="md-code-inline">r = 0</code>. The labels run along their curves, on a band of background colour so that they read across the grid.</p>
+</li>
+</ul>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
+major = [0.2, 0.5, 1, 2, 5, 10, 20]
+minor = [0.1, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.2, 1.4, 1.6, 1.8, 3, 4]
+
+smith = concurrency_chart(
+    :u =&gt; (-1, 1),
+    :v =&gt; (-1, 1),
+    Variable(:r; domain = (0, 50), ticks = major, minorticks = minor, label = &quot;resistance&quot;) =&gt;
+        (u, v) -&gt; real(z(u, v)),
+    Variable(:x; domain = (-50, 50), ticks = [0; major; -major], minorticks = [minor; -minor],
+        label = &quot;reactance&quot;) =&gt; (u, v) -&gt; imag(z(u, v));
+    axes = false,
+    region = (u, v) -&gt; u^2 + v^2 &lt;= 1,
+    rings = [
+        Variable(:angle; domain = (-180, 180), ticks = -150:30:180, minorticks = -180:10:180,
+            label = &quot;angle of reflection coefficient (°)&quot;) =&gt; θ -&gt; (1.06cosd(θ), 1.06sind(θ)),
+        Variable(:wtg; domain = (0, 0.5), ticks = 0:0.05:0.45, minorticks = 0:0.01:0.5,
+            label = &quot;wavelengths toward generator&quot;) =&gt;
+            l -&gt; (1.17cos(π - 4π * l), 1.17sin(π - 4π * l)),
+    ],
+    labelat = (r = :x =&gt; 0, x = :r =&gt; 0),
+    title = &quot;Smith chart&quot;,
+)
+drawing(smith; readings = [reading(smith; r = 1, x = 1, label = &quot;1 + j&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="411491ee.svg" alt="Example block output">
+</div>
+</div>
+<p>The marked load is <span class="md-math md-math-inline">\(z = 1 + j\)</span>. Reading it gives the reflection coefficient, its angle, and the load&#39;s position on the wavelength scale:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate(smith; r = 1, x = 1)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(u = 0.19999999999999996, v = 0.3999999999999999, r = 1.0, x = 1.0, angle = 63.43494882292201, wtg = 0.16189590441260832)</code></pre>
+</div>
+<p>Moving along a lossless line turns <span class="md-math md-math-inline">\(Γ\)</span> about the centre, so the impedance a distance away is read by going round the circle through the point by that many wavelengths. <code class="md-code-inline">evaluate</code> works from a ring value too: given the reactance and a position on the wavelength scale, it finds the point along the line out from the centre.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate(smith; x = 1, wtg = 0.162)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(u = 0.20039228182107016, v = 0.3994773134770968, r = 1.0016348643657675, x = 1.0, angle = 63.36, wtg = 0.162)</code></pre>
+</div>
+<p>A ring is <code class="md-code-inline">variable =&gt; value -&gt; (x, y)</code>: any curve in the plane&#39;s coordinates, not only a circle. Its ticks and labels go on the side away from the centre, and its title above or below it. <code class="md-code-inline">centre</code> sets the point rings are read from, if it isn&#39;t the middle of the plane.</p>
 <h2 id="Current-limits" class="md-heading">Current limits<a href="#Current-limits" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul class="md-list-tight">
-<li><p>Labels sit at the ends of curves. Charts that label curves along their length, inside the chart, aren&#39;t supported yet.</p>
-</li>
 <li><p>Every family is drawn in the axis colour. Pass <code class="md-code-inline">gridcolor</code> to <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> or <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a> to draw all the curves lighter; you can&#39;t yet colour families individually.</p>
 </li>
-<li><p>The axes are straight and at right angles. Charts drawn on another grid, such as the Smith chart, aren&#39;t supported yet.</p>
+<li><p>Labels inside the chart are placed where curves cross a curve you name. There is no search for the clearest spot along a curve.</p>
 </li>
 </ul>
       </article>
@@ -186,6 +244,7 @@ drawing(psy; readings = [reading(psy; T = 30, RH = 0.5, label = &quot;30 °C, 50
           <a class="md-toc-link md-toc-h2" href="#Several-families">Several families</a>
           <a class="md-toc-link md-toc-h2" href="#From-a-formula">From a formula</a>
           <a class="md-toc-link md-toc-h2" href="#How-the-curves-are-chosen">How the curves are chosen</a>
+          <a class="md-toc-link md-toc-h2" href="#Charts-on-another-grid:-the-Smith-chart">Charts on another grid: the Smith chart</a>
           <a class="md-toc-link md-toc-h2" href="#Current-limits">Current limits</a>
       </div>
     </aside>
@@ -194,8 +253,16 @@ drawing(psy; readings = [reading(psy; T = 30, RH = 0.5, label = &quot;30 °C, 50
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia-repl.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.js"></script>
+  <script>var MD_KATEX_OPTIONS = {};
+document.querySelectorAll('.md-math').forEach(function (el) {
+  var tex = el.textContent.trim().replace(/^\\[\[(]/, '').replace(/\\[\])]$/, '');
+  katex.render(tex, el, Object.assign({ throwOnError: false }, MD_KATEX_OPTIONS,
+    { displayMode: el.classList.contains('md-math-display') }));
+});</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=3ad38b0d"></script>
+  <script src="../assets/materialdocs.js?v=4c683dfe"></script>
 </body>
 </html>

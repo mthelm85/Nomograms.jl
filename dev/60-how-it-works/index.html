@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>How it works — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=44a574dc">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=c2ef346a">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="How it works — Nomograms.jl">
   <meta property="og:title" content="How it works — Nomograms.jl">
@@ -180,7 +180,8 @@ growth[:rate].variable.transform</code></pre>
 <p><strong>Tracing.</strong> A field is sampled on a grid whose cells are half a chart unit across. Each curve is traced through the grid by marching squares, and a saddle cell is resolved by the value at its centre. Every traced point is then moved exactly onto its curve by Newton steps along the field&#39;s gradient. A point on the frame&#39;s edge moves only along the edge, so curves end exactly at the frame. The region&#39;s edge is traced the same way, but each of its points is placed by bisection along its grid edge, because the region only answers in or out.</p>
 <p><strong>Spacing.</strong> Each candidate value has a rank: majors before minors, then by the same tiers that grade tick lengths. Its <em>gap</em> is the distance in value to the nearest other candidate of equal or higher rank. Two neighbouring curves then stand <code class="md-code-inline">gap / |∇φ|</code> apart on the page, so the spacing is known at every traced point. A curve is kept only where that spacing is at least <code class="md-code-inline">min_curve_spacing</code>, and it is split into pieces where it is not.</p>
 <p><strong>Reading.</strong> Two axis values give the point directly. An axis value and a field give a line across the chart, which is sampled at 400 points for sign changes, each refined by bisection. Two fields are solved by Newton&#39;s method in the plane, started in every cell of a 60-cell grid in which both residuals change sign. Duplicates are merged, and every point found is a reading.</p>
-<p><strong>Labels.</strong> Major curves are labelled. Each label tries the ends of its curve&#39;s pieces in order: past the right or top edge, then continuing the curve from an end inside the frame, then past the left or bottom edge. It takes the first spot that overlaps no other label and crosses no line except its own curve. The lines are bucketed into square cells so that each check only looks at nearby segments.</p>
+<p><strong>Labels.</strong> Major curves are labelled. Each label tries the ends of its curve&#39;s pieces in order: past the right or top edge, then continuing the curve from an end inside the frame, then past the left or bottom edge. It takes the first spot that overlaps no other label and crosses no line except its own curve. The lines are bucketed into square cells so that each check only looks at nearby segments. A family given in <code class="md-code-inline">labelat</code> is labelled instead where each curve crosses the named curve of another variable, found by a sign change of that variable along the traced points; a curve that never crosses it is labelled where it comes closest. Such a label is turned to run along its curve, kept upright, and drawn on a halo.</p>
+<p><strong>Rings.</strong> A ring is a <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a> like any axis, so its ticks come from the same engine. Its side is fixed by orientation rather than by the usual ordering of the two normals: the normal is turned a quarter clockwise or anticlockwise from the direction values increase, whichever points away from the centre, so labels stay outside all the way round. Its labels run along the ring, and are tested against neighbouring lines in their own turned frame, since the upright box of turned text is much larger than the text. A ring is read by the same line solver as an alignment chart, along the line from the centre through the point, keeping the crossing on the point&#39;s side.</p>
 <h2 id="Layout:-from-curves-to-geometry" class="md-heading">Layout: from curves to geometry<a href="#Layout:-from-curves-to-geometry" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p><a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> turns a chart into a <a href="../95-reference/#Nomograms.NomogramDrawing"><code class="md-code-inline">NomogramDrawing</code></a>: polylines, tick marks with their normals and label anchors, titles, and isopleth segments. Everything is in chart units, with <code class="md-code-inline">y</code> pointing up. The steps run in a fixed order, because each step reserves space that later steps must respect.</p>
 <ol class="md-list-tight">
@@ -254,6 +255,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=44a574dc"></script>
+  <script src="../assets/materialdocs.js?v=c2ef346a"></script>
 </body>
 </html>
