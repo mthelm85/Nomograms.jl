@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Four or more variables — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=292ed9c3">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=558b678c">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Four or more variables — Nomograms.jl">
   <meta property="og:title" content="Four or more variables — Nomograms.jl">
@@ -106,6 +106,25 @@ drawing(box; isopleths = isopleth(box; L = 3, W = 4, H = 2, label = &quot;3 × 4
 </div>
 </div>
 <p>The stages overlap instead of sitting side by side. A parallel-axis construction puts its result <em>between</em> its inputs, so one input of the first stage always lands inside the second. The sizes of the stages decide where it lands. Here the first stage is 40 wide and the second 130, so <code class="md-code-inline">width</code> falls between the pivot line and <code class="md-code-inline">volume</code> instead of on top of <code class="md-code-inline">volume</code>. <code class="md-code-inline">auto_nomogram</code> chooses the sizes itself, and you can use <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> to reshape the result if the layout is still awkward.</p>
+<h2 id="Proportional-nomograms" class="md-heading">Proportional nomograms<a href="#Proportional-nomograms" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A relation of four variables in proportion, <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w) / f₄(t)</code>, needs no separate stages. <a href="../95-reference/#Nomograms.proportional_nomogram-NTuple{4, Variable}"><code class="md-code-inline">proportional_nomogram</code></a> draws two N charts on top of each other, sharing their diagonal. Each upright line carries two variables, labelled on opposite sides. Lay a line from <code class="md-code-inline">u</code> to <code class="md-code-inline">v</code>, then a second line through the point where the first crosses the diagonal, from <code class="md-code-inline">w</code> to <code class="md-code-inline">t</code>. Here is the ideal gas law, written <code class="md-code-inline">V/T = nR/p</code>:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">gas = proportional_nomogram(
+    Variable(:V; domain = (1, 10), label = &quot;V (L)&quot;),
+    Variable(:T; domain = (250, 400), label = &quot;T (K)&quot;),
+    Variable(:nR; domain = (0.01, 0.2), label = &quot;nR (L·atm/K)&quot;),
+    Variable(:p; domain = (0.5, 5), label = &quot;p (atm)&quot;);
+    title = &quot;Ideal gas&quot;,
+)
+drawing(gas; isopleths = isopleth(gas; V = 5, T = 300, p = 2, label = &quot;nR = 0.033&quot;))</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="e77d24e3.svg" alt="Example block output">
+</div>
+</div>
+<p>The diagonal is a pivot line, and the result is a <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a>, so it solves and draws like any other chain: any three values give the fourth. Following Doerfler, the scale factors keep <code class="md-code-inline">m₁/m₂ = m₃/m₄</code>, so the two N charts read the same ratio at the same point of the diagonal.</p>
 <h2 id="Grids" class="md-heading">Grids<a href="#Grids" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>A pivot line works only when the first two variables combine into a single intermediate value. When they do not, one of the three points on an alignment line has to carry two variables at once. That point lies on a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a>: a two-parameter surface <code class="md-code-inline">(u, v) -&gt; (x, y)</code>, drawn as a mesh. This is the grid nomogram of the classic texts. It goes back to d&#39;Ocagne, and Doerfler builds it from determinants (see the <a href="../96-references/">Bibliography</a>).</p>
 <p>You derive a grid the same way as a curved scale. With <code class="md-code-inline">a</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">f(a)</code> and <code class="md-code-inline">b</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">g(b)</code>, a line passes through a grid point exactly when</p>
@@ -156,6 +175,7 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0
       <div class="md-toc-inner">
         <p class="md-toc-title">On this page</p>
           <a class="md-toc-link md-toc-h2" href="#Chains-and-pivot-lines">Chains and pivot lines</a>
+          <a class="md-toc-link md-toc-h2" href="#Proportional-nomograms">Proportional nomograms</a>
           <a class="md-toc-link md-toc-h2" href="#Grids">Grids</a>
       </div>
     </aside>
@@ -174,6 +194,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=292ed9c3"></script>
+  <script src="../assets/materialdocs.js?v=558b678c"></script>
 </body>
 </html>

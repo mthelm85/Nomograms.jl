@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=a036f7d0">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=ca1b5103">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -62,13 +62,13 @@
       <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/20-constructions.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
 <h1 id="Building-charts" class="md-heading">Building charts<a href="#Building-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
 <p>A nomogram works because the points you pick on its scales lie on one straight line exactly when their values satisfy the relation. In this package, every chart is a set of parametric curves <code class="md-code-inline">value -&gt; (x, y)</code> (<a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>). Each construction on this page is a way of choosing those curves so that collinearity matches a given relation. <a href="../60-how-it-works/">How it works</a> follows a chart in detail from construction to picture.</p>
-<h2 id="Parallel-scales" class="md-heading">Parallel scales<a href="#Parallel-scales" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<h2 id="Parallel-scale-nomograms" class="md-heading">Parallel-scale nomograms<a href="#Parallel-scale-nomograms" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>A three-variable relation fits on three parallel scales exactly when it can be separated as</p>
 <div class="md-math md-math-display">
 \[f_1(u) + f_2(v) = f_3(w)\]
 </div>
 <p>Each <code class="md-code-inline">fᵢ</code> is a <a href="../95-reference/#Nomograms.ScaleTransform"><code class="md-code-inline">ScaleTransform</code></a>: <a href="../95-reference/#Nomograms.LinearScale"><code class="md-code-inline">LinearScale</code></a>, <a href="../95-reference/#Nomograms.LogScale"><code class="md-code-inline">LogScale</code></a>, <a href="../95-reference/#Nomograms.ReciprocalScale"><code class="md-code-inline">ReciprocalScale</code></a>, <a href="../95-reference/#Nomograms.PowerScale"><code class="md-code-inline">PowerScale</code></a>, <a href="../95-reference/#Nomograms.ComposedScale"><code class="md-code-inline">ComposedScale</code></a>, or <a href="../95-reference/#Nomograms.FunctionScale"><code class="md-code-inline">FunctionScale</code></a> for anything else. A transform carries its own inverse, so the result axis can be computed exactly instead of found by search. <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> builds the chart; its docstring describes the geometry.</p>
-<p>You do not choose where the middle axis goes. It falls between the outer two, nearer the one whose transform spans more. When one range is much wider than the other, the middle axis would sit almost on top of its neighbour, and its labels would look like the neighbour&#39;s. To prevent this, the narrower axis is shortened and centred until the middle axis is at least a fifth of the way across. The middle axis moves to match, so readings do not change. Use <code class="md-code-inline">max_modulus_ratio</code> to trade the narrow axis&#39;s length against that spacing, or set it to <code class="md-code-inline">Inf</code> to keep full-height axes whatever their ranges.</p>
+<p>You do not choose where the middle axis goes. It falls between the outer two, nearer the one whose transform spans more. When one range is much wider than the other, the middle axis would sit almost on top of its neighbour, and its labels would look like the neighbour&#39;s. To prevent this, the narrower axis is shortened and centred until the middle axis is at least a fifth of the way across. The middle axis moves to match, so readings do not change. Each axis&#39;s length per unit of its transform is its <em>scale modulus</em>, or scaling factor. Use <code class="md-code-inline">max_modulus_ratio</code> to cap how far the outer two may differ, trading the narrow axis&#39;s length against that spacing, or set it to <code class="md-code-inline">Inf</code> to keep full-height axes whatever their ranges.</p>
 <p>Products become sums under a logarithm, and <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a> takes the logarithms for you:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -87,7 +87,7 @@ drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = &quot;
 <img src="04c1ee71.svg" alt="Example block output">
 </div>
 </div>
-<h2 id="Ratios,-and-the-N-chart" class="md-heading">Ratios, and the N-chart<a href="#Ratios,-and-the-N-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<h2 id="N-or-Z-charts" class="md-heading">N or Z charts<a href="#N-or-Z-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p><a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> builds an N-chart (also called a Z-chart) for <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w)</code>. It has two vertical scales joined by a diagonal, and you read the result on the diagonal. Doerfler&#39;s &quot;The Lost Art of Nomography&quot; derives the classic construction (see the <a href="../96-references/">Bibliography</a>).</p>
 <div class="md-multi-output">
 <div class="md-code-block">
@@ -106,8 +106,26 @@ drawing(speed; isopleths = [isopleth(speed; distance = 6, time = 3, label = &quo
 </div>
 <p><code class="md-code-inline">multiplicative_nomogram</code> can also chart ratios, using logarithms. The advantage of the N-chart is that it needs no logarithms: the outer scales stay <em>linear</em>, so precision is even along them and you can interpolate between ticks by eye.</p>
 <p>Two details of this construction affect what you see. The textbook derivation gives both outer scales the same scale factor so that the ratio comes out directly. Here the diagonal&#39;s own scale absorbs the ratio of the two factors instead, so each outer axis is fitted to the canvas separately. Also, the diagonal is a <em>projective</em> scale, <code class="md-code-inline">s = k·r / (k·r + 1)</code>, so a ratio spanning several decades is spread across it roughly logarithmically. In that case the result axis uses decade-based tick values; linear ticks would leave nothing between 0.1 and 2, which covers most of the diagonal. To override this, pass <code class="md-code-inline">tickstyle = :linear</code> on the <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>.</p>
+<h2 id="Concurrent-scale-nomograms" class="md-heading">Concurrent-scale nomograms<a href="#Concurrent-scale-nomograms" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><a href="../95-reference/#Nomograms.concurrent_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">concurrent_nomogram</code></a> charts <code class="md-code-inline">1/f₁(u) + 1/f₂(v) = 1/f₃(w)</code>: resistors in parallel, capacitors in series, the thin-lens equation. Its three scales start from one point, the zero of every scale, with the result running up the middle:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">parallel = concurrent_nomogram(
+    Variable(:R1; domain = (0, 1000), label = &quot;R₁ (Ω)&quot;),
+    Variable(:R2; domain = (0, 1000), label = &quot;R₂ (Ω)&quot;),
+    Variable(:R; label = &quot;R (Ω)&quot;);
+    title = &quot;Resistors in parallel&quot;,
+)
+drawing(parallel; isopleths = [isopleth(parallel; R1 = 400, R2 = 600, label = &quot;240 Ω&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="8a1f6728.svg" alt="Example block output">
+</div>
+</div>
+<p>The same relation also fits on parallel scales, with <a href="../95-reference/#Nomograms.ReciprocalScale"><code class="md-code-inline">ReciprocalScale</code></a> transforms, as on the home page. The concurrent layout keeps every scale linear, so ticks are evenly spaced and zero is on the chart. Doerfler sets the outer scales at an angle either side of the middle one; here the chart is stretched to fill its canvas, which cannot change what it computes, so <code class="md-code-inline">width</code> and <code class="md-code-inline">height</code> set the spread.</p>
 <h2 id="Other-relations:-the-determinant-method" class="md-heading">Other relations: the determinant method<a href="#Other-relations:-the-determinant-method" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
-<p>The parallel and N-chart constructions are particular solutions of the collinearity condition. <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> accepts any other solution you can write down. Give each variable a curve, and the package measures their combined bounding box and maps it onto the canvas. This is the determinant method of the nomography textbooks; Doerfler&#39;s overview is a good worked introduction to it.</p>
+<p>The parallel and N-chart constructions are particular solutions of the collinearity condition. <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> accepts any other solution you can write down. Give each variable a curve, and the package measures their combined bounding box and maps it onto the canvas. This is the determinant method of the nomography textbooks; Doerfler&#39;s overview is a good worked introduction to it. A curve <code class="md-code-inline">value -&gt; (x, y)</code> is one row <code class="md-code-inline">(x, y, 1)</code> of the determinant in what they call <em>standard nomographic form</em>, and the chart is drawn straight from those rows.</p>
 <p>Once the first two scales are fixed, deriving a curve is mechanical. Put <code class="md-code-inline">p</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">p</code> and <code class="md-code-inline">q</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">q</code>. A line between them crosses <code class="md-code-inline">x = x₃</code> at <code class="md-code-inline">p + x₃(q - p)</code>, so it meets a third scale exactly when <code class="md-code-inline">(1 - x₃)·p + x₃·q = y₃</code>. To make that equation say <code class="md-code-inline">z·p + q + z² = 0</code>, match coefficients:</p>
 <div class="md-math md-math-display">
 \[\frac{1 - x_3}{z} = \frac{x_3}{1} = \frac{-y_3}{z^2}\]
@@ -207,8 +225,9 @@ drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = &quot;4 �
     <aside class="md-toc">
       <div class="md-toc-inner">
         <p class="md-toc-title">On this page</p>
-          <a class="md-toc-link md-toc-h2" href="#Parallel-scales">Parallel scales</a>
-          <a class="md-toc-link md-toc-h2" href="#Ratios,-and-the-N-chart">Ratios, and the N-chart</a>
+          <a class="md-toc-link md-toc-h2" href="#Parallel-scale-nomograms">Parallel-scale nomograms</a>
+          <a class="md-toc-link md-toc-h2" href="#N-or-Z-charts">N or Z charts</a>
+          <a class="md-toc-link md-toc-h2" href="#Concurrent-scale-nomograms">Concurrent-scale nomograms</a>
           <a class="md-toc-link md-toc-h2" href="#Other-relations:-the-determinant-method">Other relations: the determinant method</a>
           <a class="md-toc-link md-toc-h2" href="#Reshaping-a-chart">Reshaping a chart</a>
           <a class="md-toc-link md-toc-h2" href="#Fans">Fans</a>
@@ -229,6 +248,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=a036f7d0"></script>
+  <script src="../assets/materialdocs.js?v=ca1b5103"></script>
 </body>
 </html>
