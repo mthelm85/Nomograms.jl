@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contour charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=8b008420">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=66d1b353">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Contour charts — Nomograms.jl">
   <meta property="og:title" content="Contour charts — Nomograms.jl">
@@ -225,6 +225,8 @@ drawing(smith; crossings = [crossing(smith; r = 1, x = 1, label = &quot;1 + j&qu
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(u = 0.20039228182107016, v = 0.3994773134770968, r = 1.0016348643657675, x = 1.0, angle = 63.36, wtg = 0.162)</code></pre>
 </div>
 <p>A ring is <code class="md-code-inline">variable =&gt; value -&gt; (x, y)</code>: any curve in the plane&#39;s coordinates, not only a circle. Its ticks and labels go on the side away from the centre, and its title above or below it. <code class="md-code-inline">centre</code> sets the point rings are read from, if it isn&#39;t the middle of the plane.</p>
+<h2 id="Fields-that-jump" class="md-heading">Fields that jump<a href="#Fields-that-jump" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A field may jump. An angle from <code class="md-code-inline">atand(v, u)</code> jumps from 180° to −180° across the negative <code class="md-code-inline">u</code> axis. Every value in between seems to be crossed there, but none is, so nothing is drawn or read along a jump: each point of a curve, and each reading, is checked against the field itself. A value reached only at the jump, here ±180°, has no curve. To draw that spoke, move the jump elsewhere, for instance with <code class="md-code-inline">mod(atand(v, u), 360)</code> and <code class="md-code-inline">domain = (0, 360)</code>, which puts it along the positive <code class="md-code-inline">u</code> axis instead.</p>
 <h2 id="Current-limits" class="md-heading">Current limits<a href="#Current-limits" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul class="md-list-tight">
 <li><p>Every family is drawn in the axis colour. Pass <code class="md-code-inline">gridcolor</code> to <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> or <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a> to draw all the curves lighter; you can&#39;t yet colour families individually.</p>
@@ -246,6 +248,7 @@ drawing(smith; crossings = [crossing(smith; r = 1, x = 1, label = &quot;1 + j&qu
           <a class="md-toc-link md-toc-h2" href="#From-a-formula">From a formula</a>
           <a class="md-toc-link md-toc-h2" href="#How-the-curves-are-chosen">How the curves are chosen</a>
           <a class="md-toc-link md-toc-h2" href="#Charts-on-another-grid:-the-Smith-chart">Charts on another grid: the Smith chart</a>
+          <a class="md-toc-link md-toc-h2" href="#Fields-that-jump">Fields that jump</a>
           <a class="md-toc-link md-toc-h2" href="#Current-limits">Current limits</a>
       </div>
     </aside>
@@ -264,6 +267,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=8b008420"></script>
+  <script src="../assets/materialdocs.js?v=66d1b353"></script>
 </body>
 </html>
