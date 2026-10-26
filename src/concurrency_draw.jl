@@ -590,7 +590,9 @@ function drawing(
         pos, align =
             style.resolve_collisions ? _clear_spot(text, ends, style, occupied, walls, -1) :
             (ends[1][1], ends[1][2])
-        push!(texts, TextDrawing(text, pos, align))
+        # A family labelled inside the chart is named inside it too, among its lines.
+        inside = haskey(c.labelat, f.variable.name)
+        push!(texts, TextDrawing(text, pos, align, 0.0, inside, :title))
     end
 
     # Crossings: the point, with lines dropped to both axes -- or on a plane of its own, a

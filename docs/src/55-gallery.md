@@ -235,6 +235,48 @@ bolt = additive_nomogram(
 drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = "1 5/8 in")])
 ```
 
+## A Wulff net
+
+Crystallographers and structural geologists plot directions in space on a Wulff net: the
+stereographic projection of a sphere's latitude and longitude lines, with the poles at the
+top and bottom. It is a [concurrency chart](35-concurrency-charts.md) on a plane of its
+own, like the Smith chart, built from the same three keywords: `axes = false` for the
+plane, `rings` for the azimuth scale around the edge, and `labelat` to label latitude down
+the central meridian and longitude along the equator.
+
+```@example gallery
+# The point of the unit sphere that projects to (u, v).
+function sphere(u, v)
+    r2 = u^2 + v^2
+    return (2u / (1 + r2), 2v / (1 + r2), (1 - r2) / (1 + r2))
+end
+latitude(u, v) = asind(clamp(sphere(u, v)[2], -1, 1))
+longitude(u, v) = (s = sphere(u, v); atand(s[1], s[3]))
+
+wulff = concurrency_chart(
+    :u => (-1, 1),
+    :v => (-1, 1),
+    Variable(:lat; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88,
+        label = "latitude (°)") => latitude,
+    Variable(:lon; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88,
+        label = "longitude (°)") => longitude;
+    axes = false,
+    region = (u, v) -> u^2 + v^2 <= 1,
+    rings = [
+        Variable(:azimuth; domain = (0, 360), ticks = 0:30:330, minorticks = 0:10:360,
+            label = "azimuth (°)") => a -> (1.06sind(a), 1.06cosd(a)),
+    ],
+    labelat = (lat = :lon => 0, lon = :lat => 0),
+    title = "Wulff net",
+)
+drawing(wulff; crossings = [crossing(wulff; lat = 30, lon = 40, label = "30°, 40°")])
+```
+
+The grid is every 2°, but the 2° meridians stop short of the poles, where they converge,
+and only every tenth one carries on. Printed nets are drawn the same way. Here it comes
+from the spacing rule that thins every concurrency chart's curves, with nothing specific
+to this chart.
+
 ## Colours
 
 [`svg`](@ref) accepts colours for the background, axes, text and reading lines, so a
