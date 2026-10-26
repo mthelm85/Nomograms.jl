@@ -84,7 +84,7 @@ end
 """
     additive_nomogram(v1, v2, v3; width = 70, height = 100, title = "", max_modulus_ratio = 4)
 
-A three-parallel-axis nomogram for the separable relation
+A parallel-scale nomogram for the separable relation
 
 ```
 f1(v1) + f2(v2) = f3(v3)
@@ -206,7 +206,7 @@ end
 """
     multiplicative_nomogram(v1, v2, v3; width = 70, height = 100, title = "", max_modulus_ratio = 4)
 
-A three-parallel-axis nomogram for the product relation
+A parallel-scale nomogram, on logarithmic scales, for the product relation
 
 ```
 f1(v1) * f2(v2) = f3(v3)
@@ -248,7 +248,7 @@ end
 """
     ratio_nomogram(v1, v2, v3; width = 70, height = 100, title = "")
 
-An N-chart (also called a Z-chart) for the ratio relation
+An N chart (or Z chart, by its shape) for the ratio relation
 
 ```
 f1(v1) / f2(v2) = f3(v3)
@@ -377,6 +377,222 @@ function ratio_nomogram(
     ]
     relation = (x, y, z) -> transform(t1, x) / transform(t2, y) - transform(t3, z)
     return Nomogram(scales; width = W, height = H, title, relation)
+end
+
+"""
+    concurrent_nomogram(v1, v2, v3; width = 100, height = 50, title = "")
+
+A concurrent-scale nomogram for the relation
+
+```
+1/f1(v1) + 1/f2(v2) = 1/f3(v3)
+```
+
+which covers resistors in parallel, capacitors in series and the thin-lens equation. Its
+three scales start from one point, the zero of every scale: `v1` and `v2` fan out towards
+the top corners, and `v3` runs up the middle between them. `v3` may leave
+`domain = nothing`, in which case the range it can reach is derived from the other two. All
+three transforms must be zero or more over their domains.
+
+# The construction
+
+Put the common zero at `(W/2, 0)`, `v1` at `(W/2 - c·f1, d·f1)`, `v2` at
+`(W/2 + c·f2, d·f2)` and `v3` at `(W/2, 2d·f3)`. A line through the first two crosses
+`x = W/2` at height `2d·f1·f2 / (f1 + f2)`, which is `2d·f3` exactly when the relation
+holds. `c` and `d` are chosen so that the longer outer scale ends at a top corner.
+
+Doerfler derives the same chart with the outer scales at an angle `A` either side of the
+middle one and scale factors `m1 = m2 = m3 / (2 cos A)` (see the Bibliography). Stretching
+a chart to fill its canvas cannot change what it computes, and it absorbs the angle, so
+here `width` and `height` set the spread instead.
+
+# Example
+
+```jldoctest
+julia> nom = concurrent_nomogram(
+           Variable(:R1; domain = (0, 1000)),
+           Variable(:R2; domain = (0, 1000)),
+           Variable(:R),
+       );
+
+julia> round(evaluate(nom; R1 = 400, R2 = 600).R; digits = 10)
+240.0
+```
+"""
+function concurrent_nomogram(
+    v1::Variable,
+    v2::Variable,
+    v3::Variable;
+    width::Real = 100.0,
+    height::Real = 50.0,
+    title::AbstractString = "",
+)
+    width > 0 || throw(ArgumentError("width must be positive, got $width"))
+    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    for v in (v1, v2)
+        isnothing(v.domain) && throw(
+            ArgumentError(
+                "variable :$(v.name) must declare `domain`; only the result " *
+                "variable (the third argument) may leave it to be derived",
+            ),
+        )
+    end
+    W, H = float(width), float(height)
+    t1, t2, t3 = v1.transform, v2.transform, v3.transform
+    p0, p1 = frange(t1, v1.domain)
+    q0, q1 = frange(t2, v2.domain)
+    for (v, lo) in ((v1, p0), (v2, q0))
+        lo >= 0 || throw(
+            ArgumentError(
+                "the scales of a concurrent-scale nomogram start from a common zero, so " *
+                "their values must be zero or more: :$(v.name) reaches f = $lo on its " *
+                "domain $(v.domain)",
+            ),
+        )
+    end
+    F = max(p1, q1)
+    F > 0 || throw(ArgumentError("both outer scales are zero over their whole domains"))
+    # f1·f2/(f1 + f2) rises with both, so the corners of the input ranges bound it.
+    harmonic(a, b) = a + b == 0 ? 0.0 : a * b / (a + b)
+    dom3 = _result_domain(v3, (harmonic(p0, q0), harmonic(p1, q1)))
+    c, d = (W / 2) / F, H / F
+
+    scales = [
+        Scale(
+            v1,
+            v1.domain,
+            u -> (W / 2 - c * transform(t1, u), d * transform(t1, u)),
+            v1.side === :auto ? :left : v1.side,
+        ),
+        Scale(
+            v2,
+            v2.domain,
+            v -> (W / 2 + c * transform(t2, v), d * transform(t2, v)),
+            v2.side === :auto ? :right : v2.side,
+        ),
+        Scale(
+            v3,
+            dom3,
+            w -> (W / 2, 2d * transform(t3, w)),
+            v3.side === :auto ? :right : v3.side,
+        ),
+    ]
+    # In this form the relation has no infinities where a value is zero.
+    relation = function (x, y, z)
+        a, b, r = transform(t1, x), transform(t2, y), transform(t3, z)
+        return r * (a + b) - a * b
+    end
+    return Nomogram(scales; width = W, height = H, title, relation)
+end
+
+"""
+    proportional_nomogram(v1, v2, v3, v4; width = 70, height = 100, title = "")
+
+A proportional nomogram for the four-variable relation
+
+```
+f1(v1) / f2(v2) = f3(v3) / f4(v4)
+```
+
+such as the ideal gas law written `V/T = nR/p`, or the law of sines. It is two N charts
+sharing their diagonal. `v1` and `v3` share the left-hand line, with `v1`'s labels outside
+and `v3`'s inside; `v2` and `v4` share the right-hand one. Lay a line from `v1` to `v2`,
+note where it crosses the diagonal, then lay a second line through that point from `v3`
+to `v4`. Any three of the four values give the fourth. All four transforms must be strictly
+positive over their domains, and every variable must declare `domain`.
+
+The diagonal carries the common ratio and is drawn bare: it is a pivot line, as in any
+[`CompoundNomogram`](@ref), which is what this returns. Following Doerfler (see the
+Bibliography), the scale factors keep `m1/m2 = m3/m4`, so the two N charts read the ratio
+at the same point of the diagonal.
+
+# Example
+
+```jldoctest
+julia> nom = proportional_nomogram(
+           Variable(:V; domain = (1, 10)),
+           Variable(:T; domain = (250, 400)),
+           Variable(:nR; domain = (0.01, 0.2)),
+           Variable(:p; domain = (0.5, 5)),
+       );
+
+julia> s = evaluate(nom; V = 5, T = 300, p = 2);
+
+julia> round(s.nR; digits = 10)
+0.0333333333
+```
+"""
+function proportional_nomogram(
+    v1::Variable,
+    v2::Variable,
+    v3::Variable,
+    v4::Variable;
+    width::Real = 70.0,
+    height::Real = 100.0,
+    title::AbstractString = "",
+)
+    width > 0 || throw(ArgumentError("width must be positive, got $width"))
+    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    vs = (v1, v2, v3, v4)
+    for v in vs
+        isnothing(v.domain) && throw(
+            ArgumentError(
+                "variable :$(v.name) must declare `domain`; a proportional nomogram has " *
+                "no result scale to derive one for",
+            ),
+        )
+    end
+    W, H = float(width), float(height)
+    ranges = [frange(v.transform, v.domain) for v in vs]
+    for (v, (lo, _)) in zip(vs, ranges)
+        lo > 0 || throw(
+            ArgumentError(
+                "a proportional nomogram divides one scale by another, so all four must " *
+                "be strictly positive: :$(v.name) reaches f = $lo on its domain $(v.domain)",
+            ),
+        )
+    end
+    (p0, p1), (q0, q1), (r0, r1), (s0, s1) = ranges
+    # The first pair fill the height, as in an N chart. The second pair keep the same
+    # ratio of scale factors, so both read the diagonal alike, and are as large as fits.
+    a1, a2 = H / p1, H / q1
+    k = a1 / a2
+    a3 = min(H / r1, k * H / s1)
+    a4 = a3 / k
+    lo = max(p0 / q1, r0 / s1)
+    hi = min(p1 / q0, r1 / s0)
+    lo < hi || throw(
+        ArgumentError(
+            "the two ratios share no values: f1/f2 runs over " *
+            "($(default_tickformat(p0 / q1)), $(default_tickformat(p1 / q0))) and f3/f4 " *
+            "over ($(default_tickformat(r0 / s1)), $(default_tickformat(r1 / s0)))",
+        ),
+    )
+    pivot = Variable(:_ratio; domain = (lo, hi), label = "", ticks = Float64[])
+    diag = r -> (s = k * r / (k * r + 1); (s * W, s * H))
+    t1, t2, t3, t4 = (v.transform for v in vs)
+    side(v, default) = v.side === :auto ? default : v.side
+    stage1 = Nomogram(
+        [
+            Scale(v1, v1.domain, u -> (0.0, a1 * transform(t1, u)), side(v1, :left)),
+            Scale(v2, v2.domain, u -> (W, H - a2 * transform(t2, u)), side(v2, :right)),
+            Scale(pivot, pivot.domain, diag, :left),
+        ];
+        width = W,
+        height = H,
+        relation = (x, y, r) -> transform(t1, x) / transform(t2, y) - r,
+    )
+    stage2 = Nomogram(
+        [
+            Scale(v3, v3.domain, u -> (0.0, a3 * transform(t3, u)), side(v3, :right)),
+            Scale(v4, v4.domain, u -> (W, H - a4 * transform(t4, u)), side(v4, :left)),
+            Scale(pivot, pivot.domain, diag, :left),
+        ];
+        width = W,
+        height = H,
+        relation = (x, y, r) -> transform(t3, x) / transform(t4, y) - r,
+    )
+    return compound(stage1, stage2; title)
 end
 
 _curvepoint(f, t) = (p = f(t); (float(p[1]), float(p[2])))

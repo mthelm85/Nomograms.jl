@@ -302,7 +302,7 @@ re-deriving anything.
 ## Status
 
 Version 0.1.0, not yet registered. Implemented and tested: building a chart directly from a
-formula, on straight scales or with one curved scale; the parallel-axis, N-chart and general determinant constructions; compound and grid
+formula, on straight scales or with one curved scale; the parallel-scale, N or Z, concurrent-scale, proportional and general determinant constructions; compound and grid
 charts for four or more variables; contour charts, read where curves cross; projective
 reshaping; the solver; both renderers; and the tick engine.
 

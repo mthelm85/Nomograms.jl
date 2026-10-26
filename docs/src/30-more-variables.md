@@ -70,6 +70,30 @@ the second 130, so `width` falls between the pivot line and `volume` instead of 
 `volume`. `auto_nomogram` chooses the sizes itself, and you can use [`project`](@ref) to
 reshape the result if the layout is still awkward.
 
+## Proportional nomograms
+
+A relation of four variables in proportion, `f₁(u) / f₂(v) = f₃(w) / f₄(t)`, needs no
+separate stages. [`proportional_nomogram`](@ref) draws two N charts on top of each other,
+sharing their diagonal. Each upright line carries two variables, labelled on opposite
+sides. Lay a line from `u` to `v`, then a second line through the point where the first
+crosses the diagonal, from `w` to `t`. Here is the ideal gas law, written `V/T = nR/p`:
+
+```@example more
+gas = proportional_nomogram(
+    Variable(:V; domain = (1, 10), label = "V (L)"),
+    Variable(:T; domain = (250, 400), label = "T (K)"),
+    Variable(:nR; domain = (0.01, 0.2), label = "nR (L·atm/K)"),
+    Variable(:p; domain = (0.5, 5), label = "p (atm)");
+    title = "Ideal gas",
+)
+drawing(gas; isopleths = isopleth(gas; V = 5, T = 300, p = 2, label = "nR = 0.033"))
+```
+
+The diagonal is a pivot line, and the result is a [`CompoundNomogram`](@ref), so it solves
+and draws like any other chain: any three values give the fourth. Following Doerfler, the
+scale factors keep `m₁/m₂ = m₃/m₄`, so the two N charts read the same ratio at the same
+point of the diagonal.
+
 ## Grids
 
 A pivot line works only when the first two variables combine into a single intermediate

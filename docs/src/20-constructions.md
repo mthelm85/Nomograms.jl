@@ -10,7 +10,7 @@ parametric curves `value -> (x, y)` ([`Scale`](@ref)). Each construction on this
 way of choosing those curves so that collinearity matches a given relation.
 [How it works](60-how-it-works.md) follows a chart in detail from construction to picture.
 
-## Parallel scales
+## Parallel-scale nomograms
 
 A three-variable relation fits on three parallel scales exactly when it can be separated
 as
@@ -30,8 +30,10 @@ one whose transform spans more. When one range is much wider than the other, the
 axis would sit almost on top of its neighbour, and its labels would look like the
 neighbour's. To prevent this, the narrower axis is shortened and centred until the middle
 axis is at least a fifth of the way across. The middle axis moves to match, so readings do
-not change. Use `max_modulus_ratio` to trade the narrow axis's length against that
-spacing, or set it to `Inf` to keep full-height axes whatever their ranges.
+not change. Each axis's length per unit of its transform is its *scale modulus*, or
+scaling factor. Use `max_modulus_ratio` to cap how far the outer two may differ, trading
+the narrow axis's length against that spacing, or set it to `Inf` to keep full-height axes
+whatever their ranges.
 
 Products become sums under a logarithm, and [`multiplicative_nomogram`](@ref) takes the
 logarithms for you:
@@ -48,7 +50,7 @@ cost = multiplicative_nomogram(
 drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = "\$90")])
 ```
 
-## Ratios, and the N-chart
+## N or Z charts
 
 [`ratio_nomogram`](@ref) builds an N-chart (also called a Z-chart) for
 `f₁(u) / f₂(v) = f₃(w)`. It has two vertical scales joined by a diagonal, and you read the
@@ -78,13 +80,37 @@ logarithmically. In that case the result axis uses decade-based tick values; lin
 would leave nothing between 0.1 and 2, which covers most of the diagonal. To override
 this, pass `tickstyle = :linear` on the [`Variable`](@ref).
 
+## Concurrent-scale nomograms
+
+[`concurrent_nomogram`](@ref) charts `1/f₁(u) + 1/f₂(v) = 1/f₃(w)`: resistors in parallel,
+capacitors in series, the thin-lens equation. Its three scales start from one point, the
+zero of every scale, with the result running up the middle:
+
+```@example build
+parallel = concurrent_nomogram(
+    Variable(:R1; domain = (0, 1000), label = "R₁ (Ω)"),
+    Variable(:R2; domain = (0, 1000), label = "R₂ (Ω)"),
+    Variable(:R; label = "R (Ω)");
+    title = "Resistors in parallel",
+)
+drawing(parallel; isopleths = [isopleth(parallel; R1 = 400, R2 = 600, label = "240 Ω")])
+```
+
+The same relation also fits on parallel scales, with [`ReciprocalScale`](@ref) transforms,
+as on the home page. The concurrent layout keeps every scale linear, so ticks are evenly
+spaced and zero is on the chart. Doerfler sets the outer scales at an angle either side of
+the middle one; here the chart is stretched to fill its canvas, which cannot change what it
+computes, so `width` and `height` set the spread.
+
 ## Other relations: the determinant method
 
 The parallel and N-chart constructions are particular solutions of the collinearity
 condition. [`determinant_nomogram`](@ref) accepts any other solution you can write down.
 Give each variable a curve, and the package measures their combined bounding box and maps
 it onto the canvas. This is the determinant method of the nomography textbooks; Doerfler's
-overview is a good worked introduction to it.
+overview is a good worked introduction to it. A curve `value -> (x, y)` is one row
+`(x, y, 1)` of the determinant in what they call *standard nomographic form*, and the
+chart is drawn straight from those rows.
 
 Once the first two scales are fixed, deriving a curve is mechanical. Put `p` on `x = 0` at
 height `p` and `q` on `x = 1` at height `q`. A line between them crosses `x = x₃` at

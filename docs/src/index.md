@@ -78,10 +78,11 @@ and reshaped layouts. See [Building charts](20-constructions.md).
 - [From a formula](10-from-a-formula.md): using `auto_nomogram`, which formulas have a
   chart, how the transforms are found, charts with a curved scale, and charts with three or
   more inputs.
-- [Building charts](20-constructions.md): the parallel and N-chart constructions, curved
-  scales from the determinant, and reshaping a chart without changing its answers.
+- [Building charts](20-constructions.md): parallel-scale, N or Z, and concurrent-scale
+  charts, curved scales from the determinant, and reshaping a chart without changing its
+  answers.
 - [Four or more variables](30-more-variables.md): chaining charts through pivot lines,
-  and grids for relations a chain cannot handle.
+  proportional charts, and grids for relations a chain cannot handle.
 - [Contour charts](35-contour-charts.md): charts read where curves cross, which
   any formula has, and which can carry many variables on one sheet.
 - [Solving](40-solving.md): reading charts numerically, and why a line can cross a scale

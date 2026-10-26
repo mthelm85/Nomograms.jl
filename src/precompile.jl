@@ -52,6 +52,20 @@ PrecompileTools.@setup_workload begin
         )
         svg(drawing(n; isopleths = [isopleth(n; a = 6, b = 3)]))
 
+        vee = concurrent_nomogram(
+            Variable(:a; domain = (0, 10)),
+            Variable(:b; domain = (0, 10)),
+            Variable(:c),
+        )
+        svg(vee; isopleths = [isopleth(vee; a = 4, b = 6)])
+        prop = proportional_nomogram(
+            Variable(:a; domain = (1, 10)),
+            Variable(:b; domain = (1, 10)),
+            Variable(:c; domain = (1, 10)),
+            Variable(:d; domain = (1, 10)),
+        )
+        svg(drawing(prop; isopleths = isopleth(prop; a = 2, b = 4, c = 3)))
+
         quad = determinant_nomogram(
             Variable(:p; domain = (-6, 0)) => p -> (0.0, p),
             Variable(:q; domain = (0, 6)) => q -> (1.0, q),

@@ -75,6 +75,8 @@ export
     additive_nomogram,
     multiplicative_nomogram,
     ratio_nomogram,
+    concurrent_nomogram,
+    proportional_nomogram,
     determinant_nomogram,
     project,
     projective_transform,
