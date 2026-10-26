@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concurrency charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=4c683dfe">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=19b23592">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Concurrency charts — Nomograms.jl">
   <meta property="og:title" content="Concurrency charts — Nomograms.jl">
@@ -87,7 +87,7 @@ moody = concurrency_chart(
     region = (Re, f) -&gt; roughness(Re, f) &gt;= 0,
     title = &quot;Moody diagram&quot;,
 )
-drawing(moody; readings = [reading(moody; Re = 1e5, roughness = 1e-4, label = &quot;f = 0.0185&quot;)])</code></pre>
+drawing(moody; crossings = [crossing(moody; Re = 1e5, roughness = 1e-4, label = &quot;f = 0.0185&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
 <img src="c8c1a38b.svg" alt="Example block output">
@@ -104,7 +104,8 @@ drawing(moody; readings = [reading(moody; Re = 1e5, roughness = 1e-4, label = &q
 <pre class="md-output md-output-text"><code class="nohighlight ansi">(Re = 100000.0, f = 0.018513866077471644, roughness = 0.0001)</code></pre>
 </div>
 <p>The two values can be two axes, an axis and a field, or two fields. If their curves cross more than once, <code class="md-code-inline">evaluate</code> refuses and <a href="../95-reference/#Nomograms.evaluate_all-Tuple{NetNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns every crossing.</p>
-<p>To mark a reading on the chart, build it with <a href="../95-reference/#Nomograms.reading-Tuple{ConcurrencyChart}"><code class="md-code-inline">reading</code></a> and pass it to <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> as <code class="md-code-inline">readings</code>. The point is drawn with lines dropped to both axes. <code class="md-code-inline">isopleth</code> doesn&#39;t apply here: an isopleth is a line through an alignment chart, and this chart is read at a point.</p>
+<p>To mark a point on the chart, build it with <a href="../95-reference/#Nomograms.crossing-Tuple{ConcurrencyChart}"><code class="md-code-inline">crossing</code></a> and pass it to <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> as <code class="md-code-inline">crossings</code>. The point is drawn with lines dropped to both axes. <code class="md-code-inline">isopleth</code> doesn&#39;t apply here: in this package an isopleth is the line laid across an alignment chart, and this chart is read at a point.</p>
+<p>The word has a longer history with these charts. Vogler called their curves of constant value <em>courbes isoplèthes</em>, curves of equal quantity, and Lalanne adopted the name. d&#39;Ocagne preferred <em>courbes cotées</em>, labelled curves, and describes the point where two of them meet simply as their <em>point de rencontre</em>, their meeting point (<em>Traité de nomographie</em>, 1899, chapter II).</p>
 <h2 id="Several-families" class="md-heading">Several families<a href="#Several-families" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>A psychrometric chart has temperature and humidity ratio on its axes, and curves of relative humidity and enthalpy across them. Air can&#39;t hold more water than saturates it, so the chart stops at the saturation line, where the relative humidity is 1:</p>
 <div class="md-multi-output">
@@ -124,7 +125,7 @@ psy = concurrency_chart(
     region = (T, W) -&gt; vapour(W) &lt;= saturation(T) * (1 + 1e-9),
     title = &quot;Psychrometric chart&quot;,
 )
-drawing(psy; readings = [reading(psy; T = 30, RH = 0.5, label = &quot;30 °C, 50%&quot;)])</code></pre>
+drawing(psy; crossings = [crossing(psy; T = 30, RH = 0.5, label = &quot;30 °C, 50%&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
 <img src="1602655e.svg" alt="Example block output">
@@ -201,7 +202,7 @@ smith = concurrency_chart(
     labelat = (r = :x =&gt; 0, x = :r =&gt; 0),
     title = &quot;Smith chart&quot;,
 )
-drawing(smith; readings = [reading(smith; r = 1, x = 1, label = &quot;1 + j&quot;)])</code></pre>
+drawing(smith; crossings = [crossing(smith; r = 1, x = 1, label = &quot;1 + j&quot;)])</code></pre>
 </div>
 <div class="md-output md-output-img">
 <img src="411491ee.svg" alt="Example block output">
@@ -263,6 +264,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=4c683dfe"></script>
+  <script src="../assets/materialdocs.js?v=19b23592"></script>
 </body>
 </html>
