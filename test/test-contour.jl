@@ -326,7 +326,7 @@ end
     )
 end
 
-@testitem "a Wulff grid reads the stereographic projection" tags = [:unit] begin
+@testitem "a Wulff net reads the stereographic projection" tags = [:unit] begin
     sphere(u, v) = (r2 = u^2 + v^2; (2u, 2v, 1 - r2) ./ (1 + r2))
     wulff = contour_chart(
         :u => (-1, 1),
@@ -345,17 +345,32 @@ end
     @test s.u ≈ x / (1 + z) atol = 1e-9
     @test s.v ≈ y / (1 + z) atol = 1e-9
     @test s.azimuth ≈ mod(atand(s.u, s.v), 360) atol = 1e-6
-    # Meridians converge at the poles, so their 2° lines stop short of them: near a pole
-    # only the 10° meridians are drawn.
-    d = drawing(wulff)
-    near_pole(p) = Nomograms._dist(p, (wulff.width / 2, wulff.height)) < 3
-    for sd in d.scales
+    # Meridians converge at the poles, so at a size where the 2° lines fit at all, they
+    # stop well short of the poles and only the 10° lines carry on towards them.
+    big = contour_chart(
+        :u => (-1, 1),
+        :v => (-1, 1),
+        Variable(:lon; domain = (-90, 90), ticks = -80:10:80, minorticks = -88:2:88) =>
+            (u, v) -> (s = sphere(u, v); atand(s[1], s[3]));
+        axes = false,
+        region = (u, v) -> u^2 + v^2 <= 1,
+        width = 150,
+    )
+    pole = (big.width / 2, big.height)
+    closest = Dict{Float64,Float64}()
+    for sd in drawing(big).scales
         startswith(string(sd.name), "lon_") || continue
-        any(near_pole, sd.path) || continue
-        value =
-            parse(Float64, replace(split(string(sd.name), '_')[2], 'm' => '-', 'p' => '.'))
-        @test isinteger(value / 10)
+        v = parse(Float64, replace(split(string(sd.name), '_')[2], 'm' => '-', 'p' => '.'))
+        near = minimum(p -> hypot(p[1] - pole[1], p[2] - pole[2]), sd.path)
+        closest[v] = min(get(closest, v, Inf), near)
     end
+    @test length(closest) == 89
+    tens = [d for (v, d) in closest if isinteger(v / 10)]
+    twos = [d for (v, d) in closest if !isinteger(v / 10)]
+    @test !isempty(tens) && !isempty(twos)
+    @test maximum(tens) < 10
+    @test minimum(twos) > 30
+    d = drawing(wulff)
     # A family labelled inside the chart is named on a halo too.
     @test any(t -> t.text == "lat" && t.halo, d.texts)
 end

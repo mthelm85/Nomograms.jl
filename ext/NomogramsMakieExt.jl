@@ -146,9 +146,10 @@ function Nomograms.nomogramplot!(
     nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
+    crossings = (),
     kwargs...,
 )
-    return Nomograms.nomogramplot!(ax, drawing(nom; style, isopleths); kwargs...)
+    return Nomograms.nomogramplot!(ax, drawing(nom; style, isopleths, crossings); kwargs...)
 end
 
 """
@@ -197,9 +198,10 @@ function Nomograms.nomogramplot(
     nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
+    crossings = (),
     kwargs...,
 )
-    return Nomograms.nomogramplot(drawing(nom; style, isopleths); kwargs...)
+    return Nomograms.nomogramplot(drawing(nom; style, isopleths, crossings); kwargs...)
 end
 
 # A contour chart is marked with crossings, not isopleths.

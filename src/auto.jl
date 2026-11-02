@@ -79,6 +79,9 @@ function _deriv(f, x::Float64, lo::Float64, hi::Float64)
     end
 end
 
+# How closely a tabulated transform must follow the truth, as a fraction of its range.
+const _TABLE_TOL = 2e-9
+
 const _GL5 = (
     (-0.9061798459386640, 0.2369268850561891),
     (-0.5384693101056831, 0.4786286704993665),
@@ -113,6 +116,45 @@ function _integrate_to_scale(deriv, lo::Float64, hi::Float64; n::Int = 256)
         ys[i+1] = ys[i] + _gauss5(deriv, xs[i], xs[i+1])
     end
     return TabulatedScale(xs, ys, [deriv(x) for x in xs])
+end
+
+# The same, with panels halved wherever the interpolant misses the integral at a panel's
+# middle, to `tol` of the transform's whole range. No fixed layout suits every transform:
+# ln tan x is steepest at the top of its domain, where geometric panels are widest.
+function _adaptive_scale(
+    deriv,
+    lo::Float64,
+    hi::Float64;
+    n = 64,
+    tol = _TABLE_TOL,
+    depth = 20,
+)
+    starts = _nodes(lo, hi, n)
+    spread = abs(sum(_gauss5(deriv, starts[i], starts[i+1]) for i = 1:n))
+    xs, ys, ds = [lo], [0.0], [deriv(lo)]
+    function panel(a, da, b, db, levels)
+        m = (a + b) / 2
+        left, right = _gauss5(deriv, a, m), _gauss5(deriv, m, b)
+        y0 = ys[end]
+        est = _hermite(a, b, 0.0, left + right, da, db, m)
+        if levels > 0 && a < m < b && !(abs(est - left) <= tol * spread)
+            dm = deriv(m)
+            panel(a, da, m, dm, levels - 1)
+            panel(m, dm, b, db, levels - 1)
+            return nothing
+        end
+        push!(xs, b)
+        push!(ys, y0 + left + right)
+        push!(ds, db)
+        return nothing
+    end
+    da = ds[1]
+    for i = 1:n
+        db = deriv(starts[i+1])
+        panel(starts[i], da, starts[i+1], db, depth)
+        da = db
+    end
+    return TabulatedScale(xs, ys, ds)
 end
 
 # --- the criterion --------------------------------------------------------------------
@@ -207,8 +249,8 @@ struct _Formula{N}
     # that far, so ordinary charts keep the fast path.
     raw::Any
 end
-_Formula(f::_Formula, n::Int) = f
-_Formula(f, n::Int) = _Formula{n}(
+_formula(f::_Formula, n::Int) = f
+_formula(f, n::Int) = _Formula{n}(
     FunctionWrapper{Float64,NTuple{n,Float64}}((args...) -> Float64(f(args...))),
     f,
 )
@@ -293,14 +335,71 @@ function _rising_path(Fc, P::_Partials, xd, yd)
             "monotone function must; the domains may straddle a singularity",
         ),
     )
-    zs = _nodes(zlo, zhi, 1024)
-    svals = [
+    return (; along, zlo, zhi, dx, dy)
+end
+
+# The path parameter against the value reached, at nodes placed in F's own values. Each
+# pair is what the path actually reached, for the reason given below.
+function _path_samples(Fc, path; n::Int = 1024)
+    starts = _nodes(path.zlo, path.zhi, n)
+    ss = [
         i == 1 ? 0.0 :
-        i == length(zs) ? 1.0 :
-        Roots.find_zero(s -> Fc(along(s)...) - zs[i], (0.0, 1.0), Roots.A42()) for
-        i in eachindex(zs)
+        i == length(starts) ? 1.0 :
+        Roots.find_zero(s -> Fc(path.along(s)...) - starts[i], (0.0, 1.0), Roots.A42())
+        for i in eachindex(starts)
     ]
-    return (; along, zs, svals, dx, dy)
+    zs = [Fc(path.along(s)...) for s in ss]
+    keep = [i == 1 || zs[i] > maximum(zs[1:(i-1)]) for i in eachindex(zs)]
+    return zs[keep], ss[keep]
+end
+
+# h(z) as a table, along the rising path. Moving along the path changes f and g the same
+# way (h′F_x = f′ and h′F_y = g′ fix their signs together), so h is tabulated without ever
+# having to invert F.
+#
+# No fixed set of nodes suits every formula: ln tan z, from atan(y, x), is steepest at the
+# top of its range, where nodes spaced geometrically are furthest apart. So each panel is
+# halved until its interpolant matches h at its middle, to `tol` of the axis. And each node
+# records the z the path actually reached, not the one aimed for: over many decades the
+# path parameter is tiny at the small end, a solver's absolute tolerance is a large part
+# of it, and pairing h at one point with z at another is an error no refinement would cure.
+function _tabulate_h(Fc, P, path, tf, tg, fprime, gprime; tol = _TABLE_TOL, depth = 20)
+    (; along, zlo, zhi, dx, dy) = path
+    function node(s)
+        p = along(s)
+        return (
+            z = Fc(p...),
+            s = s,
+            h = transform(tf, p[1]) + transform(tg, p[2]),
+            d = (fprime(p[1]) * dx + gprime(p[2]) * dy) /
+                (_Fx(P, p...) * dx + _Fy(P, p...) * dy),
+        )
+    end
+    solve(z, a, b) = Roots.find_zero(s -> Fc(along(s)...) - z, (a, b), Roots.A42())
+    starts = _nodes(zlo, zhi, 128)
+    coarse = [
+        node(i == 1 ? 0.0 : i == length(starts) ? 1.0 : solve(starts[i], 0.0, 1.0)) for
+        i in eachindex(starts)
+    ]
+    spread = abs(coarse[end].h - coarse[1].h)
+    out = [coarse[1]]
+    function refine(a, b, levels)
+        zm = (a.z + b.z) / 2
+        if levels > 0 && a.z < zm < b.z && a.s < b.s
+            m = node(solve(zm, a.s, b.s))
+            if abs(_hermite(a.z, b.z, a.h, b.h, a.d, b.d, m.z) - m.h) > tol * spread
+                refine(a, m, levels - 1)
+                refine(m, b, levels - 1)
+                return nothing
+            end
+        end
+        b.z > out[end].z && push!(out, b)
+        return nothing
+    end
+    for i = 1:(length(coarse)-1)
+        refine(coarse[i], coarse[i+1], depth)
+    end
+    return TabulatedScale([n.z for n in out], [n.h for n in out], [n.d for n in out])
 end
 
 """
@@ -413,20 +512,60 @@ function auto_nomogram(
             throw(ArgumentError("input variable :$(v.name) must declare a domain"))
     end
     F, vz = _with_dimensions(F, vs, vz)
-    F = _Formula(F, length(vs))
+    _check_formula(F, vs)
+    F = _formula(F, length(vs))
     names = [v.name for v in vs]
     allunique([names; vz.name]) ||
         throw(ArgumentError("variable names must be distinct, got $([names; vz.name])"))
     width = float(something(width, 35.0 * max(length(vs) - 1, 2)))
-    length(vs) == 2 || return _auto_chain(F, vs, vz; width, height, title, rtol)
-    straight = try
-        return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
+    return try
+        length(vs) == 2 || return _auto_chain(F, vs, vz; width, height, title, rtol)
+        straight = try
+            return _auto_two(F, vs[1], vs[2], vz; width, height, title, rtol)
+        catch err
+            err isa ArgumentError && _curved_may_help(err.msg) || rethrow()
+            _short_reason(err.msg)
+        end
+        # No chart on three straight scales: try one with a curved scale before giving up.
+        _auto_curved(F, vs[1], vs[2], vz; width, height, title, rtol, straight)
     catch err
-        err isa ArgumentError && _curved_may_help(err.msg) || rethrow()
-        _short_reason(err.msg)
+        err isa DomainError || rethrow()
+        throw(
+            ArgumentError(
+                "the formula is undefined somewhere on the domains given: it threw a " *
+                "DomainError at $(err.val). Narrow the domains to where it is defined.",
+            ),
+        )
     end
-    # No chart on three straight scales: try one with a curved scale before giving up.
-    return _auto_curved(F, vs[1], vs[2], vz; width, height, title, rtol, straight)
+end
+
+# A formula that cannot work is better refused here, in terms of the formula, than deep in
+# the arithmetic. One that merely has trouble at the middle of its domains is left for
+# the numerics to judge, and a formula's own errors are its author's to read.
+function _check_formula(F, vs::Vector{Variable})
+    mid = Tuple((v.domain[1] + v.domain[2]) / 2 for v in vs)
+    out = try
+        F(mid...)
+    catch err
+        err isa DomainError && return nothing
+        if err isa MethodError && err.f === F
+            throw(
+                ArgumentError(
+                    "the formula cannot be called with $(length(vs)) numeric inputs " *
+                    "($(join((":" * string(v.name) for v in vs), ", "))); check how many " *
+                    "arguments it takes",
+                ),
+            )
+        end
+        rethrow()
+    end
+    out isa Real || throw(
+        ArgumentError(
+            "the formula has to return a real number, but at the middle of its domains " *
+            "it returned $(repr(out))",
+        ),
+    )
+    return nothing
 end
 
 # With units, the formula is called with quantities -- so it may compute in whatever
@@ -490,28 +629,18 @@ function _auto_two(
     # each derivative up to a common factor -- which is all a nomogram needs.
     fprime(a) = R(a, yr)
     gprime(b) = Rref / R(xr, b)
-    tf = _integrate_to_scale(fprime, xd...)
-    tg = _integrate_to_scale(gprime, yd...)
+    tf = _adaptive_scale(fprime, xd...)
+    tg = _adaptive_scale(gprime, yd...)
 
-    # h along the rising path. Moving along it changes f and g the same way (h′F_x = f′
-    # and h′F_y = g′ fix their signs together), so h is tabulated without ever having to
-    # invert F.
     path = _rising_path(Fc, P, xd, yd)
-    zs, svals, dx, dy = path.zs, path.svals, path.dx, path.dy
-    zlo, zhi = zs[1], zs[end]
-    pts = path.along.(svals)
-    hs = [transform(tf, p[1]) + transform(tg, p[2]) for p in pts]
-    hd = [
-        (fprime(p[1]) * dx + gprime(p[2]) * dy) / (_Fx(P, p...) * dx + _Fy(P, p...) * dy) for p in pts
-    ]
-    th = TabulatedScale(zs, hs, hd)
-    zd = (zlo, zhi)
+    th = _tabulate_h(Fc, P, path, tf, tg, fprime, gprime)
+    zd = (path.zlo, path.zhi)
 
     # The transforms are only fixed up to a common sign -- -f, -g, -h serve as well as f,
     # g, h -- and as derived, h decreases whenever F decreases in its second argument,
     # turning the result axis upside down: profit = revenue - cost, atan(y, x). Choose the
     # sign that makes the result read upwards.
-    if hs[end] < hs[1]
+    if th.y[end] < th.y[1]
         flip(t::TabulatedScale) = TabulatedScale(t.x, -t.y, -t.dy)
         tf, tg, th = flip(tf), flip(tg), flip(th)
     end

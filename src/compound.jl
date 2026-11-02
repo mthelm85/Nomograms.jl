@@ -197,7 +197,15 @@ usually left to be derived, but it can also be an input.
 
 Throws an error, naming the variables still unknown, if the values given are not enough.
 """
-evaluate(cn::CompoundNomogram; values...) = _with_units(cn, _evaluate(cn; values...))
+evaluate(cn::CompoundNomogram; values...) =
+    _public(_with_units(cn, _evaluate(cn; values...)))
+
+# A pivot the package made up for itself -- `_t1` in a chain from `auto_nomogram`, `_ratio`
+# in a proportional chart -- is no answer to anything the caller asked.
+_public(sol::NamedTuple) =
+    NamedTuple{Tuple(n for n in keys(sol) if !startswith(string(n), "_"))}(
+        Tuple(sol[n] for n in keys(sol) if !startswith(string(n), "_")),
+    )
 
 function _evaluate(cn::CompoundNomogram; values...)
     names = variablenames(cn)
@@ -261,6 +269,11 @@ function isopleth(
     label::AbstractString = "",
     group::Int = 1,
 )
+    # A solution from `evaluate` leaves out the package's own pivots; work them back out.
+    if !all(n -> haskey(solution, n), variablenames(cn))
+        known = _numbers(cn, solution)
+        solution = _evaluate(cn; known...)
+    end
     out = Isopleth[]
     shared(n) = count(st -> n in variablenames(st), cn.stages) > 1
     ends = findall(st -> !shared(last(variablenames(st))), cn.stages)
@@ -282,6 +295,18 @@ function isopleth(
     values...,
 )
     return isopleth(cn, _evaluate(cn; values...); label, group)
+end
+
+"""
+    max_relation_residual(cn::CompoundNomogram; n = 9) -> Float64
+
+The largest disagreement between any stage's geometry and its relation: see
+[`max_relation_residual`](@ref) for a single chart. `NaN` if no stage has a relation.
+"""
+function max_relation_residual(cn::CompoundNomogram; n::Int = 9)
+    rs = [max_relation_residual(st; n) for st in cn.stages]
+    good = filter(!isnan, rs)
+    return isempty(good) ? NaN : maximum(good)
 end
 
 function Base.show(io::IO, cn::CompoundNomogram)

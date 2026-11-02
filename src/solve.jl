@@ -23,14 +23,17 @@ function _finite_at(g, x)
 end
 
 # A root sitting exactly on the end of a domain -- the ratio at the very corner of an
-# N-chart, say -- can land an ulp outside it, because the arithmetic that produced the
-# domain and the arithmetic that solves for the root are not the same arithmetic. So search
-# a hair wider and clamp back. Only where the curve is still defined, though: a transform
-# may have a hard edge exactly at its domain, and stepping over it would throw.
+# N-chart, a value read back at the top of a tabulated scale -- can land just outside it,
+# because the arithmetic that produced the domain and the arithmetic that solves for the
+# root are not the same arithmetic. So search a hair wider and clamp back: 1e-7 of the
+# span, far below anything a chart can show, or of the end's own size where that would step
+# over a hard edge, as the span of a logarithmic scale would past zero. If neither is
+# defined, the transform's edge is exactly at the domain and the search stops there.
 function _search_bounds(g, lo::Float64, hi::Float64)
-    pad = 1e-9 * max(hi - lo, abs(lo), abs(hi), 1.0)
-    a = _finite_at(g, lo - pad) ? lo - pad : lo
-    b = _finite_at(g, hi + pad) ? hi + pad : hi
+    wide, narrow = 1e-7 * max(hi - lo, abs(lo), abs(hi), 1.0), 1e-7 * abs(lo)
+    a = _finite_at(g, lo - wide) ? lo - wide : _finite_at(g, lo - narrow) ? lo - narrow : lo
+    wide, narrow = 1e-7 * max(hi - lo, abs(lo), abs(hi), 1.0), 1e-7 * abs(hi)
+    b = _finite_at(g, hi + wide) ? hi + wide : _finite_at(g, hi + narrow) ? hi + narrow : hi
     return (a, b)
 end
 

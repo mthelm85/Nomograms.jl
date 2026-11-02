@@ -302,7 +302,13 @@ function contour_chart(
                 "a field is `variable => (x, y) -> value`, got $(repr(first(p)))",
             ),
         )
-        push!(fs, _Field(v, _Formula(last(p), 2)))
+        last(p) isa Tuple && throw(
+            ArgumentError(
+                "a field is `variable => (x, y) -> value`, but :$(v.name) was given the " *
+                "range $(last(p)). Only the two axes take a range.",
+            ),
+        )
+        push!(fs, _Field(v, _formula(last(p), 2)))
     end
     ringvars = Variable[_as_variable(first(r)) for r in rings]
     for v in ringvars
@@ -322,7 +328,20 @@ function contour_chart(
     ypage, _ = _axis_page(vy, H)
     sx = Scale(vx, vx.domain, v -> (xpage(v), 0.0), :left)
     sy = Scale(vy, vy.domain, v -> (0.0, ypage(v)), :left)
-    reg = isnothing(region) ? nothing : _Formula((a, b) -> region(a, b) ? 1.0 : 0.0, 2)
+    if !isnothing(region)
+        probe = try
+            region(sum(vx.domain) / 2, sum(vy.domain) / 2)
+        catch err
+            err isa DomainError || rethrow()
+            true
+        end
+        probe isa Bool || throw(
+            ArgumentError(
+                "`region` has to return true or false, but it returned $(repr(probe))",
+            ),
+        )
+    end
+    reg = isnothing(region) ? nothing : _formula((a, b) -> region(a, b) ? 1.0 : 0.0, 2)
     page(P) = (xpage(P[1]), ypage(P[2]))
     C = page(something(centre, (sum(vx.domain) / 2, sum(vy.domain) / 2)))
     # A ring's ticks and labels go outwards, away from the centre, all the way round.
@@ -381,7 +400,8 @@ function contour_chart(
             throw(ArgumentError("input variable :$(v.name) must declare a domain"))
     end
     F, vz = _with_dimensions(F, Variable[vx, vy], vz)
-    Fw = _Formula(F, 2)
+    _check_formula(F, Variable[vx, vy])
+    Fw = _formula(F, 2)
     # Where the formula is separable, the transforms that make it so put every curve of z
     # on a straight line. Where it is not, the axes keep their own transforms.
     try
@@ -396,6 +416,44 @@ function contour_chart(
     end
     return contour_chart(vx, vy, vz => Fw; kwargs...)
 end
+
+# A range where a function belongs: without this method the call is ambiguous between the
+# two forms above, and the error says nothing useful.
+function contour_chart(x::_AxisArg, y::_AxisArg, z::Pair{Symbol,<:Tuple}; kwargs...)
+    throw(
+        ArgumentError(
+            "a field is `variable => (x, y) -> value`, but :$(first(z)) was given the range " *
+            "$(last(z)). Only the two axes take a range.",
+        ),
+    )
+end
+
+# What an alignment chart can do and a contour chart cannot, said in its own terms.
+isopleth(c::ContourChart, args...; kwargs...) = throw(
+    ArgumentError(
+        "an isopleth is a line across an alignment chart, and a contour chart is read at a " *
+        "point: use `crossing(chart; values...)` and `drawing(chart; crossings = [...])`",
+    ),
+)
+crossing(nom::AbstractNomogram, args...; kwargs...) = throw(
+    ArgumentError(
+        "`crossing` marks a point on a contour chart. An alignment chart is read along a " *
+        "line: use `isopleth(chart; values...)` and `drawing(chart; isopleths = [...])`",
+    ),
+)
+project(c::ContourChart, H::AbstractMatrix; kwargs...) = throw(
+    ArgumentError(
+        "`project` reshapes alignment charts, whose straight lines it keeps straight. A " *
+        "contour chart's axes would stop being a rectangle; to change the plane, change " *
+        "the fields.",
+    ),
+)
+max_relation_residual(c::ContourChart; kwargs...) = throw(
+    ArgumentError(
+        "a contour chart has no separate relation to check: its curves are drawn from the " *
+        "fields' own formulas",
+    ),
+)
 
 # The samples every curve is traced from: a grid over the frame, fine enough that a curve
 # turning within a cell is rare, with the field's value at each node.

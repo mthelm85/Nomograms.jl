@@ -159,7 +159,17 @@ function frange(t::ScaleTransform, domain::Tuple{Real,Real}; nsamples::Int = 65)
     lo, hi = float(domain[1]), float(domain[2])
     lo < hi || throw(ArgumentError("domain must be increasing, got ($lo, $hi)"))
     xs = range(lo, hi; length = nsamples)
-    ys = [float(transform(t, x)) for x in xs]
+    ys = try
+        [float(transform(t, x)) for x in xs]
+    catch err
+        err isa DomainError || rethrow()
+        throw(
+            ArgumentError(
+                "transform $(typeof(t)) is undefined at $(err.val), which is on the domain " *
+                "($lo, $hi). A logarithm needs a positive domain.",
+            ),
+        )
+    end
     all(isfinite, ys) || throw(
         ArgumentError(
             "transform $(typeof(t)) is not finite everywhere on ($lo, $hi); " *

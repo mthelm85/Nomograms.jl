@@ -84,6 +84,46 @@ function _fan_map(scales, spread, r, R, inward)
     return p -> (w = M * [p[1], p[2], 1.0]; Point((w[1] / w[3], w[2] / w[3])))
 end
 
+fan(c::ContourChart; kwargs...) = throw(
+    ArgumentError(
+        "`fan` turns the parallel axes of an alignment chart into spokes. A contour chart " *
+        "has no such axes; to draw one on a disc, use `axes = false` and `rings`.",
+    ),
+)
+
+# `project` on a chart of several parts: the same map, and the same fit to the canvas, for
+# every stage, strand and surface, so that the parts stay aligned with one another. A
+# homography keeps straight lines straight, so each stage still computes what it did.
+function project(
+    nom::Union{CompoundNomogram,GridNomogram},
+    H::AbstractMatrix;
+    width::Real = nom.width,
+    height::Real = nom.height,
+    title::AbstractString = nom.title,
+    preserve_aspect::Bool = false,
+    nsamples::Int = 129,
+)
+    _check_homography(H, width, height)
+    W, Hc = float(width), float(height)
+    pts = [
+        _project_point(H, point(s, v), name(s)) for s in nom.scales for
+        v in range(s.domain...; length = nsamples)
+    ]
+    x0, x1 = extrema(first, pts)
+    y0, y1 = extrema(last, pts)
+    (x1 > x0 && y1 > y0) ||
+        throw(ArgumentError("the projective map collapses the chart onto a line"))
+    ax, ay = W / (x1 - x0), Hc / (y1 - y0)
+    preserve_aspect && (ax = ay = min(ax, ay))
+    bx = (W - ax * (x1 - x0)) / 2 - ax * x0
+    by = (Hc - ay * (y1 - y0)) / 2 - ay * y0
+    g = function (p)
+        q = _project_point(H, (float(p[1]), float(p[2])), :chart)
+        return Point((ax * q[1] + bx, ay * q[2] + by))
+    end
+    return _remap(nom, g, W, Hc, String(title))
+end
+
 _remap(s::Scale, g) = Scale(s.variable, s.domain, v -> g(s.curve(v)), s.side, s.kind)
 
 _remap(nom::Nomogram, g, w, h, title) = Nomogram(

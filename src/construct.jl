@@ -879,11 +879,14 @@ function _project_point(H::AbstractMatrix, p, name::Symbol)
 end
 
 """
-    project(nom::Nomogram, H::AbstractMatrix; kwargs...) -> Nomogram
-    project(nom::Nomogram, src => dst; kwargs...) -> Nomogram
+    project(nom::AbstractNomogram, H::AbstractMatrix; kwargs...)
+    project(nom::AbstractNomogram, src => dst; kwargs...)
 
 Reshape a nomogram with a projective map. The reshaped chart gives exactly the same answers
-as the original.
+as the original. This works on any alignment chart: a [`Nomogram`](@ref), a
+[`CompoundNomogram`](@ref), whose stages stay aligned with one another, or a
+[`GridNomogram`](@ref), whose surface moves with its strands. It returns the same kind of
+chart it is given. A [`ContourChart`](@ref) cannot be reshaped this way.
 
 A projective map sends straight lines to straight lines, so it preserves the collinearity
 that a nomogram depends on. Everything else about the picture can change. For example, you
@@ -928,18 +931,7 @@ function project(
     preserve_aspect::Bool = false,
     nsamples::Int = 129,
 )
-    size(H) == (3, 3) ||
-        throw(ArgumentError("a homography is a 3x3 matrix, got $(size(H))"))
-    all(isfinite, H) || throw(ArgumentError("the homography has non-finite entries"))
-    d = LinearAlgebra.det(H)
-    abs(d) > 1e-12 || throw(
-        ArgumentError(
-            "the homography is singular (determinant $d), so it collapses the plane " *
-            "rather than reshaping it",
-        ),
-    )
-    width > 0 || throw(ArgumentError("width must be positive, got $width"))
-    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    _check_homography(H, width, height)
 
     vars = [s.variable for s in nom.scales]
     curves = Any[]
@@ -966,6 +958,22 @@ function project(
     )
 end
 
-function project(nom::Nomogram, quad::Pair; kwargs...)
+function project(nom::AbstractNomogram, quad::Pair; kwargs...)
     return project(nom, projective_transform(first(quad), last(quad)); kwargs...)
+end
+
+function _check_homography(H::AbstractMatrix, width::Real, height::Real)
+    size(H) == (3, 3) ||
+        throw(ArgumentError("a homography is a 3x3 matrix, got $(size(H))"))
+    all(isfinite, H) || throw(ArgumentError("the homography has non-finite entries"))
+    d = LinearAlgebra.det(H)
+    abs(d) > 1e-12 || throw(
+        ArgumentError(
+            "the homography is singular (determinant $d), so it collapses the plane " *
+            "rather than reshaping it",
+        ),
+    )
+    width > 0 || throw(ArgumentError("width must be positive, got $width"))
+    height > 0 || throw(ArgumentError("height must be positive, got $height"))
+    return nothing
 end

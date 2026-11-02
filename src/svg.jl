@@ -286,9 +286,10 @@ function svg(
     nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
+    crossings = (),
     kwargs...,
 )
-    return svg(drawing(nom; style, isopleths); kwargs...)
+    return svg(drawing(nom; style, isopleths, crossings); kwargs...)
 end
 
 """

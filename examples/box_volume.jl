@@ -9,7 +9,7 @@
 #
 # The reader lays a line from L to W, notes where it crosses the shared scale, then pivots
 # about that point and reads a line to H. Hence the usual name for the shared scale: the
-# turning line.
+# pivot line.
 #
 # # The one constraint
 #
@@ -22,7 +22,7 @@
 
 using Nomograms
 
-# `t` is given an empty tick list, which draws it as a bare turning line. Drop that and it
+# `t` is given an empty tick list, which draws it as a bare pivot line. Drop that and it
 # carries its own scale, which is useful if the intermediate means something.
 stage1 = multiplicative_nomogram(
     Variable(:L; domain = (1, 10), label = "L (m)"),

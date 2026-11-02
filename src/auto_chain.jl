@@ -129,11 +129,12 @@ function _pivot_on(
     # interpolation rather than a root find -- which matters when chains nest.
     P = _Partials(T, doms[i], doms[j])
     path = _rising_path(T, P, doms[i], doms[j])
+    ts, svals = _path_samples(T, path)
     dsdt = [
         1 / (_Fx(P, path.along(s)...) * path.dx + _Fy(P, path.along(s)...) * path.dy)
-        for s in path.svals
+        for s in svals
     ]
-    s_of_t = TabulatedScale(path.zs, path.svals, dsdt)
+    s_of_t = TabulatedScale(ts, svals, dsdt)
     G = _remainder(F, Val(m), i, j, slot, path.along, s_of_t)
 
     tvar = Variable(tname; domain = stage[tname].domain, label = "", ticks = Float64[])

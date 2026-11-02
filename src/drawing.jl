@@ -725,7 +725,14 @@ function drawing(
     nom::AbstractNomogram;
     style::NomogramStyle = NomogramStyle(),
     isopleths::AbstractVector{Isopleth} = Isopleth[],
+    crossings = (),
 )
+    isempty(crossings) || throw(
+        ArgumentError(
+            "crossings mark points on a contour chart. An alignment chart is read along a " *
+            "line: pass `isopleths` instead.",
+        ),
+    )
     style.ticklabelrotation in (:horizontal, :tangent) || throw(
         ArgumentError(
             "ticklabelrotation must be :horizontal or :tangent, got " *
