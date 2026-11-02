@@ -13,6 +13,20 @@ scales at the values you know, and read the answer where it crosses the remainin
 Nomograms.jl builds nomograms from formulas, solves them numerically, and draws them as
 SVG or with Makie.
 
+![A nomogram for two resistors in parallel, with a line from 4 Ω to 6 Ω crossing the middle scale at 2.4 Ω](docs/src/assets/readme-parallel.svg)
+
+## Installation
+
+```julia
+using Pkg
+Pkg.add(url = "https://github.com/mthelm85/Nomograms.jl")
+```
+
+It needs Julia 1.10 or later. The SVG output has no further requirements. For `nomogramplot`,
+load a Makie backend such as CairoMakie; for units, load Unitful.
+
+## A first chart
+
 ```julia
 using Nomograms
 
@@ -259,8 +273,61 @@ nom = grid_nomogram(
 
 The reader lays a line from `a` to `b`, finds where it crosses the strand for their `c`, and
 reads `x` off the strand through that point. Any of the four variables may be the unknown.
-The mesh is drawn lighter than the scales, and each family of strands is labelled at the
-end where it fans out rather than where it crowds together.
+The strands are drawn like the scales, since they are read like them, and each family is
+labelled at the end where it fans out rather than where it crowds together. Pass a lighter
+`gridcolor` to make a dense grid less prominent.
+
+### Proportions
+
+A relation of four variables in proportion, `f₁(u) / f₂(v) = f₃(w) / f₄(t)`, is two N-charts
+sharing their diagonal, with two variables on each upright line:
+
+```julia
+gas = proportional_nomogram(
+    Variable(:V; domain = (1, 10)),
+    Variable(:T; domain = (250, 400)),
+    Variable(:nR; domain = (0.01, 0.2)),
+    Variable(:p; domain = (0.5, 5)),
+)
+evaluate(gas; V = 5, T = 300, p = 2).nR   # 0.0333…
+```
+
+## Scales from a common zero
+
+`concurrent_nomogram` charts `1/f₁(u) + 1/f₂(v) = 1/f₃(w)` on three linear scales that start
+from one point, with the result up the middle:
+
+```julia
+par = concurrent_nomogram(
+    Variable(:R1; domain = (0, 1000)),
+    Variable(:R2; domain = (0, 1000)),
+    Variable(:R),
+)
+evaluate(par; R1 = 400, R2 = 600).R   # 240.0
+```
+
+## Charts read where curves cross
+
+Not every formula has an alignment chart, but every formula has a contour chart. Two
+variables run along the axes, and every other variable is drawn as a family of curves; any
+two values fix a point, and every other value is read there. This is not a nomogram in the
+strict sense, but it is the older relation of one, and it can put many variables on a sheet.
+Curves thin out where they would crowd, with the spacing worked out from the field's
+gradient.
+
+```julia
+chart = contour_chart((x, y) -> sin(x) + exp(y) + x * y, :x => (0, 2), :y => (0, 1), :z)
+evaluate(chart; x = 1, z = 3).y                  # any two values give the rest
+svg(chart; crossings = [crossing(chart; x = 1, y = 0.5, label = "here")])
+```
+
+With `axes = false`, the chart can be drawn on a plane of its own, with scales around it read
+from the centre. That reaches the Smith chart, built here from nothing but its two formulas:
+
+![A Smith chart with the load 1 + j marked](docs/src/assets/readme-smith.svg)
+
+The [contour charts page](https://mthelm85.github.io/Nomograms.jl/dev/35-contour-charts/) has
+the code for this, the Moody diagram and a psychrometric chart.
 
 ## Reshaping a chart
 
@@ -301,10 +368,11 @@ re-deriving anything.
 
 ## Status
 
-Version 0.1.0, not yet registered. Implemented and tested: building a chart directly from a
-formula, on straight scales or with one curved scale; the parallel-scale, N or Z, concurrent-scale, proportional and general determinant constructions; compound and grid
-charts for four or more variables; contour charts, read where curves cross; projective
-reshaping; the solver; both renderers; and the tick engine.
+Version 0.1.0. Implemented and tested: building a chart directly from a formula, on straight
+scales or with one curved scale; the parallel-scale, N or Z, concurrent-scale, proportional
+and general determinant constructions; compound and grid charts for four or more variables;
+contour charts, read where curves cross; projective reshaping; the solver; both renderers;
+and the tick engine.
 
 Not yet implemented: taking an equation in implicit form, such as `1/R ~ 1/R₁ + 1/R₂`,
 rather than a function already solved for its result. That is where a Symbolics.jl front

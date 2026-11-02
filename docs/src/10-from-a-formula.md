@@ -237,7 +237,7 @@ straight scale cannot fold back on itself.
 !!! note "How long it takes"
     The common code paths are compiled when the package is installed, so the first chart
     in a session takes about as long as later ones. A chart with up to four inputs takes a
-    fraction of a second. Five inputs take a couple of seconds, mostly spent comparing
+    fraction of a second. Five inputs take a few seconds, mostly spent comparing
     layouts, and the first five-input chart in a session spends several more seconds
     compiling. The search for a curved scale runs only when straight scales fail. Its
     automatic differentiation is compiled again for each new formula, so the first curved

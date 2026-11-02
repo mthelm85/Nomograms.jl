@@ -190,11 +190,13 @@ straight scale cannot fold back.
 
 **Recovering the transforms.** If the identity holds, `F_x / F_y = f′(x) / g′(y)`. Holding
 `y` at the middle of its domain gives `f′`, and holding `x` there gives `g′`, each up to
-the same constant. Each is integrated with five-point Gauss–Legendre quadrature over 256
-panels. The panels are spaced geometrically when the domain spans more than a decade,
-since that is where a log-like integrand changes fastest. The result is stored as a
-[`TabulatedScale`](@ref): values and exact derivatives at the nodes, joined by cubic
-Hermite interpolation and extended linearly past the ends.
+the same constant. Each is integrated with five-point Gauss–Legendre quadrature, starting
+from 64 panels, spaced geometrically when the domain spans more than a decade. A panel is
+halved wherever the interpolant misses the integral at its middle by more than `2e-9` of
+the transform's range, so nodes gather where the transform needs them: `ln tan x`, for
+example, is steepest at the top of its domain, where geometric panels are widest. The
+result is stored as a [`TabulatedScale`](@ref): values and exact derivatives at the nodes,
+joined by cubic Hermite interpolation and extended linearly past the ends.
 
 ```@example internals
 growth = auto_nomogram((r, n) -> (1 + r / 100)^n, :rate => (1, 20), :years => (1, 30), :growth)
@@ -204,11 +206,13 @@ growth[:rate].variable.transform
 The result's transform `h` would need `F` to be inverted. To avoid that, the package walks
 a straight path across the domain from the corner where `F` is smallest to the corner
 where it is largest. Along that path both inputs move in the direction that increases `F`,
-so `F` increases steadily. The path parameter is solved for at 1025 values of `F`, and at
-each one `h = f + g`, with `h′` from the chain rule. The three transforms are fixed only
-up to a common sign, which is chosen so that the result axis reads upwards. Each axis's
-tick style is also chosen at this point, according to how its transform spreads its
-values.
+so `F` increases steadily. The path parameter is solved for at 129 values of `F`, and at
+each one `h = f + g`, with `h′` from the chain rule. These panels are halved by the same
+test. Each node records the value of `F` the path actually reached, not the one aimed for:
+over many decades the path parameter is tiny at the small end, and a solver's absolute
+tolerance is a large part of it. The three transforms are fixed only up to a common sign,
+which is chosen so that the result axis reads upwards. Each axis's tick style is also
+chosen at this point, according to how its transform spreads its values.
 
 **Checking.** The transforms are passed to [`additive_nomogram`](@ref), with `F` itself
 stored as the chart's relation. The finished chart is then solved on a 9 × 9 grid of

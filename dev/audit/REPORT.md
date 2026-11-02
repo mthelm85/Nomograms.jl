@@ -2,7 +2,8 @@
 
 An audit of the numerical methods Nomograms.jl uses to build, check and solve charts,
 run against the package at commit `73e0d88`. Items 1 and 2 were fixed after it, and item 6
-built. Every number below comes from a script in
+built. The tables behind `auto_nomogram` have since become adaptive, which removed its false
+refusals on steep and wide-ranging transforms. Every number below comes from a script in
 this folder; `julia dev/audit/setup.jl` creates the environment, then run any `e*.jl`.
 
 ## Summary

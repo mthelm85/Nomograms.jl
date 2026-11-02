@@ -58,6 +58,36 @@ lists the works this documentation draws on, and where to read more.
   Gand* 7, 1884, pp. 53–132, and independently by Léon Lecornu, "Sur le problème de
   l'anamorphose", *Comptes rendus de l'Académie des sciences* 102, 1886, pp. 813–816.
 
+## Charts read where curves cross
+
+- Léon Lalanne. "Mémoire sur les tables graphiques et sur la géométrie anamorphique."
+  *Annales des Ponts et Chaussées*, 1st semester 1846.
+
+  The source of anamorphosis: choosing axis scales that straighten a chart's curves, which
+  [`contour_chart`](@ref) does for a separable formula. Cited here from d'Ocagne's *Traité*,
+  chapter II, which also gives the history of the names used on the
+  [contour charts](35-contour-charts.md) page: Lalanne's *courbes d'égal élément*, the
+  *courbes isoplèthes* of Vogler (*Sechs graphische Tafeln*, Berlin, 1877), and d'Ocagne's
+  own *courbes cotées*. Lalanne's and Vogler's works were not consulted directly.
+
+## The charts in the examples
+
+These pages draw the following charts to show what the package can do. The charts and their
+formulas belong to the works below.
+
+- **Smith chart.** P. H. Smith. "Transmission Line Calculator." *Electronics* 12(1),
+  January 1939, pp. 29–31. The chart is reported to have been proposed independently by
+  Tōsaku Mizuhashi in Japan in 1937.
+- **Moody diagram.** L. F. Moody. "Friction Factors for Pipe Flow." *Transactions of the
+  ASME* 66(8), 1944, pp. 671–684. It plots the equation of C. F. Colebrook, "Turbulent Flow
+  in Pipes, with Particular Reference to the Transition Region between the Smooth and Rough
+  Pipe Laws", *Journal of the Institution of Civil Engineers* 11, 1939, pp. 133–156.
+- **Psychrometric chart.** The saturation pressure uses the coefficients of O. A. Alduchov
+  and R. E. Eskridge, "Improved Magnus Form Approximation of Saturation Vapor Pressure",
+  *Journal of Applied Meteorology* 35(4), 1996, pp. 601–609.
+- **Wulff net.** After G. Wulff, "Untersuchungen im Gebiete der optischen Eigenschaften
+  isomorpher Krystalle", *Zeitschrift für Krystallographie und Mineralogie* 36, 1902.
+
 ## Related software
 
 - [PyNomo](http://www.pynomo.org), by Leif Roschier, builds nomograms in Python from a
@@ -77,6 +107,11 @@ classical, it comes from those sources. The following are specific to this packa
   depend on the rest), and the numerical recovery of every transform from the formula
   itself;
 - how a chain's stages are paired, mirrored and sized so that no axis lands on another;
+- the search for a chart with one curved scale, which fits the condition on `ln|G_u / G_v|`
+  numerically along level sets of the curved variable (the form it looks for, with two
+  scales straight and one curved, is classical);
+- how a contour chart's curves are thinned, from the spacing the field's gradient gives at
+  each point;
 - how ticks are chosen and thinned, and how labels are kept clear of each other and of the
   alignment lines;
 - the isopleth palette, whose colour-difference figures come from the package's own check

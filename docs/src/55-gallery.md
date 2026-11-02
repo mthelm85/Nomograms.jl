@@ -235,9 +235,9 @@ bolt = additive_nomogram(
 drawing(bolt; isopleths = [isopleth(bolt; grip = 1 + 1//4, nut = 3//8, label = "1 5/8 in")])
 ```
 
-## A Wulff grid
+## A Wulff net
 
-Crystallographers and structural geologists plot directions in space on a Wulff grid: the
+Crystallographers and structural geologists plot directions in space on a Wulff net: the
 stereographic projection of a sphere's latitude and longitude lines, with the poles at the
 top and bottom. It is a [contour chart](35-contour-charts.md) on a plane of its
 own, like the Smith chart, built from the same three keywords: `axes = false` for the
@@ -267,15 +267,18 @@ wulff = contour_chart(
             label = "azimuth (°)") => a -> (1.06sind(a), 1.06cosd(a)),
     ],
     labelat = (lat = :lon => 0, lon = :lat => 0),
-    title = "Wulff grid",
+    width = 150,
+    title = "Wulff net",
 )
 drawing(wulff; crossings = [crossing(wulff; lat = 30, lon = 40, label = "30°, 40°")])
 ```
 
-The grid is every 2°, but the 2° meridians stop short of the poles, where they converge,
-and only every tenth one carries on. Printed grids are drawn the same way. Here it comes
-from the spacing rule that thins every contour chart's curves, with nothing specific
-to this chart.
+The grid is every 2°, but the 2° meridians stop well short of the poles, where they
+converge, and only every tenth one carries on towards them. Printed nets are drawn the same
+way. Here it comes from the spacing rule that thins every contour chart's curves, with
+nothing specific to this chart. That rule also needs room: at the default `width` of 100,
+2° meridians near the centre are closer than the minimum spacing and are not drawn at all,
+which is why this chart is drawn larger.
 
 ## Colours
 
