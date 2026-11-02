@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Four or more variables — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=70ef5adb">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=a5a1fcbd">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Four or more variables — Nomograms.jl">
   <meta property="og:title" content="Four or more variables — Nomograms.jl">
@@ -160,8 +160,8 @@ drawing(gq; isopleths = [isopleth(gq, roots[1]; label = &quot;x² − 3x + 2 = 0
 <pre><code class="language-julia">[sol.x for sol in roots]</code></pre>
 </div>
 <pre class="md-output md-output-text"><code class="nohighlight ansi">2-element Vector{Float64}:
- 1.0000000000000009
- 1.999999999999998</code></pre>
+ 1.0000000000000007
+ 1.9999999999999984</code></pre>
 </div>
 <p>What <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> does depends on which variable is unknown. If both grid variables are known, the grid gives a single point and the problem is an ordinary three-point alignment. If one grid variable is unknown, the two scales already fix the line, and the answer is where it crosses the strand for the known grid variable. That strand is a curve, so the line may cross it twice. Here it does, because a quadratic has two roots.</p>
 <p>The mesh is truly two-dimensional only when <code class="md-code-inline">(α : β : γ)</code> sweeps out a region. If it sweeps out only a curve, the grid collapses onto a line, which means the relation needed a pivot line instead. This is a useful check that you have chosen the right construction.</p>
@@ -194,6 +194,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=70ef5adb"></script>
+  <script src="../assets/materialdocs.js?v=a5a1fcbd"></script>
 </body>
 </html>

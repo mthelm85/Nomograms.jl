@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Building charts — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=3feb3dc4">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=9160fcbe">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Building charts — Nomograms.jl">
   <meta property="og:title" content="Building charts — Nomograms.jl">
@@ -159,13 +159,13 @@ drawing(quad; isopleths = [isopleth(quad, roots[1]; label = &quot;z² − 3z + 2
 </div>
 <p>There are two answers because a quadratic has two roots. On the chart, one alignment line meets the curved scale twice. This chart for the quadratic is a classic one; Doerfler draws it after Adams (1964) and Otto (1963).</p>
 <p>An affine map keeps collinear points collinear, so fitting the curves to the canvas cannot change what the chart computes. This includes the default fit, which scales the two axes by different factors to fill the canvas. Pass <code class="md-code-inline">preserve_aspect = true</code> to scale both axes by the same factor and centre the result.</p>
-<p>Getting the determinant form right is the hardest part of designing a chart by hand, and a chart with a small error in it still draws normally. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and checks each answer against the relation:</p>
+<p>Getting the determinant form right is the hardest part of designing a chart by hand, and a chart with a small error in it still draws normally. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and checks each answer against the relation:</p>
 <div class="md-multi-output">
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
 <pre><code class="language-julia">max_relation_residual(quad)</code></pre>
 </div>
-<pre class="md-output md-output-text"><code class="nohighlight ansi">7.105427357601002e-15</code></pre>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">5.329070518200751e-15</code></pre>
 </div>
 <p>It returns <code class="md-code-inline">NaN</code> (rather than zero) when there is no relation to check, or when no input in the grid produced a solution.</p>
 <h2 id="Reshaping-a-chart" class="md-heading">Reshaping a chart<a href="#Reshaping-a-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
@@ -196,7 +196,7 @@ drawing(skew; isopleths = [isopleth(skew; R1 = 4, R2 = 6, label = &quot;2.4&quot
 </div>
 <p><a href="../95-reference/#Nomograms.projective_transform-Tuple{Any, Any}"><code class="md-code-inline">projective_transform</code></a> builds the map from four point correspondences. You name the corners of a quadrilateral and where they should end up, instead of writing out nine coefficients. A map whose bottom row is <code class="md-code-inline">[0 0 1]</code> is affine (translation, scaling and shear); any other map adds true perspective.</p>
 <p>A projective map can move the bounding box anywhere, so the result is fitted to the canvas again. That fit is affine, and an affine map composed with a projective one is still projective, so the answers are still unchanged.</p>
-<p>This means you can reshape a chart freely while designing it. You can pull open a region where the ticks are crowded without re-deriving anything, and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code class="md-code-inline">max_relation_residual</code></a> will confirm that the reshaped chart is still correct.</p>
+<p>This means you can reshape a chart freely while designing it. You can pull open a region where the ticks are crowded without re-deriving anything, and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> will confirm that the reshaped chart is still correct.</p>
 <p>Watch out for the map&#39;s vanishing line, where its denominator is zero. If that line crosses a scale&#39;s domain, points there are sent to infinity. <code class="md-code-inline">project</code> then throws an error naming the affected scale, instead of returning a chart full of <code class="md-code-inline">Inf</code>.</p>
 <h2 id="Fans" class="md-heading">Fans<a href="#Fans" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>Parallel lines meet at a point at infinity, and a projective map can bring that point onto the page. Every axis then runs through it, and the chart becomes a fan of spokes. <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> does this:</p>
@@ -248,6 +248,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=3feb3dc4"></script>
+  <script src="../assets/materialdocs.js?v=9160fcbe"></script>
 </body>
 </html>

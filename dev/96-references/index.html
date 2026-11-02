@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bibliography — Nomograms.jl</title>
-  <link rel="stylesheet" href="../assets/materialdocs.css?v=c81b7b5f">
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=ce0be92e">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Bibliography — Nomograms.jl">
   <meta property="og:title" content="Bibliography — Nomograms.jl">
@@ -90,6 +90,24 @@
 <p>The more general problem, of which equations can be brought into a chartable form at all, was taken up by J. Massau, &quot;Mémoire sur l&#39;intégration graphique et ses applications&quot;, <em>Annales de l&#39;Association des ingénieurs sortis des écoles spéciales de Gand</em> 7, 1884, pp. 53–132, and independently by Léon Lecornu, &quot;Sur le problème de l&#39;anamorphose&quot;, <em>Comptes rendus de l&#39;Académie des sciences</em> 102, 1886, pp. 813–816.</p>
 </li>
 </ul>
+<h2 id="Charts-read-where-curves-cross" class="md-heading">Charts read where curves cross<a href="#Charts-read-where-curves-cross" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><p>Léon Lalanne. &quot;Mémoire sur les tables graphiques et sur la géométrie anamorphique.&quot; <em>Annales des Ponts et Chaussées</em>, 1st semester 1846.</p>
+<p>The source of anamorphosis: choosing axis scales that straighten a chart&#39;s curves, which <a href="../95-reference/#Nomograms.contour_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}"><code class="md-code-inline">contour_chart</code></a> does for a separable formula. Cited here from d&#39;Ocagne&#39;s <em>Traité</em>, chapter II, which also gives the history of the names used on the <a href="../35-contour-charts/">contour charts</a> page: Lalanne&#39;s <em>courbes d&#39;égal élément</em>, the <em>courbes isoplèthes</em> of Vogler (<em>Sechs graphische Tafeln</em>, Berlin, 1877), and d&#39;Ocagne&#39;s own <em>courbes cotées</em>. Lalanne&#39;s and Vogler&#39;s works were not consulted directly.</p>
+</li>
+</ul>
+<h2 id="The-charts-in-the-examples" class="md-heading">The charts in the examples<a href="#The-charts-in-the-examples" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>These pages draw the following charts to show what the package can do. The charts and their formulas belong to the works below.</p>
+<ul class="md-list-tight">
+<li><p><strong>Smith chart.</strong> P. H. Smith. &quot;Transmission Line Calculator.&quot; <em>Electronics</em> 12(1), January 1939, pp. 29–31. The chart is reported to have been proposed independently by Tōsaku Mizuhashi in Japan in 1937.</p>
+</li>
+<li><p><strong>Moody diagram.</strong> L. F. Moody. &quot;Friction Factors for Pipe Flow.&quot; <em>Transactions of the ASME</em> 66(8), 1944, pp. 671–684. It plots the equation of C. F. Colebrook, &quot;Turbulent Flow in Pipes, with Particular Reference to the Transition Region between the Smooth and Rough Pipe Laws&quot;, <em>Journal of the Institution of Civil Engineers</em> 11, 1939, pp. 133–156.</p>
+</li>
+<li><p><strong>Psychrometric chart.</strong> The saturation pressure uses the coefficients of O. A. Alduchov and R. E. Eskridge, &quot;Improved Magnus Form Approximation of Saturation Vapor Pressure&quot;, <em>Journal of Applied Meteorology</em> 35(4), 1996, pp. 601–609.</p>
+</li>
+<li><p><strong>Wulff net.</strong> After G. Wulff, &quot;Untersuchungen im Gebiete der optischen Eigenschaften isomorpher Krystalle&quot;, <em>Zeitschrift für Krystallographie und Mineralogie</em> 36, 1902.</p>
+</li>
+</ul>
 <h2 id="Related-software" class="md-heading">Related software<a href="#Related-software" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <ul class="md-list-tight">
 <li><p><a href="http://www.pynomo.org">PyNomo</a>, by Leif Roschier, builds nomograms in Python from a description of each scale. P. Martínez-Pagán and L. Roschier collect PyNomo scripts for common engineering formulas in <em>Data in Brief</em>, 2022, <a href="https://doi.org/10.1016/j.dib.2022.108661">doi:10.1016/j.dib.2022.108661</a>. Nomograms.jl is an independent implementation and borrows no code from it.</p>
@@ -101,6 +119,10 @@
 <li><p>the test that a formula of three or more inputs splits into a chain (it depends on a pair of inputs only through one combination of them exactly when <span class="md-math md-math-inline">\(F_x / F_y\)</span> does not depend on the rest), and the numerical recovery of every transform from the formula itself;</p>
 </li>
 <li><p>how a chain&#39;s stages are paired, mirrored and sized so that no axis lands on another;</p>
+</li>
+<li><p>the search for a chart with one curved scale, which fits the condition on <code class="md-code-inline">ln|G_u / G_v|</code> numerically along level sets of the curved variable (the form it looks for, with two scales straight and one curved, is classical);</p>
+</li>
+<li><p>how a contour chart&#39;s curves are thinned, from the spacing the field&#39;s gradient gives at each point;</p>
 </li>
 <li><p>how ticks are chosen and thinned, and how labels are kept clear of each other and of the alignment lines;</p>
 </li>
@@ -119,6 +141,8 @@
           <a class="md-toc-link md-toc-h2" href="#Textbooks">Textbooks</a>
           <a class="md-toc-link md-toc-h2" href="#A-modern-overview">A modern overview</a>
           <a class="md-toc-link md-toc-h2" href="#When-a-formula-has-a-chart">When a formula has a chart</a>
+          <a class="md-toc-link md-toc-h2" href="#Charts-read-where-curves-cross">Charts read where curves cross</a>
+          <a class="md-toc-link md-toc-h2" href="#The-charts-in-the-examples">The charts in the examples</a>
           <a class="md-toc-link md-toc-h2" href="#Related-software">Related software</a>
           <a class="md-toc-link md-toc-h2" href="#What-is-original-here">What is original here</a>
       </div>
@@ -138,6 +162,6 @@ document.querySelectorAll('.md-math').forEach(function (el) {
 });</script>
   <script src="../siteinfo.js"></script>
   <script src="../../versions.js"></script>
-  <script src="../assets/materialdocs.js?v=c81b7b5f"></script>
+  <script src="../assets/materialdocs.js?v=ce0be92e"></script>
 </body>
 </html>
