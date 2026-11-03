@@ -19,7 +19,7 @@ SVG or with Makie.
 
 ```julia
 using Pkg
-Pkg.add(url = "https://github.com/mthelm85/Nomograms.jl")
+Pkg.add("Nomograms")
 ```
 
 It needs Julia 1.10 or later. The SVG output has no further requirements. For `nomogramplot`,

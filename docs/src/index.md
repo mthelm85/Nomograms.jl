@@ -28,7 +28,7 @@ middle scale is placed so that any line across the chart crosses it at the corre
 
 ```julia
 using Pkg
-Pkg.add(url = "https://github.com/mthelm85/Nomograms.jl")
+Pkg.add("Nomograms")
 ```
 
 ## Start from your formula

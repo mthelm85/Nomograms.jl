@@ -131,6 +131,27 @@ end
         [(0, 0), (1, 1), (2, 2), (5, 0)],
         Proj.DST,
     )
+    # Whether rounding leaves an exact zero pivot depends on the numbers and the machine, so
+    # these must be refused for what they are: the first three lie on a line only to within
+    # rounding, and solving the system regardless returned a map.
+    for t in (0.1, 0.3, 1 / 3, 0.77)
+        a, d = (0.6225, 0.0343), (0.0101, 0.5904)
+        pts = [a, a .+ t .* d, a .+ d, a .+ 3 .* (-d[2], d[1])]
+        @test_throws ArgumentError projective_transform(pts, Proj.DST)
+        @test_throws ArgumentError projective_transform(Proj.DST, pts)
+    end
+    # Two points in one place are no better.
+    @test_throws ArgumentError projective_transform(
+        [(0, 0), (0, 0), (1, 0), (0, 1)],
+        Proj.DST,
+    )
+    # A thin quadrilateral is not a degenerate one.
+    thin = [(0, 0), (1, 0.001), (2, 0), (1, -0.001)]
+    H = projective_transform(thin, Proj.DST)
+    for (s, d) in zip(thin, Proj.DST)
+        w = H * [s[1], s[2], 1.0]
+        @test [w[1], w[2]] ./ w[3] ≈ collect(d) atol = 1e-6
+    end
     @test_throws ArgumentError projective_transform([(0, 0), (1, 1)], [(0, 0), (1, 1)])
 end
 

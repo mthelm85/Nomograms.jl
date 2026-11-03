@@ -131,7 +131,8 @@ end
         sprint(showerror, e)
     end
     @test occursin("does not come out in the units of :BMI", m)
-    @test occursin("kg m^-1", m)
+    # Spelled out through Unitful, which prints exponents as m⁻¹ on Apple platforms.
+    @test occursin(string(u"kg/m"), m)
 
     # Three inputs, a constant with units of its own, a result declared in kPa.
     R = 8.314u"J/(mol*K)"

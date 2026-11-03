@@ -829,6 +829,11 @@ three of the four source points may be collinear, and likewise for the destinati
 function projective_transform(src, dst)
     length(src) == 4 && length(dst) == 4 ||
         throw(ArgumentError("need exactly 4 source and 4 destination points"))
+    unfixed = ArgumentError(
+        "those four points do not fix a projective map; check that no three of the " *
+        "source points are collinear, nor three of the destinations",
+    )
+    (_three_collinear(src) || _three_collinear(dst)) && throw(unfixed)
     A = zeros(Float64, 8, 8)
     b = zeros(Float64, 8)
     for i = 1:4
@@ -843,21 +848,25 @@ function projective_transform(src, dst)
         A \ b
     catch err
         err isa LinearAlgebra.SingularException || rethrow()
-        throw(
-            ArgumentError(
-                "those four points do not fix a projective map; check that no three " *
-                "of the source points are collinear, nor three of the destinations",
-            ),
-        )
+        throw(unfixed)
     end
     H = [h[1] h[2] h[3]; h[4] h[5] h[6]; h[7] h[8] 1.0]
-    all(isfinite, H) || throw(
-        ArgumentError(
-            "those four points do not fix a projective map; check that no three of " *
-            "the source points are collinear, nor three of the destinations",
-        ),
-    )
+    all(isfinite, H) || throw(unfixed)
     return H
+end
+
+# Whether any three of four points lie on a line. This has to be asked of the points: the
+# linear system cannot be trusted to answer, since rounding usually leaves its last pivot
+# around 1e-16 instead of zero, and solving then returns a meaningless map without complaint.
+# Each triangle's area is measured against its longest side, so the test ignores scale.
+function _three_collinear(pts)
+    for (i, j, k) in ((1, 2, 3), (1, 2, 4), (1, 3, 4), (2, 3, 4))
+        ax, ay = float(pts[j][1] - pts[i][1]), float(pts[j][2] - pts[i][2])
+        bx, by = float(pts[k][1] - pts[i][1]), float(pts[k][2] - pts[i][2])
+        longest = max(hypot(ax, ay), hypot(bx, by), hypot(bx - ax, by - ay))
+        abs(ax * by - ay * bx) <= 1e-10 * longest^2 && return true
+    end
+    return false
 end
 
 function _project_point(H::AbstractMatrix, p, name::Symbol)
