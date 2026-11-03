@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nomograms.jl — Nomograms.jl</title>
-  <link rel="stylesheet" href="./assets/materialdocs.css?v=b8ee40d3">
+  <link rel="stylesheet" href="./assets/materialdocs.css?v=805b05a8">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <meta name="title" content="Nomograms.jl — Nomograms.jl">
   <meta property="og:title" content="Nomograms.jl — Nomograms.jl">
@@ -84,7 +84,7 @@ drawing(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6, label = &quot;4 ∥ 6 = 
 <div class="md-code-block">
 <button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
 <pre><code class="language-julia">using Pkg
-Pkg.add(url = &quot;https://github.com/mthelm85/Nomograms.jl&quot;)</code></pre>
+Pkg.add(&quot;Nomograms&quot;)</code></pre>
 </div>
 <h2 id="Start-from-your-formula" class="md-heading">Start from your formula<a href="#Start-from-your-formula" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
 <p>Pass <a href="./95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> your function as you would normally write it, together with the range of each input, and it works out how to draw the chart:</p>
@@ -167,6 +167,6 @@ drawing(growth; isopleths = [isopleth(growth; rate = 5, years = 10, label = &quo
   <script>hljs.highlightAll();</script>
   <script src="./siteinfo.js"></script>
   <script src="./../versions.js"></script>
-  <script src="./assets/materialdocs.js?v=b8ee40d3"></script>
+  <script src="./assets/materialdocs.js?v=805b05a8"></script>
 </body>
 </html>
