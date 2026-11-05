@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How it works — Nomograms.jl</title>
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=8b161b9b">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <meta name="title" content="How it works — Nomograms.jl">
+  <meta property="og:title" content="How it works — Nomograms.jl">
+  <meta property="twitter:title" content="How it works — Nomograms.jl">
+  <meta name="description" content="Documentation for Nomograms.jl.">
+  <meta property="og:description" content="Documentation for Nomograms.jl.">
+  <meta property="twitter:description" content="Documentation for Nomograms.jl.">
+  <meta property="og:url" content="https://mthelm85.github.io/Nomograms.jl/60-how-it-works/">
+  <meta property="twitter:url" content="https://mthelm85.github.io/Nomograms.jl/60-how-it-works/">
+  <link rel="canonical" href="https://mthelm85.github.io/Nomograms.jl/60-how-it-works/">
+  <script>
+    (function(){
+      document.documentElement.classList.add('no-transition');
+      var t=localStorage.getItem('md-theme');if(t)document.documentElement.setAttribute('data-theme',t);
+      window.addEventListener('load',function(){setTimeout(function(){document.documentElement.classList.remove('no-transition');},50);});
+    })()
+  </script>
+</head>
+<body data-warn-outdated>
+  <header class="md-navbar">
+    <button id="md-hamburger" class="md-icon-btn md-hamburger" aria-label="Toggle navigation" aria-expanded="false"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <span class="md-navbar-title">Nomograms.jl</span>
+    <span class="md-navbar-spacer"></span>
+    <button id="md-search-btn" class="md-search-bar" aria-label="Search documentation" aria-expanded="false">
+      <svg class="md-icon md-search-bar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span class="md-search-bar-label">Search docs</span>
+      <kbd class="md-search-bar-kbd">Ctrl K</kbd>
+    </button>
+    <div id="md-version" class="md-version" hidden>
+      <button id="md-version-btn" class="md-version-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select documentation version">
+        <span id="md-version-current" class="md-version-current"></span>
+        <svg class="md-icon md-version-caret" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <ul id="md-version-menu" class="md-version-menu" role="listbox" hidden></ul>
+    </div>
+    <a class="md-icon-btn md-repo-link" href="https://github.com/mthelm85/Nomograms.jl" title="View the repository on GitHub" aria-label="View the repository on GitHub" rel="noopener" target="_blank"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0012 .3z"/></svg><span class="md-repo-label">GitHub</span></a>
+    <button id="md-theme-toggle" class="md-icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode"><svg class="md-icon md-icon-light" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg><svg class="md-icon md-icon-dark" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+  </header>
+  <div class="md-layout">
+    <nav class="md-sidebar">
+      <a href="../">Nomograms.jl</a>
+      <a href="../10-from-a-formula/">From a formula</a>
+      <a href="../20-constructions/">Building charts</a>
+      <a href="../30-more-variables/">Four or more variables</a>
+      <a href="../35-contour-charts/">Contour charts</a>
+      <a href="../40-solving/">Solving</a>
+      <a href="../50-drawing/">Drawing</a>
+      <a href="../55-gallery/">Gallery</a>
+      <a href="../60-how-it-works/" class="md-nav-active">How it works</a>
+      <a href="../95-reference/">API</a>
+      <a href="../96-references/">Bibliography</a>
+    </nav>
+    <main class="md-content">
+      <article class="md-article">
+      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/60-how-it-works.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
+<h1 id="How-it-works" class="md-heading">How it works<a href="#How-it-works" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
+<p>This page follows a chart through the package, from a formula to a picture. It explains what is computed at each step and why. The other pages show how to <em>use</em> each part; this one describes what happens inside, and links back to them for usage.</p>
+<p>The process has five stages, and each one produces what the next one needs:</p>
+<div class="md-table-wrap">
+<table class="md-table">
+<thead>
+<tr>
+<th style="text-align:right">stage</th>
+<th style="text-align:right">produces</th>
+<th style="text-align:right">source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">construction</td>
+<td style="text-align:right">a chart whose every scale is a curve</td>
+<td style="text-align:right"><code class="md-code-inline">construct.jl</code>, <code class="md-code-inline">compound.jl</code>, <code class="md-code-inline">grid.jl</code>, <code class="md-code-inline">fan.jl</code></td>
+</tr>
+<tr>
+<td style="text-align:right">automatic construction</td>
+<td style="text-align:right">the same, from a formula</td>
+<td style="text-align:right"><code class="md-code-inline">auto.jl</code>, <code class="md-code-inline">auto_chain.jl</code></td>
+</tr>
+<tr>
+<td style="text-align:right">solving</td>
+<td style="text-align:right">values, and the lines that read them</td>
+<td style="text-align:right"><code class="md-code-inline">solve.jl</code></td>
+</tr>
+<tr>
+<td style="text-align:right">layout</td>
+<td style="text-align:right">a <a href="../95-reference/#Nomograms.NomogramDrawing"><code class="md-code-inline">NomogramDrawing</code></a>: pure geometry</td>
+<td style="text-align:right"><code class="md-code-inline">ticks.jl</code>, <code class="md-code-inline">drawing.jl</code></td>
+</tr>
+<tr>
+<td style="text-align:right">rendering</td>
+<td style="text-align:right">SVG, or a Makie <code class="md-code-inline">Figure</code></td>
+<td style="text-align:right"><code class="md-code-inline">svg.jl</code>, <code class="md-code-inline">ext/NomogramsMakieExt.jl</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All of these stages use the same representation of a chart, so that comes first.</p>
+<h2 id="One-condition:-collinearity" class="md-heading">One condition: collinearity<a href="#One-condition:-collinearity" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A nomogram rests on a single condition: a point taken from each scale lies on one straight line exactly when the values satisfy the relation. For three points this is d&#39;Ocagne&#39;s criterion (see the <a href="../96-references/">Bibliography</a>),</p>
+<div class="md-math md-math-display">
+\[\begin{vmatrix}
+x_1 &amp; y_1 &amp; 1\\
+x_2 &amp; y_2 &amp; 1\\
+x_3 &amp; y_3 &amp; 1
+\end{vmatrix} = 0\]
+</div>
+<p>and nothing else about the picture affects what it computes. So the package stores each scale as a parametric curve, <code class="md-code-inline">value -&gt; (x, y)</code>, over a domain. A <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a> holds a <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> (name, label, tick preferences), the domain it covers, that curve, the side its ticks go on, and a <code class="md-code-inline">kind</code>: <code class="md-code-inline">:scale</code> for a scale that a reader takes values from, or <code class="md-code-inline">:grid</code> for a strand of a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a>. A <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a> is a list of scales, a canvas size, a title, and optionally the algebraic <code class="md-code-inline">relation</code> that the scales are meant to encode.</p>
+<p>The curves do not have to come from a construction. Three scales built by hand, with <code class="md-code-inline">v</code> twice as far from <code class="md-code-inline">u</code> as <code class="md-code-inline">w</code> is and <code class="md-code-inline">w</code> at half scale, chart <code class="md-code-inline">u + v = w</code>. A line between heights <code class="md-code-inline">10u</code> and <code class="md-code-inline">10v</code> crosses the middle at their average, <code class="md-code-inline">5(u + v)</code>.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Nomograms
+
+u = Scale(Variable(:u; domain = (0, 10)), (0.0, 10.0), u -&gt; (0.0, 10u), :left)
+v = Scale(Variable(:v; domain = (0, 10)), (0.0, 10.0), v -&gt; (70.0, 10v), :right)
+w = Scale(Variable(:w; domain = (0, 20)), (0.0, 20.0), w -&gt; (35.0, 5w), :right)
+sum3 = Nomogram([u, v, w]; width = 70, height = 100)
+drawing(sum3; isopleths = [isopleth(sum3; u = 3, v = 4, label = &quot;3 + 4&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="63ce3575.svg" alt="Example block output">
+</div>
+</div>
+<p><a href="../95-reference/#Nomograms.align_residual-Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">align_residual</code></a> computes the determinant. It is the cross product of <code class="md-code-inline">q − p</code> with <code class="md-code-inline">point − p</code>, which is twice the signed area of the triangle formed by the three points. It is zero on the line and grows linearly away from it:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">p, q = point(u, 3), point(v, 4)
+(align_residual(w, 7, p, q), align_residual(w, 8, p, q))</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(0.0, 350.0)</code></pre>
+</div>
+<p>Because every chart comes down to a set of scales, everything after construction (solving, ticks, labels and both renderers) is written once, in terms of the curves. <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a>, <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a> and <a href="../95-reference/#Nomograms.GridNomogram"><code class="md-code-inline">GridNomogram</code></a> differ only in how they are solved. For drawing, all three are an <a href="../95-reference/#Nomograms.AbstractNomogram"><code class="md-code-inline">AbstractNomogram</code></a>: scales, a canvas and a title.</p>
+<h2 id="Construction:-choosing-the-curves" class="md-heading">Construction: choosing the curves<a href="#Construction:-choosing-the-curves" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Each constructor chooses curves in a particular way that makes the determinant agree with a relation. <a href="../20-constructions/">Building charts</a> shows them in use; this section describes what each one computes.</p>
+<p><strong>Parallel scales.</strong> <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> charts <code class="md-code-inline">f₁(u) + f₂(v) = f₃(w)</code> in closed form. The outer scales go on <code class="md-code-inline">x = 0</code> and <code class="md-code-inline">x = W</code> at heights <code class="md-code-inline">a₁(f₁ − p₀)</code> and <code class="md-code-inline">a₂(f₂ − q₀)</code>, with each gradient chosen to fit its transform&#39;s range to the canvas height. A line between them crosses <code class="md-code-inline">x = λW</code> at <code class="md-code-inline">(1 − λ)y₁ + λy₂</code>, and choosing <code class="md-code-inline">λ = a₁ / (a₁ + a₂)</code> makes that a linear function of <code class="md-code-inline">f₁ + f₂</code>. So the middle axis&#39;s position and gradient are determined by the outer two. Its domain is determined the same way: the reachable range of <code class="md-code-inline">f₃</code> is <code class="md-code-inline">[p₀ + q₀, p₁ + q₁]</code>, mapped back through the result&#39;s inverse transform. If a domain was given, it is checked against that range instead.</p>
+<p>The middle axis lies close to whichever outer axis spans more. When the gradients differ by more than <code class="md-code-inline">max_modulus_ratio</code> (4 by default), the steeper one is capped by shortening that axis and centring it. Shifting an outer axis by <code class="md-code-inline">d</code> shifts every crossing of the middle one by <code class="md-code-inline">d</code> times that axis&#39;s share of the width, so the middle axis is shifted to match and no reading changes. <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a> wraps every transform in a logarithm and calls <code class="md-code-inline">additive_nomogram</code>.</p>
+<p><strong>The N-chart.</strong> <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> puts <code class="md-code-inline">f₁</code> up the left edge and <code class="md-code-inline">f₂</code> down the right, and reads the ratio on the diagonal between their zero corners. A line through the two crosses the diagonal at <code class="md-code-inline">s = kr / (kr + 1)</code>, where <code class="md-code-inline">r = f₁/f₂</code> and <code class="md-code-inline">k</code> is the ratio of the two gradients. This is a projective scale, which is why a ratio spanning several decades gets decade-based ticks on the diagonal.</p>
+<p><strong>Curves you supply.</strong> <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> takes one curve per variable, in whatever coordinates are convenient. It samples each curve at 129 points to measure the combined bounding box, and maps that box onto the canvas with an affine map, using separate factors for the two axes unless <code class="md-code-inline">preserve_aspect</code> is set. An affine map keeps collinear points collinear, so the fit cannot change an answer. Each scale&#39;s ticks go on the side whose normal points away from the centre of the canvas, so labels face outwards on a curve as they do on a parallel chart.</p>
+<p><strong>Reshaping.</strong> <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> composes every curve with a homography and fits the result to the canvas with the same affine step. <a href="../95-reference/#Nomograms.projective_transform-Tuple{Any, Any}"><code class="md-code-inline">projective_transform</code></a> finds the homography from four point pairs by solving the 8 × 8 linear system their coordinates give. If the map sends a point to infinity, the error names the scale that point lies on. <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> is a projective map chosen to bring the meeting point of parallel axes onto the page, so the axes become spokes. It builds both orientations, with each axis&#39;s top at the rim and at the hub, and keeps the one that labels more ticks.</p>
+<p><strong>Chains.</strong> <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a> places each later stage with a similarity (rotation, uniform scaling and translation) that carries its copy of the shared scale onto the copy already placed. The similarity is computed as one complex division, from the shared scale&#39;s points at a quarter and three quarters of its domain. It is then checked at 17 points along the whole domain, because the two copies are not guaranteed to have the same shape. Finally the stages are translated together to the origin and their scales are listed from left to right.</p>
+<p><strong>Grids.</strong> A <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a> is a surface <code class="md-code-inline">(u, v) -&gt; (x, y)</code> that fills one of the three points on the alignment line. It is drawn as strands: for each round value of one variable, the curve traced by the other. Each strand is an ordinary <code class="md-code-inline">Scale</code> of kind <code class="md-code-inline">:grid</code>, so the drawing code needs nothing extra. <a href="../30-more-variables/">Four or more variables</a> derives the condition a grid has to meet.</p>
+<p>Every construction that knows its relation stores it in the chart. This is what allows <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> to solve the chart over a grid of inputs and compare each answer with the relation.</p>
+<h2 id="Solving:-where-a-line-crosses-a-curve" class="md-heading">Solving: where a line crosses a curve<a href="#Solving:-where-a-line-crosses-a-curve" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Reading a chart, whether by eye or with <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a>, answers one question: where does the line through the known points cross the unknown&#39;s scale?</p>
+<p>The solver first checks that exactly one variable is missing and that every known value is inside its scale&#39;s domain. It then takes the points on two known scales as <code class="md-code-inline">p</code> and <code class="md-code-inline">q</code>. The unknown is a root of <code class="md-code-inline">v -&gt; align_residual(scale, v, p, q)</code> on that scale&#39;s domain. <a href="../95-reference/#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">solve_all_on</code></a> finds <em>every</em> root using <code class="md-code-inline">Roots.find_zeros</code>, instead of bracketing one root between the ends of the domain. A straight scale gives a residual that is linear in position, and so at most one root. A curved scale can give several, and each one is a valid solution. The search runs slightly past each end of the domain, where the curve is still defined, and then clamps back, so that a root lying exactly on an end is not lost to rounding.</p>
+<p><a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> then requires a single answer, and throws an error listing them if there are more. <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns them all, and <a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a> returns the single line with every crossing marked. <a href="../40-solving/">Solving</a> shows each of these.</p>
+<p>The other chart types reduce to this case. A <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a> is solved by propagation: any stage with exactly one unknown is read, its answer is added to the known values, and the pass repeats until nothing is left or no stage can be solved. So any set of inputs that closes the chain works, from either end. A <a href="../95-reference/#Nomograms.GridNomogram"><code class="md-code-inline">GridNomogram</code></a> with both grid variables known contributes one fixed point, and the problem is the ordinary one. If one of them is unknown, the two scales fix the line, and the answer is where the line crosses the strand of the known grid variable. That strand is a curve, so it may be crossed twice.</p>
+<h2 id="From-a-formula" class="md-heading">From a formula<a href="#From-a-formula" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> builds all of the above from a function. <a href="../10-from-a-formula/">From a formula</a> gives the mathematics; this section gives the order in which things happen.</p>
+<p><strong>Wrapping the formula.</strong> The function is first put behind a <code class="md-code-inline">FunctionWrapper</code> with a fixed signature, <code class="md-code-inline">(Float64, …) -&gt; Float64</code>, one for each number of inputs. Every Julia closure has its own type, so code specialised on it would be compiled again for each formula. With the wrapper, the code is compiled once, and <code class="md-code-inline">precompile.jl</code> runs the common paths when the package is precompiled, so that compiled code is already cached. The original function is kept as well, for the one step that has to differentiate it automatically.</p>
+<p><strong>Testing separability.</strong> For two inputs, <a href="../95-reference/#Nomograms.separability_defect-Tuple{Any, Any, Any}"><code class="md-code-inline">separability_defect</code></a> evaluates <code class="md-code-inline">L = ln|F_x / F_y|</code> on a 9 × 9 grid inset 2% from the edges of the domain. It then measures the worst violation of the rectangle identity</p>
+<div class="md-math md-math-display">
+\[L(x, y) - L(x, y_0) - L(x_0, y) + L(x_0, y_0) = 0\]
+</div>
+<p>about the middle of the grid. The derivatives are central differences whose step scales with the argument as well as the domain. At the edges they switch to one-sided formulas, so <code class="md-code-inline">F</code> is never called outside the domain it was given. If the defect is above <code class="md-code-inline">1e-6</code>, the formula has no chart on three straight scales, and the search for a curved scale (described below) takes over. The same happens if a derivative changes sign, since a straight scale cannot fold back.</p>
+<p><strong>Recovering the transforms.</strong> If the identity holds, <code class="md-code-inline">F_x / F_y = f′(x) / g′(y)</code>. Holding <code class="md-code-inline">y</code> at the middle of its domain gives <code class="md-code-inline">f′</code>, and holding <code class="md-code-inline">x</code> there gives <code class="md-code-inline">g′</code>, each up to the same constant. Each is integrated with five-point Gauss–Legendre quadrature, starting from 64 panels, spaced geometrically when the domain spans more than a decade. A panel is halved wherever the interpolant misses the integral at its middle by more than <code class="md-code-inline">2e-9</code> of the transform&#39;s range, so nodes gather where the transform needs them: <code class="md-code-inline">ln tan x</code>, for example, is steepest at the top of its domain, where geometric panels are widest. The result is stored as a <a href="../95-reference/#Nomograms.TabulatedScale"><code class="md-code-inline">TabulatedScale</code></a>: values and exact derivatives at the nodes, joined by cubic Hermite interpolation and extended linearly past the ends.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">growth = auto_nomogram((r, n) -&gt; (1 + r / 100)^n, :rate =&gt; (1, 20), :years =&gt; (1, 30), :growth)
+growth[:rate].variable.transform</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">TabulatedScale(129 nodes on [1, 20])</code></pre>
+</div>
+<p>The result&#39;s transform <code class="md-code-inline">h</code> would need <code class="md-code-inline">F</code> to be inverted. To avoid that, the package walks a straight path across the domain from the corner where <code class="md-code-inline">F</code> is smallest to the corner where it is largest. Along that path both inputs move in the direction that increases <code class="md-code-inline">F</code>, so <code class="md-code-inline">F</code> increases steadily. The path parameter is solved for at 129 values of <code class="md-code-inline">F</code>, and at each one <code class="md-code-inline">h = f + g</code>, with <code class="md-code-inline">h′</code> from the chain rule. These panels are halved by the same test. Each node records the value of <code class="md-code-inline">F</code> the path actually reached, not the one aimed for: over many decades the path parameter is tiny at the small end, and a solver&#39;s absolute tolerance is a large part of it. The three transforms are fixed only up to a common sign, which is chosen so that the result axis reads upwards. Each axis&#39;s tick style is also chosen at this point, according to how its transform spreads its values.</p>
+<p><strong>Checking.</strong> The transforms are passed to <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a>, with <code class="md-code-inline">F</code> itself stored as the chart&#39;s relation. The finished chart is then solved on a 9 × 9 grid of inputs, and every answer is compared with <code class="md-code-inline">F</code>. If any answer differs by more than <code class="md-code-inline">rtol</code> times the result&#39;s range, the chart is not returned.</p>
+<p><strong>One curved scale.</strong> When straight scales fail, each variable is tried on a curve in turn, starting with the result. Write the relation as <code class="md-code-inline">G(u, v, w) = 0</code> with <code class="md-code-inline">w</code> on the curve. Near each level <code class="md-code-inline">w = c</code>, <code class="md-code-inline">w(u, v)</code> is found by Newton&#39;s method in whatever number type it is given. This means <a href="https://github.com/JuliaDiff/ForwardDiff.jl">ForwardDiff</a> dual numbers pass straight through and come out with exact derivatives of the implicit function. On 25 level sets, with 11 points each, <code class="md-code-inline">L_uv</code> is fitted as <code class="md-code-inline">A w_u w_v + B w_uv</code>. A relative misfit above <code class="md-code-inline">1e-6</code> on any of them rules out that arrangement. The fitted <code class="md-code-inline">B(c)</code> is tabulated, and the log-slopes <code class="md-code-inline">a′ = L_u − B w_u</code> and <code class="md-code-inline">b′ = −(L_v − B w_v)</code> are integrated twice with the same quadrature as above. Then 161 levels, spaced more closely toward the ends of the range, each give one line <code class="md-code-inline">g = m f + k</code> from one point on their level set. With <code class="md-code-inline">f</code> on the axis <code class="md-code-inline">x = 0</code> and <code class="md-code-inline">g</code> on <code class="md-code-inline">x = 1</code>, every alignment line for that level passes through <code class="md-code-inline">(1/(1 − m), k/(1 − m))</code>, and these points are tabulated as the curve. The three scales are passed to <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> and checked on the same 9 × 9 grid.</p>
+<p><strong>Chains.</strong> With three or more inputs, each pair <code class="md-code-inline">(xᵢ, xⱼ)</code> is tested as a possible first stage: does <code class="md-code-inline">F</code> depend on that pair only through one combination of them? That holds exactly when <code class="md-code-inline">F_i / F_j</code> does not change with the other inputs. The test evaluates the log of that ratio on a 5 × 5 grid of the pair, and compares it across three settings of each of the other inputs. If the pair passes, the combination <code class="md-code-inline">T</code> is <code class="md-code-inline">F</code> with the other inputs held at their midpoints, charted by the two-input method onto an unmarked pivot line. The remainder <code class="md-code-inline">G(t, rest…)</code> needs, for each <code class="md-code-inline">t</code>, some point where <code class="md-code-inline">T = t</code>. The same rising path is tabulated once against <code class="md-code-inline">t</code>, so each call of <code class="md-code-inline">G</code> costs an interpolation instead of a root search. <code class="md-code-inline">G</code> is then charted the same way, recursively, until two inputs are left.</p>
+<p>The stages are joined with <code class="md-code-inline">compound</code>. It fails, and the pairing is rejected, when two stages need the pivot line on scales of different shapes, as <code class="md-code-inline">(a + b)·c</code> does. The layout is searched at the same time. For the first two levels of the chain, every workable pairing is built, and the one whose narrowest gap between neighbouring axes is widest, relative to the chart&#39;s width, is kept. Deeper levels take the first pairing that works, since the number of options multiplies with every level. Each earlier stage has one input that lands inside the rest of the chain. That stage is mirrored and resized, to between a quarter of the final stage&#39;s width and all of it, to put that input midway between the axes already there. The assembled chain is checked as a whole against <code class="md-code-inline">F</code> on a grid of four values per input.</p>
+<h2 id="Contour-charts" class="md-heading">Contour charts<a href="#Contour-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a> works on the page directly. Each axis maps its values onto the width or height of the frame, linearly in its transform, and each field is a function of the page point through the two axis values. A field has no value outside the <code class="md-code-inline">region</code>, or where its formula throws or returns something that is not a finite number.</p>
+<p><strong>Tracing.</strong> A field is sampled on a grid whose cells are half a chart unit across. Each curve is traced through the grid by marching squares, and a saddle cell is resolved by the value at its centre. Every traced point is then moved exactly onto its curve by Newton steps along the field&#39;s gradient. A point on the frame&#39;s edge moves only along the edge, so curves end exactly at the frame. The region&#39;s edge is traced the same way, but each of its points is placed by bisection along its grid edge, because the region only answers in or out.</p>
+<p><strong>Spacing.</strong> Each candidate value has a rank: majors before minors, then by the same tiers that grade tick lengths. Its <em>gap</em> is the distance in value to the nearest other candidate of equal or higher rank. Two neighbouring curves then stand <code class="md-code-inline">gap / |∇φ|</code> apart on the page, so the spacing is known at every traced point. A curve is kept only where that spacing is at least <code class="md-code-inline">min_curve_spacing</code>, and it is split into pieces where it is not.</p>
+<p><strong>Reading.</strong> Two axis values give the point directly. An axis value and a field give a line across the chart, which is sampled at 400 points for sign changes, each refined by bisection. Two fields are solved by Newton&#39;s method in the plane, started in every cell of a 60-cell grid in which both residuals change sign. Duplicates are merged, and every point found is a crossing.</p>
+<p><strong>Labels.</strong> Major curves are labelled. Each label tries the ends of its curve&#39;s pieces in order: past the right or top edge, then continuing the curve from an end inside the frame, then past the left or bottom edge. It takes the first spot that overlaps no other label and crosses no line except its own curve. The lines are bucketed into square cells so that each check only looks at nearby segments. A family given in <code class="md-code-inline">labelat</code> is labelled instead where each curve crosses the named curve of another variable, found by a sign change of that variable along the traced points; a curve that never crosses it is labelled where it comes closest. Such a label is turned to run along its curve, kept upright, and drawn on a halo.</p>
+<p><strong>Rings.</strong> A ring is a <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a> like any axis, so its ticks come from the same engine. Its side is fixed by orientation rather than by the usual ordering of the two normals: the normal is turned a quarter clockwise or anticlockwise from the direction values increase, whichever points away from the centre, so labels stay outside all the way round. Its labels run along the ring, and are tested against neighbouring lines in their own turned frame, since the upright box of turned text is much larger than the text. A ring is read by the same line solver as an alignment chart, along the line from the centre through the point, keeping the crossing on the point&#39;s side.</p>
+<h2 id="Layout:-from-curves-to-geometry" class="md-heading">Layout: from curves to geometry<a href="#Layout:-from-curves-to-geometry" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> turns a chart into a <a href="../95-reference/#Nomograms.NomogramDrawing"><code class="md-code-inline">NomogramDrawing</code></a>: polylines, tick marks with their normals and label anchors, titles, and isopleth segments. Everything is in chart units, with <code class="md-code-inline">y</code> pointing up. The steps run in a fixed order, because each step reserves space that later steps must respect.</p>
+<ol class="md-list-tight">
+<li><p><strong>Paths.</strong> Each scale is sampled at 129 points. If every sample lies on the chord, the path is reduced to its two end points, as happens for every axis of a parallel chart.</p>
+</li>
+<li><p><strong>Titles.</strong> Axis titles are placed before any ticks, clear of each other and of the axis lines of every other scale a reader uses. Each title first tries a position off the end of its axis, continuing the direction of the curve. It tries the higher end first, then the other, then steps further out from both. A position far enough out is always clear, so the search always ends, and it ends in a position that overlaps nothing. A title is never drawn on top of another or across an axis.</p>
+</li>
+<li><p><strong>Ticks.</strong> For each scale, <a href="../95-reference/#Nomograms.candidate_ticks-Tuple{Variable, Tuple{Float64, Float64}}"><code class="md-code-inline">candidate_ticks</code></a> offers values that are round <em>in the variable</em>, in order of importance: decades before 5s before 2s on a log axis, multiples of 10 before multiples of 5 on a linear one, and the user&#39;s order for explicit <code class="md-code-inline">ticks</code>. <a href="../95-reference/#Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}"><code class="md-code-inline">thin_ticks</code></a> then places them in that order. The ends of the domain go first if they are numbers someone chose (at most three significant figures). Any value that would land too close <em>on the page</em> to one already placed is rejected. As a result, a compressed stretch of a reciprocal or log axis keeps fewer labels, and the ones it keeps are the roundest. <a href="../50-drawing/#Ticks">Drawing</a> covers the tick rules in more detail.</p>
+</li>
+<li><p><strong>Isopleth segments.</strong> Each alignment line runs from its leftmost to its rightmost crossing, extended by <code class="md-code-inline">isopleth_overhang</code> at each end. Only the part between the crossings is checked against labels.</p>
+</li>
+<li><p><strong>Collisions across the chart.</strong> Thinning compares a scale only with itself, so one more pass is made over the whole chart. It takes major labels, then minor ones, and keeps each label only if its box overlaps nothing already reserved, no alignment line crosses it, and it does not sit across another scale&#39;s axis. <a href="../95-reference/#Nomograms.segment_hits_box-Tuple{Tuple{Float64, Float64}, Tuple{Float64, Float64}, NTuple{4, Float64}, Real}"><code class="md-code-inline">segment_hits_box</code></a> does the line tests by clipping. A rejected label is removed and its tick mark is kept. Text boxes are estimated from the label&#39;s length, size, alignment and rotation (<a href="../95-reference/#Nomograms.label_box-Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}"><code class="md-code-inline">label_box</code></a>), without font metrics, so the layout is the same whichever backend draws it.</p>
+</li>
+<li><p><strong>Isopleth labels.</strong> You asked for these explicitly, so they are moved instead of dropped. <a href="../95-reference/#Nomograms.nudge_clear-Tuple{AbstractString, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Real, Tuple{Symbol, Symbol}, NomogramStyle, Vector{NTuple{4, Float64}}}"><code class="md-code-inline">nudge_clear</code></a> tries the end of the line, then steps to either side of it along the perpendicular until the label is clear.</p>
+</li>
+<li><p><strong>Chart title and bounds.</strong> The bounding box is enlarged to cover everything placed, and the chart title is centred above it.</p>
+</li>
+</ol>
+<p>The result is plain data, which you can inspect directly:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">d = drawing(sum3)
+[(sd.name, length(sd.ticks), count(t -&gt; !isnothing(t.label), sd.ticks)) for sd in d.scales]</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">3-element Vector{Tuple{Symbol, Int64, Int64}}:
+ (:u, 26, 6)
+ (:v, 26, 6)
+ (:w, 21, 5)</code></pre>
+</div>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">d.scales[3].ticks[end]</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">Nomograms.TickMark(20.0, (35.0, 100.0), (1.0, -0.0), 1.5, &quot;20&quot;, 1, (37.3, 100.0), (:left, :center), 0.0)</code></pre>
+</div>
+<p>Each <a href="../95-reference/#Nomograms.TickMark"><code class="md-code-inline">TickMark</code></a> holds its value, position, outward normal, length, label and level, plus the anchor, alignment and rotation of its text. That is everything a renderer needs to put the text where the layout placed it.</p>
+<h2 id="Rendering" class="md-heading">Rendering<a href="#Rendering" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Both backends walk over a <code class="md-code-inline">NomogramDrawing</code>, and neither makes any layout decisions of its own. <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> writes the SVG document directly, with no dependencies. It converts chart units to pixels using <code class="md-code-inline">pxperunit</code>, flips <code class="md-code-inline">y</code>, draws the paths, ticks and isopleths, and places each label from its anchor and alignment. Isopleths take their colour from a three-colour palette, and from the fourth on their dash pattern changes as well, so a reading is never identified by colour alone. <a href="../50-drawing/#Styling">Drawing</a> explains this choice. The Makie backend, <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>, is in a package extension that loads when a Makie backend is loaded, and draws the same structure into an <code class="md-code-inline">Axis</code>.</p>
+<p>Charts and drawings also define <code class="md-code-inline">show</code> for <code class="md-code-inline">image/svg+xml</code>. This is how a notebook, VS Code, or a page like this one displays them automatically.</p>
+      </article>
+      <footer class="md-footer">
+<p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
+      </footer>
+    </main>
+    <aside class="md-toc">
+      <div class="md-toc-inner">
+        <p class="md-toc-title">On this page</p>
+          <a class="md-toc-link md-toc-h2" href="#One-condition:-collinearity">One condition: collinearity</a>
+          <a class="md-toc-link md-toc-h2" href="#Construction:-choosing-the-curves">Construction: choosing the curves</a>
+          <a class="md-toc-link md-toc-h2" href="#Solving:-where-a-line-crosses-a-curve">Solving: where a line crosses a curve</a>
+          <a class="md-toc-link md-toc-h2" href="#From-a-formula">From a formula</a>
+          <a class="md-toc-link md-toc-h2" href="#Contour-charts">Contour charts</a>
+          <a class="md-toc-link md-toc-h2" href="#Layout:-from-curves-to-geometry">Layout: from curves to geometry</a>
+          <a class="md-toc-link md-toc-h2" href="#Rendering">Rendering</a>
+      </div>
+    </aside>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia-repl.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.js"></script>
+  <script>var MD_KATEX_OPTIONS = {};
+document.querySelectorAll('.md-math').forEach(function (el) {
+  var tex = el.textContent.trim().replace(/^\\[\[(]/, '').replace(/\\[\])]$/, '');
+  katex.render(tex, el, Object.assign({ throwOnError: false }, MD_KATEX_OPTIONS,
+    { displayMode: el.classList.contains('md-math-display') }));
+});</script>
+  <script src="../siteinfo.js"></script>
+  <script src="../../versions.js"></script>
+  <script src="../assets/materialdocs.js?v=8b161b9b"></script>
+</body>
+</html>

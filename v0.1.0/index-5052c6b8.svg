@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="388.83" height="468.20" viewBox="0 0 388.83 468.20">
+  <rect width="100%" height="100%" fill="white"/>
+  <g font-family="Helvetica, Arial, system-ui, sans-serif" stroke-linecap="round">
+    <text x="168.32" y="19.60" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a" font-weight="600">Resistors in parallel</text>
+    <g id="scale-R1">
+      <polyline points="28.32,55.20 28.32,455.20" fill="none" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="55.20" x2="22.32" y2="55.20" stroke="#333333" stroke-width="1.00"/>
+      <text x="19.12" y="55.20" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">1</text>
+      <line x1="28.32" y1="129.27" x2="25.12" y2="129.27" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="221.87" x2="25.12" y2="221.87" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="277.42" x2="22.32" y2="277.42" stroke="#333333" stroke-width="1.00"/>
+      <text x="19.12" y="277.42" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">2</text>
+      <line x1="28.32" y1="314.46" x2="25.12" y2="314.46" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="340.91" x2="25.12" y2="340.91" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="360.76" x2="25.12" y2="360.76" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="376.19" x2="25.12" y2="376.19" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="388.53" x2="22.32" y2="388.53" stroke="#333333" stroke-width="1.00"/>
+      <text x="19.12" y="388.53" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">4</text>
+      <line x1="28.32" y1="398.63" x2="25.12" y2="398.63" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="407.05" x2="25.12" y2="407.05" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="414.17" x2="25.12" y2="414.17" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="420.28" x2="25.12" y2="420.28" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="425.57" x2="22.32" y2="425.57" stroke="#333333" stroke-width="1.00"/>
+      <text x="19.12" y="425.57" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">6</text>
+      <line x1="28.32" y1="430.20" x2="25.12" y2="430.20" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="434.28" x2="25.12" y2="434.28" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="441.16" x2="25.12" y2="441.16" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="446.73" x2="25.12" y2="446.73" stroke="#333333" stroke-width="1.00"/>
+      <line x1="28.32" y1="455.20" x2="22.32" y2="455.20" stroke="#333333" stroke-width="1.00"/>
+      <text x="19.12" y="455.20" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">10</text>
+      <text x="28.32" y="43.20" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a">R₁ (Ω)</text>
+    </g>
+    <g id="scale-R2">
+      <polyline points="308.32,55.20 308.32,455.20" fill="none" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="55.20" x2="314.32" y2="55.20" stroke="#333333" stroke-width="1.00"/>
+      <text x="317.52" y="55.20" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">1</text>
+      <line x1="308.32" y1="129.27" x2="311.52" y2="129.27" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="221.87" x2="311.52" y2="221.87" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="277.42" x2="314.32" y2="277.42" stroke="#333333" stroke-width="1.00"/>
+      <text x="317.52" y="277.42" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">2</text>
+      <line x1="308.32" y1="314.46" x2="311.52" y2="314.46" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="340.91" x2="311.52" y2="340.91" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="360.76" x2="311.52" y2="360.76" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="376.19" x2="311.52" y2="376.19" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="388.53" x2="314.32" y2="388.53" stroke="#333333" stroke-width="1.00"/>
+      <text x="317.52" y="388.53" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">4</text>
+      <line x1="308.32" y1="398.63" x2="311.52" y2="398.63" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="407.05" x2="311.52" y2="407.05" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="414.17" x2="311.52" y2="414.17" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="420.28" x2="311.52" y2="420.28" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="425.57" x2="314.32" y2="425.57" stroke="#333333" stroke-width="1.00"/>
+      <text x="317.52" y="425.57" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">6</text>
+      <line x1="308.32" y1="430.20" x2="311.52" y2="430.20" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="434.28" x2="311.52" y2="434.28" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="441.16" x2="311.52" y2="441.16" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="446.73" x2="311.52" y2="446.73" stroke="#333333" stroke-width="1.00"/>
+      <line x1="308.32" y1="455.20" x2="314.32" y2="455.20" stroke="#333333" stroke-width="1.00"/>
+      <text x="317.52" y="455.20" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#1a1a1a">10</text>
+      <text x="308.32" y="43.20" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a">R₂ (Ω)</text>
+    </g>
+    <g id="scale-R">
+      <polyline points="168.32,55.20 168.32,455.20" fill="none" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="55.20" x2="162.32" y2="55.20" stroke="#333333" stroke-width="1.00"/>
+      <text x="159.12" y="55.20" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">0.5</text>
+      <line x1="168.32" y1="129.27" x2="165.12" y2="129.27" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="221.87" x2="165.12" y2="221.87" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="277.42" x2="162.32" y2="277.42" stroke="#333333" stroke-width="1.00"/>
+      <text x="159.12" y="277.42" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">1</text>
+      <line x1="168.32" y1="314.46" x2="165.12" y2="314.46" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="340.91" x2="165.12" y2="340.91" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="360.76" x2="165.12" y2="360.76" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="376.19" x2="165.12" y2="376.19" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="388.53" x2="162.32" y2="388.53" stroke="#333333" stroke-width="1.00"/>
+      <text x="159.12" y="388.53" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">2</text>
+      <line x1="168.32" y1="398.63" x2="165.12" y2="398.63" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="407.05" x2="165.12" y2="407.05" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="414.17" x2="165.12" y2="414.17" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="420.28" x2="165.12" y2="420.28" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="425.57" x2="162.32" y2="425.57" stroke="#333333" stroke-width="1.00"/>
+      <text x="159.12" y="425.57" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">3</text>
+      <line x1="168.32" y1="430.20" x2="165.12" y2="430.20" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="434.28" x2="165.12" y2="434.28" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="441.16" x2="165.12" y2="441.16" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="446.73" x2="165.12" y2="446.73" stroke="#333333" stroke-width="1.00"/>
+      <line x1="168.32" y1="455.20" x2="162.32" y2="455.20" stroke="#333333" stroke-width="1.00"/>
+      <text x="159.12" y="455.20" font-size="10.00" text-anchor="end" dominant-baseline="central" fill="#1a1a1a">5</text>
+      <text x="168.32" y="43.20" font-size="11.60" text-anchor="middle" dominant-baseline="auto" fill="#1a1a1a">R (Ω)</text>
+    </g>
+    <g id="isopleth-1">
+      <line x1="8.50" y1="385.91" x2="328.15" y2="428.19" stroke="#2a78d6" stroke-width="1.60"/>
+      <circle cx="28.32" cy="388.53" r="3.20" fill="#2a78d6"/>
+      <circle cx="308.32" cy="425.57" r="3.20" fill="#2a78d6"/>
+      <circle cx="168.32" cy="407.05" r="3.20" fill="#2a78d6"/>
+      <text x="331.35" y="428.19" font-size="10.00" text-anchor="start" dominant-baseline="central" fill="#2a78d6">4 ∥ 6 = 2.4</text>
+    </g>
+  </g>
+</svg>

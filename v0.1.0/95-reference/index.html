@@ -1,0 +1,1951 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API — Nomograms.jl</title>
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=ee0eb25c">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <meta name="title" content="API — Nomograms.jl">
+  <meta property="og:title" content="API — Nomograms.jl">
+  <meta property="twitter:title" content="API — Nomograms.jl">
+  <meta name="description" content="Documentation for Nomograms.jl.">
+  <meta property="og:description" content="Documentation for Nomograms.jl.">
+  <meta property="twitter:description" content="Documentation for Nomograms.jl.">
+  <meta property="og:url" content="https://mthelm85.github.io/Nomograms.jl/95-reference/">
+  <meta property="twitter:url" content="https://mthelm85.github.io/Nomograms.jl/95-reference/">
+  <link rel="canonical" href="https://mthelm85.github.io/Nomograms.jl/95-reference/">
+  <script>
+    (function(){
+      document.documentElement.classList.add('no-transition');
+      var t=localStorage.getItem('md-theme');if(t)document.documentElement.setAttribute('data-theme',t);
+      window.addEventListener('load',function(){setTimeout(function(){document.documentElement.classList.remove('no-transition');},50);});
+    })()
+  </script>
+</head>
+<body data-warn-outdated>
+  <header class="md-navbar">
+    <button id="md-hamburger" class="md-icon-btn md-hamburger" aria-label="Toggle navigation" aria-expanded="false"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <span class="md-navbar-title">Nomograms.jl</span>
+    <span class="md-navbar-spacer"></span>
+    <button id="md-search-btn" class="md-search-bar" aria-label="Search documentation" aria-expanded="false">
+      <svg class="md-icon md-search-bar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span class="md-search-bar-label">Search docs</span>
+      <kbd class="md-search-bar-kbd">Ctrl K</kbd>
+    </button>
+    <div id="md-version" class="md-version" hidden>
+      <button id="md-version-btn" class="md-version-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select documentation version">
+        <span id="md-version-current" class="md-version-current"></span>
+        <svg class="md-icon md-version-caret" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <ul id="md-version-menu" class="md-version-menu" role="listbox" hidden></ul>
+    </div>
+    <a class="md-icon-btn md-repo-link" href="https://github.com/mthelm85/Nomograms.jl" title="View the repository on GitHub" aria-label="View the repository on GitHub" rel="noopener" target="_blank"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0012 .3z"/></svg><span class="md-repo-label">GitHub</span></a>
+    <button id="md-theme-toggle" class="md-icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode"><svg class="md-icon md-icon-light" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg><svg class="md-icon md-icon-dark" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+  </header>
+  <div class="md-layout">
+    <nav class="md-sidebar">
+      <a href="../">Nomograms.jl</a>
+      <a href="../10-from-a-formula/">From a formula</a>
+      <a href="../20-constructions/">Building charts</a>
+      <a href="../30-more-variables/">Four or more variables</a>
+      <a href="../35-contour-charts/">Contour charts</a>
+      <a href="../40-solving/">Solving</a>
+      <a href="../50-drawing/">Drawing</a>
+      <a href="../55-gallery/">Gallery</a>
+      <a href="../60-how-it-works/">How it works</a>
+      <a href="../95-reference/" class="md-nav-active">API</a>
+      <a href="../96-references/">Bibliography</a>
+    </nav>
+    <main class="md-content">
+      <article class="md-article">
+      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/95-reference.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
+<h1 id="reference" class="md-heading">API<a href="#reference" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
+<h2 id="Contents" class="md-heading">Contents<a href="#Contents" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<nav class="md-contents">
+<ul>
+<li><a href="#reference">API</a></li>
+<li><a href="#Contents">Contents</a></li>
+<li><a href="#Index">Index</a></li>
+</ul>
+</nav>
+<h2 id="Index" class="md-heading">Index<a href="#Index" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<div class="md-index">
+<ul>
+<li><a href="#Nomograms.Nomograms"><code>Nomograms.Nomograms</code></a></li>
+<li><a href="#Nomograms.DEFAULT_ISOPLETH_COLORS"><code>Nomograms.DEFAULT_ISOPLETH_COLORS</code></a></li>
+<li><a href="#Nomograms.DEFAULT_ISOPLETH_DASHES"><code>Nomograms.DEFAULT_ISOPLETH_DASHES</code></a></li>
+<li><a href="#Nomograms.AbstractNomogram"><code>Nomograms.AbstractNomogram</code></a></li>
+<li><a href="#Nomograms.ComposedScale"><code>Nomograms.ComposedScale</code></a></li>
+<li><a href="#Nomograms.CompoundNomogram"><code>Nomograms.CompoundNomogram</code></a></li>
+<li><a href="#Nomograms.ContourChart"><code>Nomograms.ContourChart</code></a></li>
+<li><a href="#Nomograms.Crossing"><code>Nomograms.Crossing</code></a></li>
+<li><a href="#Nomograms.FunctionScale"><code>Nomograms.FunctionScale</code></a></li>
+<li><a href="#Nomograms.Grid"><code>Nomograms.Grid</code></a></li>
+<li><a href="#Nomograms.GridNomogram"><code>Nomograms.GridNomogram</code></a></li>
+<li><a href="#Nomograms.Isopleth"><code>Nomograms.Isopleth</code></a></li>
+<li><a href="#Nomograms.IsoplethDrawing"><code>Nomograms.IsoplethDrawing</code></a></li>
+<li><a href="#Nomograms.LinearScale"><code>Nomograms.LinearScale</code></a></li>
+<li><a href="#Nomograms.LogScale"><code>Nomograms.LogScale</code></a></li>
+<li><a href="#Nomograms.Nomogram"><code>Nomograms.Nomogram</code></a></li>
+<li><a href="#Nomograms.NomogramDrawing"><code>Nomograms.NomogramDrawing</code></a></li>
+<li><a href="#Nomograms.NomogramStyle"><code>Nomograms.NomogramStyle</code></a></li>
+<li><a href="#Nomograms.Point"><code>Nomograms.Point</code></a></li>
+<li><a href="#Nomograms.PowerScale"><code>Nomograms.PowerScale</code></a></li>
+<li><a href="#Nomograms.ReciprocalScale"><code>Nomograms.ReciprocalScale</code></a></li>
+<li><a href="#Nomograms.Scale-Tuple{Variable, Any, Any, Symbol}"><code>Nomograms.Scale</code></a></li>
+<li><a href="#Nomograms.Scale"><code>Nomograms.Scale</code></a></li>
+<li><a href="#Nomograms.ScaleDrawing"><code>Nomograms.ScaleDrawing</code></a></li>
+<li><a href="#Nomograms.ScaleTransform"><code>Nomograms.ScaleTransform</code></a></li>
+<li><a href="#Nomograms.TabulatedScale"><code>Nomograms.TabulatedScale</code></a></li>
+<li><a href="#Nomograms.TextDrawing"><code>Nomograms.TextDrawing</code></a></li>
+<li><a href="#Nomograms.TickMark"><code>Nomograms.TickMark</code></a></li>
+<li><a href="#Nomograms.Variable"><code>Nomograms.Variable</code></a></li>
+<li><a href="#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code>Nomograms.additive_nomogram</code></a></li>
+<li><a href="#Nomograms.align_for-Tuple{Tuple{Float64, Float64}}"><code>Nomograms.align_for</code></a></li>
+<li><a href="#Nomograms.align_residual-Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code>Nomograms.align_residual</code></a></li>
+<li><a href="#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code>Nomograms.auto_nomogram</code></a></li>
+<li><a href="#Nomograms.axislabel-Tuple{Variable}"><code>Nomograms.axislabel</code></a></li>
+<li><a href="#Nomograms.candidate_ticks-Tuple{Variable, Tuple{Float64, Float64}}"><code>Nomograms.candidate_ticks</code></a></li>
+<li><a href="#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code>Nomograms.compound</code></a></li>
+<li><a href="#Nomograms.concurrent_nomogram-Tuple{Variable, Variable, Variable}"><code>Nomograms.concurrent_nomogram</code></a></li>
+<li><a href="#Nomograms.contour_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}"><code>Nomograms.contour_chart</code></a></li>
+<li><a href="#Nomograms.crossing-Tuple{ContourChart}"><code>Nomograms.crossing</code></a></li>
+<li><a href="#Nomograms.default_tickformat-Tuple{Real}"><code>Nomograms.default_tickformat</code></a></li>
+<li><a href="#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code>Nomograms.determinant_nomogram</code></a></li>
+<li><a href="#Nomograms.drawing-Tuple{ContourChart}"><code>Nomograms.drawing</code></a></li>
+<li><a href="#Nomograms.drawing-Tuple{AbstractNomogram}"><code>Nomograms.drawing</code></a></li>
+<li><a href="#Nomograms.evaluate-Tuple{CompoundNomogram}"><code>Nomograms.evaluate</code></a></li>
+<li><a href="#Nomograms.evaluate-Tuple{GridNomogram}"><code>Nomograms.evaluate</code></a></li>
+<li><a href="#Nomograms.evaluate-Tuple{Nomogram}"><code>Nomograms.evaluate</code></a></li>
+<li><a href="#Nomograms.evaluate-Tuple{ContourChart}"><code>Nomograms.evaluate</code></a></li>
+<li><a href="#Nomograms.evaluate_all-Tuple{GridNomogram}"><code>Nomograms.evaluate_all</code></a></li>
+<li><a href="#Nomograms.evaluate_all-Tuple{Nomogram}"><code>Nomograms.evaluate_all</code></a></li>
+<li><a href="#Nomograms.fan-Tuple{AbstractNomogram}"><code>Nomograms.fan</code></a></li>
+<li><a href="#Nomograms.fraction_ticks-Tuple{Real, Real}"><code>Nomograms.fraction_ticks</code></a></li>
+<li><a href="#Nomograms.fractionformat"><code>Nomograms.fractionformat</code></a></li>
+<li><a href="#Nomograms.frange-Tuple{ScaleTransform, Tuple{Real, Real}}"><code>Nomograms.frange</code></a></li>
+<li><a href="#Nomograms.grid_nomogram-Tuple{Grid, Pair, Pair}"><code>Nomograms.grid_nomogram</code></a></li>
+<li><a href="#Nomograms.gridpoint-Tuple{GridNomogram, Any, Any}"><code>Nomograms.gridpoint</code></a></li>
+<li><a href="#Nomograms.hasinverse-Tuple{ScaleTransform}"><code>Nomograms.hasinverse</code></a></li>
+<li><a href="#Nomograms.invert-Tuple{ScaleTransform, Any, Tuple{Real, Real}}"><code>Nomograms.invert</code></a></li>
+<li><a href="#Nomograms.invtransform"><code>Nomograms.invtransform</code></a></li>
+<li><a href="#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
+<li><a href="#Nomograms.isopleth-Tuple{Nomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
+<li><a href="#Nomograms.isopleth-Tuple{GridNomogram, NamedTuple}"><code>Nomograms.isopleth</code></a></li>
+<li><a href="#Nomograms.isopleth_style-Tuple{Integer, Any, Any}"><code>Nomograms.isopleth_style</code></a></li>
+<li><a href="#Nomograms.label_box-Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}"><code>Nomograms.label_box</code></a></li>
+<li><a href="#Nomograms.linear_ticks-Tuple{Real, Real}"><code>Nomograms.linear_ticks</code></a></li>
+<li><a href="#Nomograms.log_ticks-Tuple{Real, Real}"><code>Nomograms.log_ticks</code></a></li>
+<li><a href="#Nomograms.max_relation_residual-Tuple{GridNomogram}"><code>Nomograms.max_relation_residual</code></a></li>
+<li><a href="#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code>Nomograms.max_relation_residual</code></a></li>
+<li><a href="#Nomograms.max_relation_residual-Tuple{Nomogram}"><code>Nomograms.max_relation_residual</code></a></li>
+<li><a href="#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code>Nomograms.multiplicative_nomogram</code></a></li>
+<li><a href="#Nomograms.nicestep-Tuple{Real}"><code>Nomograms.nicestep</code></a></li>
+<li><a href="#Nomograms.nomogramplot-Tuple"><code>Nomograms.nomogramplot</code></a></li>
+<li><a href="#Nomograms.nomogramplot!-Tuple"><code>Nomograms.nomogramplot!</code></a></li>
+<li><a href="#Nomograms.nudge_clear-Tuple{AbstractString, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Real, Tuple{Symbol, Symbol}, NomogramStyle, Vector{NTuple{4, Float64}}}"><code>Nomograms.nudge_clear</code></a></li>
+<li><a href="#Nomograms.point-Tuple{Scale, Any}"><code>Nomograms.point</code></a></li>
+<li><a href="#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code>Nomograms.project</code></a></li>
+<li><a href="#Nomograms.projective_transform-Tuple{Any, Any}"><code>Nomograms.projective_transform</code></a></li>
+<li><a href="#Nomograms.proportional_nomogram-NTuple{4, Variable}"><code>Nomograms.proportional_nomogram</code></a></li>
+<li><a href="#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code>Nomograms.ratio_nomogram</code></a></li>
+<li><a href="#Nomograms.relation_residual-Tuple{Nomogram, NamedTuple}"><code>Nomograms.relation_residual</code></a></li>
+<li><a href="#Nomograms.resolved_tickstyle-Tuple{Variable}"><code>Nomograms.resolved_tickstyle</code></a></li>
+<li><a href="#Nomograms.save_svg-Tuple{AbstractString, Any}"><code>Nomograms.save_svg</code></a></li>
+<li><a href="#Nomograms.scale-Tuple{AbstractNomogram, Symbol}"><code>Nomograms.scale</code></a></li>
+<li><a href="#Nomograms.segment_hits_box-Tuple{Tuple{Float64, Float64}, Tuple{Float64, Float64}, NTuple{4, Float64}, Real}"><code>Nomograms.segment_hits_box</code></a></li>
+<li><a href="#Nomograms.separability_defect-Tuple{Any, Any, Any}"><code>Nomograms.separability_defect</code></a></li>
+<li><a href="#Nomograms.side_normals-Tuple{Tuple{Float64, Float64}}"><code>Nomograms.side_normals</code></a></li>
+<li><a href="#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code>Nomograms.solve_all_on</code></a></li>
+<li><a href="#Nomograms.solve_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code>Nomograms.solve_on</code></a></li>
+<li><a href="#Nomograms.svg-Tuple{NomogramDrawing}"><code>Nomograms.svg</code></a></li>
+<li><a href="#Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}"><code>Nomograms.thin_ticks</code></a></li>
+<li><a href="#Nomograms.tickstyle-Tuple{ScaleTransform}"><code>Nomograms.tickstyle</code></a></li>
+<li><a href="#Nomograms.transform"><code>Nomograms.transform</code></a></li>
+<li><a href="#Nomograms.variablenames-Tuple{AbstractNomogram}"><code>Nomograms.variablenames</code></a></li>
+</ul>
+</div>
+<div class="md-docstring" id="Nomograms.Nomograms">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Nomograms</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/Nomograms.jl#L1-L40" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Nomograms</code></pre>
+</div>
+<p>Build, solve and render nomograms (alignment charts).</p>
+<p>A nomogram is a chart that computes by alignment: lay a straightedge across the scales at the values you know, and read the answer where it crosses the remaining scale. The scales are drawn so that any straight line crossing them picks out a solution of an equation. The geometry rests entirely on d&#39;Ocagne&#39;s collinearity criterion,</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">| x1  y1  1 |
+| x2  y2  1 | = 0
+| x3  y3  1 |</code></pre>
+</div>
+<p>This package therefore represents every scale as a parametric curve <code class="md-code-inline">value -&gt; (x, y)</code>, and does all its arithmetic by finding where a line crosses a curve. The same solver handles forward and inverse problems, and layouts other than the built-in parallel-axis construction need no extra code.</p>
+<p><strong>Getting started</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Nomograms
+
+nom = additive_nomogram(
+    Variable(:R1, ReciprocalScale(); domain = (1, 10), label = &quot;R1 (ohm)&quot;),
+    Variable(:R2, ReciprocalScale(); domain = (1, 10), label = &quot;R2 (ohm)&quot;),
+    Variable(:R, ReciprocalScale(); label = &quot;R (ohm)&quot;);
+    title = &quot;Resistors in parallel&quot;,
+)
+
+evaluate(nom; R1 = 4, R2 = 6)          # -&gt; (R1 = 4.0, R2 = 6.0, R = 2.4)
+save_svg(&quot;parallel.svg&quot;, nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6)])</code></pre>
+</div>
+<p>See <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a>, <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a>, <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a>, <a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a>, <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> and <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.DEFAULT_ISOPLETH_COLORS">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.DEFAULT_ISOPLETH_COLORS</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/svg.jl#L1-L12" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">DEFAULT_ISOPLETH_COLORS</code></pre>
+</div>
+<p>Blue, orange and aqua, in that order. All the isopleths on a chart are visible at once, so every pair of colours has to stay distinguishable under colour-vision deficiency, and no fourth hue does once every pair is taken into account. The colours were checked with a validator: the worst pair is ΔE 9.2 under deuteranopia and 24.0 in normal vision, against a target of at least 8.</p>
+<p>d3&#39;s <code class="md-code-inline">category10</code> palette is not used because its orange and green are only ΔE 0.7 apart under protanopia, which makes them look the same.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.DEFAULT_ISOPLETH_DASHES">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.DEFAULT_ISOPLETH_DASHES</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/svg.jl#L15-L21" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">DEFAULT_ISOPLETH_DASHES</code></pre>
+</div>
+<p>Dash patterns, cycled one step behind the colours, so a fourth isopleth is dashed blue instead of a second plain blue. Lines are never told apart by colour alone, so a chart can carry more lines than there are safe colours.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.AbstractNomogram">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.AbstractNomogram</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L219-L227" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">AbstractNomogram</code></pre>
+</div>
+<p>A chart made of <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>s on a canvas. Drawing one (ticks, labels, bounding box and both backends) needs only the scales, the canvas and the title, so that code is written against this type. Subtypes differ in how they are <em>solved</em>: a <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a> is one alignment line through every scale, while a <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a> is several stages read in turn.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.ComposedScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.ComposedScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L112-L118" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">ComposedScale(outer, inner)</code></pre>
+</div>
+<p><code class="md-code-inline">f(x) = outer(inner(x))</code>. Used internally by <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a> to wrap a user transform in a logarithm, and available for building transforms such as <code class="md-code-inline">ComposedScale(LogScale(), PowerScale(2))</code>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.CompoundNomogram">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.CompoundNomogram</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/compound.jl#L1-L16" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">CompoundNomogram</code></pre>
+</div>
+<p>Several <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a> stages sharing variables, for relations that need more than three variables.</p>
+<p>A single alignment line relates at most three scales, so a four-variable relation is split into two, <code class="md-code-inline">g(a, b) = t</code> and <code class="md-code-inline">h(t, c) = d</code>, which share the intermediate <code class="md-code-inline">t</code>. The reader lays a line across the first stage to find where it crosses the shared scale, then pivots about that point and reads the second stage. This is why the shared scale is often called the pivot or pivot line.</p>
+<p>Build one with <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a>, which positions the stages so their shared scales coincide. Drawing works exactly as for a single nomogram; solving propagates values from stage to stage (see <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a>).</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.ContourChart">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.ContourChart</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/contour.jl#L21-L32" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">ContourChart</code></pre>
+</div>
+<p>A chart read at a point: two axis variables span a rectangle, and every other variable is drawn as a family of curves of constant value across it. Any two values fix the point where their curves cross, and every other value is read there. Variables on rings around the chart are read along a line from its centre through the point.</p>
+<p>Build one with <a href="../95-reference/#Nomograms.contour_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}"><code class="md-code-inline">contour_chart</code></a>. Solve it with <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> and <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a>, given any two of its variables, and mark a point on it with <a href="../95-reference/#Nomograms.crossing-Tuple{ContourChart}"><code class="md-code-inline">crossing</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Crossing">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Crossing</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/contour.jl#L52-L58" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Crossing</code></pre>
+</div>
+<p>A point on a <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a> where curves cross: every variable&#39;s value there, and where it is on the page. Build one with <a href="../95-reference/#Nomograms.crossing-Tuple{ContourChart}"><code class="md-code-inline">crossing</code></a> and draw it with <code class="md-code-inline">drawing(chart; crossings = [...])</code>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.FunctionScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.FunctionScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L96-L102" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">FunctionScale(f, finv = nothing)</code></pre>
+</div>
+<p>An arbitrary monotone <code class="md-code-inline">f</code> supplied by the user. Without <code class="md-code-inline">finv</code>, inversion is done by bracketed root finding over the variable&#39;s domain, so such a variable must declare its <code class="md-code-inline">domain</code> explicitly.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Grid">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Grid</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L1-L29" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Grid(u::Variable, v::Variable, surface)</code></pre>
+</div>
+<p>A two-parameter family of points, <code class="md-code-inline">surface(u, v) -&gt; (x, y)</code>, drawn as a mesh of curves. It takes the place of one of the three scales an alignment line crosses.</p>
+<p>Three collinear points relate three variables. A grid carries two variables in a single point, so a chart with a grid and two ordinary scales relates four. This is a different construction from <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a>, which chains stages through a shared pivot. A grid can handle relations that a chain cannot: a pivot works only when the first two variables combine into one intermediate, while a grid handles a true two-parameter family.</p>
+<p><strong>Deriving a grid</strong></p>
+<p>With scale <code class="md-code-inline">a</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">f(a)</code> and scale <code class="md-code-inline">b</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">g(b)</code>, a line between them meets <code class="md-code-inline">x = x₃</code> at <code class="md-code-inline">(1-x₃)·f(a) + x₃·g(b)</code>. So the line passes through a grid point <code class="md-code-inline">(x₃, y₃)</code> exactly when</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">α·f(a) + β·g(b) = γ        with   x₃ = β/(α+β),  y₃ = γ/(α+β)</code></pre>
+</div>
+<p>So any relation that can be written this way, with the coefficients <code class="md-code-inline">α</code>, <code class="md-code-inline">β</code>, <code class="md-code-inline">γ</code> depending on the two grid variables, has a grid. The mesh is truly two-dimensional as long as <code class="md-code-inline">(α : β : γ)</code> sweeps out a region. If it sweeps out only a curve, the grid collapses to a line, and the relation needed <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a> instead.</p>
+<p>See <a href="../95-reference/#Nomograms.grid_nomogram-Tuple{Grid, Pair, Pair}"><code class="md-code-inline">grid_nomogram</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.GridNomogram">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.GridNomogram</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L38-L47" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">GridNomogram</code></pre>
+</div>
+<p>A <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a> and two <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>s: four variables related by one alignment line.</p>
+<p>Build one with <a href="../95-reference/#Nomograms.grid_nomogram-Tuple{Grid, Pair, Pair}"><code class="md-code-inline">grid_nomogram</code></a>. Drawing works as for any other chart: the grid&#39;s strands are scales of <code class="md-code-inline">kind = :grid</code>, labelled with their values, and each family&#39;s name is drawn past the end of its row of labels. How <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> solves the chart depends on which variable is unknown; see its docstring.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Isopleth">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Isopleth</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L286-L296" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Isopleth</code></pre>
+</div>
+<p>A straight line laid across a <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a> through one point per scale: the visual form of a single solution of the relation. Build one with <a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a>.</p>
+<p><strong>Fields</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">values::Dict{Symbol,Float64}</code>: the value read off each scale.</p>
+</li>
+<li><p><code class="md-code-inline">points::Vector{Point}</code>: where the line meets each scale, in scale order.</p>
+</li>
+<li><p><code class="md-code-inline">label::String</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.IsoplethDrawing">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.IsoplethDrawing</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L106-L111" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">IsoplethDrawing</code></pre>
+</div>
+<p>Laid-out geometry for one alignment line: the segment to stroke, the points where it meets each scale, and where its label sits.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.LinearScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.LinearScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L48-L52" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">LinearScale(a = 1, b = 0)</code></pre>
+</div>
+<p><code class="md-code-inline">f(x) = a*x + b</code>. The default transform, used for plain additive relations.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.LogScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.LogScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L62-L66" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">LogScale(base = 10)</code></pre>
+</div>
+<p><code class="md-code-inline">f(x) = log_base(x)</code>, defined for <code class="md-code-inline">x &gt; 0</code>. Turns a product relation into an additive one.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Nomogram">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Nomogram</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L230-L239" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Nomogram</code></pre>
+</div>
+<p>A set of <a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>s on a shared canvas, plus the relation they encode. Every scale is crossed by one alignment line.</p>
+<p>Build one with <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> or <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a>, or directly from scales for layouts those constructions do not cover. For a relation needing more than three variables, see <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.NomogramDrawing">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.NomogramDrawing</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L145-L151" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">NomogramDrawing</code></pre>
+</div>
+<p>A complete, backend-independent description of a laid-out nomogram. It holds everything a renderer needs, but no drawing instructions. <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> and the Makie extension both draw from this structure, and tests can check tick positions without rendering anything.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.NomogramStyle">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.NomogramStyle</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L1-L44" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">NomogramStyle(; kwargs...)</code></pre>
+</div>
+<p>Sizes and thresholds for turning a <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a> into geometry. All lengths are in chart units, the same units as a nomogram&#39;s <code class="md-code-inline">width</code> and <code class="md-code-inline">height</code> (70 by 100 by default), so one style works unchanged at any output size and in either backend.</p>
+<p>The defaults follow the proportions of a standard d3 axis: hairline rules, short ticks and small type. At the default <code class="md-code-inline">pxperunit = 4</code> a chart unit is 4 pixels, which gives roughly 1px strokes, 6px major ticks, 3px of label padding and 10px labels.</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">majorticklength</code>, <code class="md-code-inline">minorticklength</code>: tick mark lengths.</p>
+</li>
+<li><p><code class="md-code-inline">graded_ticks</code>: whether ticks between those lengths are graded by importance, as on a ruler: wholes longest, then halves, quarters and so on on a fraction axis; 10s, 5s, then the rest on an integer one; decades, whole digits, then tenths on a logarithmic one. Labels sit the same distance from the axis whatever their tick&#39;s length. <code class="md-code-inline">false</code> gives every labelled tick the major length and every other tick the minor length.</p>
+</li>
+<li><p><code class="md-code-inline">ticklabelgap</code>: gap between a tick&#39;s outer end and its label.</p>
+</li>
+<li><p><code class="md-code-inline">ticklabelsize</code>, <code class="md-code-inline">titlesize</code>: text heights.</p>
+</li>
+<li><p><code class="md-code-inline">titlegap</code>: gap between the end of an axis and its title.</p>
+</li>
+<li><p><code class="md-code-inline">min_major_spacing</code>, <code class="md-code-inline">min_minor_spacing</code>: a tick is dropped if it would land closer than this to one already placed. This keeps a non-uniform axis readable.</p>
+</li>
+<li><p><code class="md-code-inline">label_minors</code>: whether minor ticks get labels too.</p>
+</li>
+<li><p><code class="md-code-inline">endpoint_ticks</code>: whether to add the ends of each domain as labelled ticks when they fit. An end that needs more than three significant figures is not labelled, since it is a derived limit such as <code class="md-code-inline">237.4</code> and not a value anyone chose.</p>
+</li>
+<li><p><code class="md-code-inline">ticklabelrotation</code>: <code class="md-code-inline">:horizontal</code> leaves tick labels upright; <code class="md-code-inline">:tangent</code> turns each to run along its scale, which reads better on a steep or curved axis.</p>
+</li>
+<li><p><code class="md-code-inline">resolve_collisions</code>: whether to drop tick labels that would overlap a label from another scale, and nudge isopleth labels clear of both.</p>
+</li>
+<li><p><code class="md-code-inline">avoid_isopleths</code>: whether to also drop a tick label that an alignment line crosses. Such a label is hard to read, and the tick mark still shows where the value falls.</p>
+</li>
+<li><p><code class="md-code-inline">collisionpad</code>: extra clearance required between two labels.</p>
+</li>
+<li><p><code class="md-code-inline">axislinewidth</code>, <code class="md-code-inline">gridlinewidth</code>, <code class="md-code-inline">tickwidth</code>, <code class="md-code-inline">isoplethwidth</code>: stroke widths. The grid width applies to the strands of a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a>. Its strands are read like any other scale, so by default they match the axes; make it thinner, or pass <code class="md-code-inline">gridcolor</code> to <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> or <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>, for a lighter grid.</p>
+</li>
+<li><p><code class="md-code-inline">isopleth_overhang</code>: how far an alignment line extends past the outermost scale.</p>
+</li>
+<li><p><code class="md-code-inline">markersize</code>: radius of the dot where an isopleth meets a scale.</p>
+</li>
+<li><p><code class="md-code-inline">min_curve_spacing</code>: on a <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a>, a curve is drawn only where it is at least this far from its neighbours, judged against the curves at least as round as it is. A crowded family thins out locally, as on a Smith chart, rather than everywhere.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Point">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Point</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L1-L5" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Point</code></pre>
+</div>
+<p>A position in chart coordinates, <code class="md-code-inline">(x, y)</code> with <code class="md-code-inline">y</code> increasing upwards.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.PowerScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.PowerScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L85-L89" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">PowerScale(p)</code></pre>
+</div>
+<p><code class="md-code-inline">f(x) = x^p</code>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.ReciprocalScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.ReciprocalScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L75-L80" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">ReciprocalScale()</code></pre>
+</div>
+<p><code class="md-code-inline">f(x) = 1/x</code>, defined away from zero. The transform behind parallel-resistance and thin-lens style charts.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Scale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Scale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L184-L191" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Scale</code></pre>
+</div>
+<p>A <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> placed on the page: a parametric curve <code class="md-code-inline">value -&gt; (x, y)</code> over a resolved domain. A nomogram works entirely through the collinearity of one point on each scale, so every layout, whether parallel, curved or built by hand, comes down to a set of these.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Scale-Tuple{Variable, Any, Any, Symbol}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Scale</code> — <span class="md-docstring-sig">Tuple{Variable, Any, Any, Symbol}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L200-L206" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Scale(variable, domain, curve, side, kind = :scale)</code></pre>
+</div>
+<p><code class="md-code-inline">kind</code> is <code class="md-code-inline">:scale</code> for a scale a reader takes a value from, or <code class="md-code-inline">:grid</code> for one strand of a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a>. Strands are read like scales and drawn like them, but carry no ticks, and a renderer&#39;s <code class="md-code-inline">gridcolor</code> can draw them lighter.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.ScaleDrawing">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.ScaleDrawing</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L91-L95" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">ScaleDrawing</code></pre>
+</div>
+<p>Laid-out geometry for one scale: the axis polyline, its ticks, and where its title goes.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.ScaleTransform">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.ScaleTransform</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L1-L15" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">ScaleTransform</code></pre>
+</div>
+<p>A strictly monotone map from a variable&#39;s own units onto the <em>functional</em> axis of a nomogram, together with its inverse.</p>
+<p>A three-variable alignment chart exists whenever the relation can be written in the separable form <code class="md-code-inline">f1(u) + f2(v) = f3(w)</code>; a <code class="md-code-inline">ScaleTransform</code> is one of those <code class="md-code-inline">f</code>s. Because the inverse comes with the forward map, the construction can compute the third variable&#39;s domain exactly instead of searching for it.</p>
+<p>Implement <a href="../95-reference/#Nomograms.transform"><code class="md-code-inline">transform</code></a> for a new subtype, and either <a href="../95-reference/#Nomograms.invtransform"><code class="md-code-inline">invtransform</code></a> or <code class="md-code-inline">hasinverse(::T) = false</code> (in which case inversion falls back to bracketed root finding over the variable&#39;s domain).</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.TabulatedScale">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.TabulatedScale</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/auto.jl#L1-L12" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">TabulatedScale</code></pre>
+</div>
+<p>A <a href="../95-reference/#Nomograms.ScaleTransform"><code class="md-code-inline">ScaleTransform</code></a> known only numerically: values and derivatives at a set of nodes, joined by cubic Hermite interpolation.</p>
+<p><a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> builds these when it derives a transform by integration, because most of those integrals have no useful closed form. With exact derivatives at the nodes, the interpolation error is fourth order in the node spacing, far smaller than anything a chart can show. Outside the tabulated range it extrapolates linearly, so a solver probing an ulp past the edge of a domain gets an answer instead of an exception.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.TextDrawing">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.TextDrawing</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L121-L131" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">TextDrawing</code></pre>
+</div>
+<p>Text drawn on its own rather than as part of a scale, in <a href="../95-reference/#Nomograms.NomogramDrawing"><code class="md-code-inline">NomogramDrawing</code></a>&#39;s <code class="md-code-inline">texts</code>: the name of one of a grid&#39;s families, whose strands carry only their values, or a value set along a curve inside a <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a>.</p>
+<p><code class="md-code-inline">size</code> is <code class="md-code-inline">:title</code> or <code class="md-code-inline">:tick</code>, for the style&#39;s title or tick-label size. <code class="md-code-inline">rotation</code> is in radians. <code class="md-code-inline">halo</code> asks for a band of background colour around the letters, so that text set across lines stays legible.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.TickMark">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.TickMark</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L70-L78" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">TickMark</code></pre>
+</div>
+<p>One tick on a scale: where it sits, which way it points away from the axis, how long it is, and what (if anything) it is labelled with. <code class="md-code-inline">level</code> is 1 for major ticks and 2 for minor.</p>
+<p><code class="md-code-inline">labelpos</code>, <code class="md-code-inline">align</code> and <code class="md-code-inline">rotation</code> fully determine where the text goes, so every backend places it in the same way, and the layout can work out the box it occupies.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.Variable">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.Variable</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L8-L53" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">Variable(name, transform = LinearScale(); kwargs...)</code></pre>
+</div>
+<p>One variable of a nomogram, before it has been placed on the page.</p>
+<p><strong>Arguments</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">name::Symbol</code>: the keyword used to refer to this variable in <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> and <a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a>.</p>
+</li>
+<li><p><code class="md-code-inline">transform::ScaleTransform</code>: the <code class="md-code-inline">f</code> that this variable contributes to the separable relation <code class="md-code-inline">f1(u) + f2(v) = f3(w)</code>.</p>
+</li>
+</ul>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">domain</code>: <code class="md-code-inline">(lo, hi)</code> in the variable&#39;s own units. May be <code class="md-code-inline">nothing</code> for the <em>result</em> variable of a construction, whose range is then derived from the other two. With Unitful loaded the ends may be quantities, <code class="md-code-inline">(1u&quot;ft&quot;, 10u&quot;ft&quot;)</code>, which also sets <code class="md-code-inline">unit</code>.</p>
+</li>
+<li><p><code class="md-code-inline">unit</code>: the unit the axis is drawn in, such as <code class="md-code-inline">u&quot;ft&quot;</code> (needs Unitful). Values passed to <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> and <a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a> may then be quantities in any unit of the same dimension, results come back as quantities, and a plain number is read as being in this unit. Defaults to the unit of the domain&#39;s ends, if they have one.</p>
+</li>
+<li><p><code class="md-code-inline">label</code>: axis title; defaults to <code class="md-code-inline">string(name)</code>. The unit is drawn after it, <code class="md-code-inline">length (ft)</code>, unless <code class="md-code-inline">unitlabel = false</code>.</p>
+</li>
+<li><p><code class="md-code-inline">ticks</code>, <code class="md-code-inline">minorticks</code>: explicit tick values, bypassing automatic selection.</p>
+</li>
+<li><p><code class="md-code-inline">tickformat</code>: <code class="md-code-inline">value -&gt; String</code>. Defaults to <a href="../95-reference/#Nomograms.fractionformat"><code class="md-code-inline">fractionformat</code></a> for <code class="md-code-inline">tickstyle = :fraction</code> and to plain numbers otherwise.</p>
+</li>
+<li><p><code class="md-code-inline">tickstyle</code>: how automatic tick values are picked.</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">:linear</code> or <code class="md-code-inline">:log</code> for round decimals spaced evenly or by decade;</p>
+</li>
+<li><p><code class="md-code-inline">:integer</code> for whole numbers only, for a count such as gear teeth or turns;</p>
+</li>
+<li><p><code class="md-code-inline">:fraction</code> for fractions whose denominator divides <code class="md-code-inline">maxden</code> (halves, quarters, eighths and sixteenths by default), labelled as fractions, such as <code class="md-code-inline">1 3/8</code> instead of <code class="md-code-inline">1.375</code>;</p>
+</li>
+<li><p><code class="md-code-inline">:auto</code> to take it from the transform. A construction may override <code class="md-code-inline">:auto</code>: for example, an N-chart&#39;s ratio axis gets logarithmic ticks when it spans a decade or more.</p>
+</li>
+</ul>
+<p>Whichever is chosen, ticks are thinned by distance on the page, roundest first.</p>
+</li>
+<li><p><code class="md-code-inline">maxden = 16</code>: for <code class="md-code-inline">tickstyle = :fraction</code>, the finest fraction offered; every denominator dividing it is used. 16 gives halves to sixteenths, 12 gives halves, thirds, quarters, sixths and twelfths.</p>
+</li>
+</ul>
+<p>A domain written with <code class="md-code-inline">Rational</code> ends, such as <code class="md-code-inline">(1//10, 1//1)</code>, makes a variable left on <code class="md-code-inline">tickstyle = :auto</code> a <code class="md-code-inline">:fraction</code> one, with <code class="md-code-inline">maxden</code> the least common multiple of the ends&#39; denominators (10 here), or 16 if they are all whole numbers. An explicit <code class="md-code-inline">tickstyle</code> or <code class="md-code-inline">maxden</code> takes precedence, and a floating-point end turns this off.</p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">side</code>: <code class="md-code-inline">:left</code>, <code class="md-code-inline">:right</code>, or <code class="md-code-inline">:auto</code> (the construction chooses).</p>
+</li>
+<li><p><code class="md-code-inline">titleend</code>: which end of the scale the title goes past: <code class="md-code-inline">:start</code> or <code class="md-code-inline">:stop</code> for the low or high end of the domain, or <code class="md-code-inline">:auto</code> for whichever end is higher on the page. Set this when the automatic choice puts the title somewhere crowded, as happens for the strands of a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a> that converge at one end.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.additive_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L84-L149" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">additive_nomogram(v1, v2, v3; width = 70, height = 100, title = &quot;&quot;, max_modulus_ratio = 4)</code></pre>
+</div>
+<p>A parallel-scale nomogram for the separable relation</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">f1(v1) + f2(v2) = f3(v3)</code></pre>
+</div>
+<p>where each <code class="md-code-inline">fi</code> is the <a href="../95-reference/#Nomograms.ScaleTransform"><code class="md-code-inline">ScaleTransform</code></a> carried by the corresponding <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>. <code class="md-code-inline">v3</code> is the <em>result</em> variable and is drawn as the middle axis; it may leave <code class="md-code-inline">domain = nothing</code>, in which case its range is derived from the other two.</p>
+<p><strong>The construction</strong></p>
+<p>Place <code class="md-code-inline">v1</code> on <code class="md-code-inline">x = 0</code> at <code class="md-code-inline">y1 = a1 * (f1 - p0)</code> and <code class="md-code-inline">v2</code> on <code class="md-code-inline">x = W</code> at <code class="md-code-inline">y2 = a2 * (f2 - q0)</code>, where <code class="md-code-inline">[p0, p1]</code> and <code class="md-code-inline">[q0, q1]</code> are the ranges of <code class="md-code-inline">f1</code> and <code class="md-code-inline">f2</code> over their domains and <code class="md-code-inline">a1 = H/(p1-p0)</code>, <code class="md-code-inline">a2 = H/(q1-q0)</code> fit each to the canvas height <code class="md-code-inline">H</code>.</p>
+<p>A straight line through those two points crosses <code class="md-code-inline">x = L*W</code> at</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">y = (1-L) * y1 + L * y2</code></pre>
+</div>
+<p>Choosing <code class="md-code-inline">L = a1 / (a1 + a2)</code> makes <code class="md-code-inline">(1-L)*a1 == L*a2 == a1*a2/(a1+a2) =: a3</code>, so that</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">y = a3 * (f1 + f2) - a3 * (p0 + q0)</code></pre>
+</div>
+<p>which is exactly a linear scale for <code class="md-code-inline">f3 = f1 + f2</code> with gradient <code class="md-code-inline">a3</code>. Reading a value off the middle axis therefore solves the relation. Because <code class="md-code-inline">a3 * (1/a1 + 1/a2) == 1</code>, the middle axis spans the same <code class="md-code-inline">[0, H]</code> as the outer two: its height and position are determined by the outer scales and are not free parameters.</p>
+<p><strong>Keeping the middle axis clear</strong></p>
+<p>The middle axis sits at <code class="md-code-inline">L = a1 / (a1 + a2)</code> of the way across, so it lies close to whichever outer axis has the smaller gradient, which is the one whose <code class="md-code-inline">f</code> spans more. Over <code class="md-code-inline">[1, 1000]</code> against <code class="md-code-inline">[11, 14]</code> on logarithmic scales the gradients differ about 28-fold, and the middle axis lands 3% of the way across, nearly on top of its neighbour. So the steeper gradient is capped at <code class="md-code-inline">max_modulus_ratio</code> times the other, by shortening that axis and centring it vertically. An outer axis shifted by <code class="md-code-inline">d</code> shifts the line&#39;s crossing of the middle one by <code class="md-code-inline">d</code> times that axis&#39;s share, <code class="md-code-inline">L</code> or <code class="md-code-inline">1 - L</code>, so the middle axis is shifted to match and every reading is unchanged. The middle axis then lies at least <code class="md-code-inline">1/(1 + max_modulus_ratio)</code> of the width from either outer axis: a fifth, by default. The shortened axis only loses resolution it could spare, since it was the one stretched furthest. Pass <code class="md-code-inline">max_modulus_ratio = Inf</code> for full-height outer axes whatever their ranges.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 20)),
+           Variable(:total),
+       );
+
+julia&gt; nom[:total].domain
+(0.0, 30.0)
+
+julia&gt; round(evaluate(nom; a = 3, b = 4).total; digits = 10)
+7.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.align_for-Tuple{Tuple{Float64, Float64}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.align_for</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L221-L230" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">align_for(direction) -&gt; (halign, valign)</code></pre>
+</div>
+<p>Which corner of a text box sits on its anchor point, given the direction the text is pushed away from whatever it labels.</p>
+<p>Both components matter. Using only the horizontal one, which is enough for vertical axes, centres a label vertically on its anchor. A label pushed straight down from a tick on a curved scale would then sit half on top of the tick.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.align_residual-Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.align_residual</code> — <span class="md-docstring-sig">Tuple{Scale, Any, Tuple{Float64, Float64}, Tuple{Float64, Float64}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L4-L13" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">align_residual(s::Scale, value, p, q) -&gt; Float64</code></pre>
+</div>
+<p>Signed area (twice the triangle area) of <code class="md-code-inline">p</code>, <code class="md-code-inline">q</code> and <code class="md-code-inline">point(s, value)</code>. Zero exactly when the three are collinear, so this is the residual whose root <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> seeks.</p>
+<p>This is d&#39;Ocagne&#39;s determinant criterion written as a cross product. Every layout in this package is a choice of scale curves that makes this criterion agree with the relation being charted.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.auto_nomogram</code> — <span class="md-docstring-sig">Tuple{Any, Vararg{Any}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/auto.jl#L405-L496" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">auto_nomogram(F, x, y, [z]; kwargs...) -&gt; Nomogram
+auto_nomogram(F, x, y, w, ..., z; kwargs...) -&gt; CompoundNomogram</code></pre>
+</div>
+<p>Build a nomogram for <code class="md-code-inline">z = F(x, y)</code>, or for <code class="md-code-inline">z = F(x, y, w, …)</code> with any number of inputs, from the function as you would normally write it.</p>
+<p>The other constructors need you to rewrite your formula first, as <code class="md-code-inline">f₁(u) + f₂(v) = f₃(w)</code> with the transforms chosen and their inverses supplied. <code class="md-code-inline">auto_nomogram</code> does that for you:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">nom = auto_nomogram((r, n) -&gt; (1 + r/100)^n, :r =&gt; (1, 20), :n =&gt; (1, 30), :growth)</code></pre>
+</div>
+<p>Give each input as a <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> with a domain, or as <code class="md-code-inline">name =&gt; (lo, hi)</code>, in the order <code class="md-code-inline">F</code> takes them. The last argument names the result, as a <code class="md-code-inline">Variable</code> or a name. The exception is when there are exactly two arguments after <code class="md-code-inline">F</code>: both are then inputs, and the result is called <code class="md-code-inline">:z</code>. The result&#39;s domain is derived from <code class="md-code-inline">F</code>; if you give one, it is checked. Labels, tick formats and explicit ticks on the variables are used as given. Transforms are always derived, and replace any you set.</p>
+<p><strong>How</strong></p>
+<p><code class="md-code-inline">F</code> can be drawn on three straight parallel scales exactly when transforms exist with <code class="md-code-inline">h(z) = f(x) + g(y)</code>. Differentiating shows that requires</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">F_x / F_y = f′(x) / g′(y)</code></pre>
+</div>
+<p>so the test is whether <code class="md-code-inline">ln|F_x / F_y|</code> splits into a part in <code class="md-code-inline">x</code> plus a part in <code class="md-code-inline">y</code> (see <a href="../95-reference/#Nomograms.separability_defect-Tuple{Any, Any, Any}"><code class="md-code-inline">separability_defect</code></a>). When it does, the same identity gives <code class="md-code-inline">f′</code> and <code class="md-code-inline">g′</code>. Integrating them gives <code class="md-code-inline">f</code> and <code class="md-code-inline">g</code>, and <code class="md-code-inline">h</code> is found by walking across the level sets of <code class="md-code-inline">F</code>. The transforms come out as <a href="../95-reference/#Nomograms.TabulatedScale"><code class="md-code-inline">TabulatedScale</code></a>s, and each axis gets linear or decade-based ticks according to how its transform spreads its values.</p>
+<p><strong>Verification</strong></p>
+<p>The finished chart is then <em>solved</em> over a grid of inputs, and every answer is compared with <code class="md-code-inline">F</code> itself. If any answer differs by more than <code class="md-code-inline">rtol</code> times the result&#39;s range, no chart is returned: the call throws an error that reports the disagreement it measured. The chart&#39;s <code class="md-code-inline">relation</code> is <code class="md-code-inline">F</code>, so <a href="../95-reference/#Nomograms.relation_residual-Tuple{Nomogram, NamedTuple}"><code class="md-code-inline">relation_residual</code></a> and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> check against your formula, not a derived one.</p>
+<p><strong>More than two inputs</strong></p>
+<p>One alignment line relates three scales, so <code class="md-code-inline">F(x, y, w)</code> is drawn as a chain of <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a> stages and the result is a <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a>. That needs <code class="md-code-inline">F</code> to depend on some pair of its inputs only through a single combination of them, <code class="md-code-inline">t = T(x, y)</code>, which holds exactly when <code class="md-code-inline">F_x / F_y</code> does not depend on <code class="md-code-inline">w</code>. The first stage then charts <code class="md-code-inline">t</code>, the second charts <code class="md-code-inline">z</code> from <code class="md-code-inline">t</code> and <code class="md-code-inline">w</code>, and the reader pivots between them on an unmarked pivot line. More inputs are reduced in the same way, one pair at a time.</p>
+<p>Every pairing is tried. A pairing can fail for two reasons. <code class="md-code-inline">F</code> may not depend on the pair through a single combination at all. Or it may, but the two stages need the intermediate on different scales. The standard example is <code class="md-code-inline">(x + y)·w</code>, where the first stage needs a linear scale and the second a logarithmic one. That case needs a grid, which you have to derive by hand (<a href="../95-reference/#Nomograms.grid_nomogram-Tuple{Grid, Pair, Pair}"><code class="md-code-inline">grid_nomogram</code></a>). If no pairing works, the error lists what went wrong with each.</p>
+<p><strong>One curved scale</strong></p>
+<p>A two-input formula that is not separable may still have a chart on two straight scales and one curve, such as the chart for the roots of a quadratic. Each variable is tried on the curve in turn. With <code class="md-code-inline">G(u, v, w) = 0</code> and <code class="md-code-inline">w</code> on the curve, such a chart exists exactly when <code class="md-code-inline">ln|G_u / G_v|</code> splits as <code class="md-code-inline">φ(w) + a(u) − b(v)</code>. This is tested by a least-squares fit along level sets of <code class="md-code-inline">w</code>. The derivatives it needs come from automatic differentiation of <code class="md-code-inline">F</code> itself, so <code class="md-code-inline">F</code> must accept generic number types as well as <code class="md-code-inline">Float64</code>. The first curved chart from a given function takes a few seconds to compile.</p>
+<p><strong>Formulas with no chart</strong></p>
+<p>A formula with neither kind of chart is refused, and the error gives the reason for each arrangement tried. The formula may still have a chart with more curved scales or a grid, but you have to derive the form by hand: see <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> and <a href="../95-reference/#Nomograms.grid_nomogram-Tuple{Grid, Pair, Pair}"><code class="md-code-inline">grid_nomogram</code></a>. A formula that is not monotone in a variable over its domain is also refused, because a straight scale cannot fold back on itself.</p>
+<p>Any formula of two inputs can still be drawn as curves of constant value, read where they cross: see <a href="../95-reference/#Nomograms.contour_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}"><code class="md-code-inline">contour_chart</code></a>.</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">width</code>, <code class="md-code-inline">height</code>, <code class="md-code-inline">title</code>: as for the other constructions. <code class="md-code-inline">width</code> defaults to 70 for two inputs. In a chain it is the width of the last stage, and the default grows with the chain, 35 per input after the first. An earlier stage always has one input inside the rest of the chain, so it is mirrored and resized, to between a quarter of <code class="md-code-inline">width</code> and <code class="md-code-inline">width</code>, to put that input midway between the axes already there. Every way of pairing the inputs is tried for the first two levels of the chain, and the one whose axes end up furthest apart is kept.</p>
+</li>
+<li><p><code class="md-code-inline">rtol = 1e-6</code>: the largest disagreement with <code class="md-code-inline">F</code> to accept, relative to the result&#39;s range.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.axislabel-Tuple{Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.axislabel</code> — <span class="md-docstring-sig">Tuple{Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L102-L107" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">axislabel(v::Variable) -&gt; String</code></pre>
+</div>
+<p>The title drawn for a variable&#39;s axis: its <code class="md-code-inline">label</code>, followed by its unit in brackets when it has one and <code class="md-code-inline">unitlabel</code> is on.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.candidate_ticks-Tuple{Variable, Tuple{Float64, Float64}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.candidate_ticks</code> — <span class="md-docstring-sig">Tuple{Variable, Tuple{Float64, Float64}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L280-L286" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">candidate_ticks(v::Variable, domain) -&gt; (majors, minors)</code></pre>
+</div>
+<p>Tick values to <em>try</em> placing on the axis for variable <code class="md-code-inline">v</code>, honouring any explicit <code class="md-code-inline">ticks</code> or <code class="md-code-inline">minorticks</code> given on the variable and otherwise picking by <a href="../95-reference/#Nomograms.tickstyle-Tuple{ScaleTransform}"><code class="md-code-inline">tickstyle</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.compound-Tuple{Vararg{Nomogram}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.compound</code> — <span class="md-docstring-sig">Tuple{Vararg{Nomogram}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/compound.jl#L91-L117" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">compound(stages::Nomogram...; title = &quot;&quot;, atol = 1e-6) -&gt; CompoundNomogram</code></pre>
+</div>
+<p>Join nomogram stages into one chart, positioning each so that the scales it shares with an earlier stage lie exactly on top of them.</p>
+<p>Variables are shared by name. Each stage after the first must share at least one variable with a stage already placed, and that shared scale must have the same values over the same domain in both stages. So build the later stage with the domain that the earlier one derived:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">first = additive_nomogram(a, b, Variable(:t))          # :t derived
+second = additive_nomogram(Variable(:t; domain = first[:t].domain), c, d)
+chart = compound(first, second)</code></pre>
+</div>
+<p>The stages are aligned by a similarity (rotation, uniform scaling and translation) chosen to carry the later stage&#39;s shared scale onto the one already placed. The match is then checked along the whole domain, not only at the two points used to compute it. A similarity is affine, so it cannot change what any stage computes.</p>
+<p>The shared scale is drawn once. The stages usually overlap instead of sitting side by side. A parallel-axis construction puts its result <em>between</em> its two inputs, so when two such stages share a pivot, the other scales of both stages lie on either side of it. Use <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> to reshape the result if the layout is awkward.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.concurrent_nomogram-Tuple{Variable, Variable, Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.concurrent_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L382-L421" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">concurrent_nomogram(v1, v2, v3; width = 100, height = 50, title = &quot;&quot;)</code></pre>
+</div>
+<p>A concurrent-scale nomogram for the relation</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">1/f1(v1) + 1/f2(v2) = 1/f3(v3)</code></pre>
+</div>
+<p>which covers resistors in parallel, capacitors in series and the thin-lens equation. Its three scales start from one point, the zero of every scale: <code class="md-code-inline">v1</code> and <code class="md-code-inline">v2</code> fan out towards the top corners, and <code class="md-code-inline">v3</code> runs up the middle between them. <code class="md-code-inline">v3</code> may leave <code class="md-code-inline">domain = nothing</code>, in which case the range it can reach is derived from the other two. All three transforms must be zero or more over their domains.</p>
+<p><strong>The construction</strong></p>
+<p>Put the common zero at <code class="md-code-inline">(W/2, 0)</code>, <code class="md-code-inline">v1</code> at <code class="md-code-inline">(W/2 - c·f1, d·f1)</code>, <code class="md-code-inline">v2</code> at <code class="md-code-inline">(W/2 + c·f2, d·f2)</code> and <code class="md-code-inline">v3</code> at <code class="md-code-inline">(W/2, 2d·f3)</code>. A line through the first two crosses <code class="md-code-inline">x = W/2</code> at height <code class="md-code-inline">2d·f1·f2 / (f1 + f2)</code>, which is <code class="md-code-inline">2d·f3</code> exactly when the relation holds. <code class="md-code-inline">c</code> and <code class="md-code-inline">d</code> are chosen so that the longer outer scale ends at a top corner.</p>
+<p>Doerfler derives the same chart with the outer scales at an angle <code class="md-code-inline">A</code> either side of the middle one and scale factors <code class="md-code-inline">m1 = m2 = m3 / (2 cos A)</code> (see the Bibliography). Stretching a chart to fill its canvas cannot change what it computes, and it absorbs the angle, so here <code class="md-code-inline">width</code> and <code class="md-code-inline">height</code> set the spread instead.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = concurrent_nomogram(
+           Variable(:R1; domain = (0, 1000)),
+           Variable(:R2; domain = (0, 1000)),
+           Variable(:R),
+       );
+
+julia&gt; round(evaluate(nom; R1 = 400, R2 = 600).R; digits = 10)
+240.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.contour_chart-Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.contour_chart</code> — <span class="md-docstring-sig">Tuple{Union{Variable, Pair{Symbol, &lt;:Tuple}}, Union{Variable, Pair{Symbol, &lt;:Tuple}}, Vararg{Pair}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/contour.jl#L195-L276" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">contour_chart(x, y, fields...; kwargs...) -&gt; ContourChart
+contour_chart(F, x, y, [z]; kwargs...) -&gt; ContourChart</code></pre>
+</div>
+<p>A chart read at a point. <code class="md-code-inline">x</code> runs along the bottom and <code class="md-code-inline">y</code> up the left side, each a <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> with a domain or simply <code class="md-code-inline">name =&gt; (lo, hi)</code>. Every other variable is a <em>field</em>, given as <code class="md-code-inline">variable =&gt; (x, y) -&gt; value</code>, and is drawn as its curves of constant value. Read the chart by finding where the curves of any two known values cross; every other value is read at that point.</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">moody = contour_chart(
+    Variable(:Re, LogScale(); domain = (4e3, 1e8), label = &quot;Reynolds number&quot;),
+    Variable(:f, LogScale(); domain = (0.008, 0.1), label = &quot;friction factor&quot;),
+    Variable(:roughness; domain = (1e-6, 0.05), label = &quot;ε/D&quot;) =&gt;
+        (Re, f) -&gt; 3.7 * (10^(-1 / (2sqrt(f))) - 2.51 / (Re * sqrt(f))),
+)
+evaluate(moody; Re = 1e5, roughness = 1e-4).f</code></pre>
+</div>
+<p>A field only needs <em>some</em> formula for its value at each point. The Colebrook equation cannot be solved for the friction factor, but it can be solved for the roughness, so the chart above is the Moody diagram.</p>
+<p>The second form charts a formula <code class="md-code-inline">z = F(x, y)</code> and works for any <code class="md-code-inline">F</code>. When <code class="md-code-inline">F</code> passes the test <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> applies, the axes take the transforms it recovers, and every curve of <code class="md-code-inline">z</code> comes out a straight line, all of them parallel; otherwise the axes keep the variables&#39; own transforms.</p>
+<p>Field functions, like transforms, take and return plain numbers, in each variable&#39;s unit if it has one. The formula form calls <code class="md-code-inline">F</code> with quantities when the axes have units, as <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> does.</p>
+<p><strong>Curves</strong></p>
+<p>A field gets curves at round values over the range it takes on the chart, or over its <code class="md-code-inline">domain</code> if it declares one, chosen as its <code class="md-code-inline">ticks</code> or <code class="md-code-inline">tickstyle</code> say. A field left on <code class="md-code-inline">tickstyle = :auto</code> gets logarithmic values when its range is positive and spans two decades or more. Each curve is drawn only where it stands at least <code class="md-code-inline">min_curve_spacing</code> (see <a href="../95-reference/#Nomograms.NomogramStyle"><code class="md-code-inline">NomogramStyle</code></a>) from its neighbours on the page, judged against the curves at least as round as it is, so a crowded family thins out locally rather than everywhere. The roundest curves are labelled where they leave the chart, when there is room.</p>
+<p><strong>Charts on another grid</strong></p>
+<p>With <code class="md-code-inline">axes = false</code> the two axis variables are coordinates of a plane rather than scales: nothing is drawn for them, and the plane keeps its proportions, so a circle stays round. The Smith chart is drawn this way, on the plane of the reflection coefficient, with resistance and reactance as fields:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">z(u, v) = (1 + complex(u, v)) / (1 - complex(u, v))
+smith = contour_chart(
+    :u =&gt; (-1, 1),
+    :v =&gt; (-1, 1),
+    Variable(:r; domain = (0, 50), ticks = [0.2, 0.5, 1, 2, 5]) =&gt; (u, v) -&gt; real(z(u, v)),
+    Variable(:x; domain = (-50, 50), ticks = [-2, -1, 0, 1, 2]) =&gt; (u, v) -&gt; imag(z(u, v));
+    axes = false,
+    region = (u, v) -&gt; u^2 + v^2 &lt;= 1,
+    rings = [Variable(:angle; domain = (-180, 180)) =&gt; θ -&gt; (1.08cosd(θ), 1.08sind(θ))],
+    labelat = (r = :x =&gt; 0,),
+)</code></pre>
+</div>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">width = 100</code>: the width of the chart, in chart units.</p>
+</li>
+<li><p><code class="md-code-inline">height</code>: its height; 75 by default, or with <code class="md-code-inline">axes = false</code>, whatever keeps the plane&#39;s proportions.</p>
+</li>
+<li><p><code class="md-code-inline">title</code>.</p>
+</li>
+<li><p><code class="md-code-inline">region</code>: <code class="md-code-inline">(x, y) -&gt; Bool</code>, the part of the rectangle the chart covers. Fields have no value outside it, so curves stop at its edge and nothing there can be read: the saturation line of a psychrometric chart, say. Its edge is drawn.</p>
+</li>
+<li><p><code class="md-code-inline">grid = true</code>: whether to draw lines across the chart at the axes&#39; tick values.</p>
+</li>
+<li><p><code class="md-code-inline">axes = true</code>: whether <code class="md-code-inline">x</code> and <code class="md-code-inline">y</code> are drawn as axes, or are only the plane&#39;s coordinates.</p>
+</li>
+<li><p><code class="md-code-inline">rings</code>: scales around the chart, each <code class="md-code-inline">variable =&gt; value -&gt; (x, y)</code>, a curve in the plane&#39;s coordinates. A ring is read along a line from <code class="md-code-inline">centre</code> through the point, and takes part in <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> like any other variable.</p>
+</li>
+<li><p><code class="md-code-inline">centre</code>: the point rings are read from, in the plane&#39;s coordinates; the middle of the plane by default.</p>
+</li>
+<li><p><code class="md-code-inline">labelat</code>: where to label a family inside the chart, as <code class="md-code-inline">field = other =&gt; value</code>: each curve is labelled where it crosses the curve <code class="md-code-inline">other = value</code>, set along the curve on a band of background colour. <code class="md-code-inline">labelat = (r = :x =&gt; 0,)</code> labels a Smith chart&#39;s resistance circles along its real axis. Other families are labelled where their curves end.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.crossing-Tuple{ContourChart}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.crossing</code> — <span class="md-docstring-sig">Tuple{ContourChart}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/contour.jl#L677-L685" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">crossing(chart::ContourChart; label = &quot;&quot;, values...) -&gt; Crossing
+crossing(chart::ContourChart, solution::NamedTuple; label = &quot;&quot;) -&gt; Crossing</code></pre>
+</div>
+<p>One point on a <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a>, for drawing: <code class="md-code-inline">drawing(chart; crossings = [r])</code> marks it, with lines dropped to both axes. The first form finds the point from two values, as <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> does; the second takes a solution you already have, such as one of several from <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.default_tickformat-Tuple{Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.default_tickformat</code> — <span class="md-docstring-sig">Tuple{Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L1-L6" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">default_tickformat(v) -&gt; String</code></pre>
+</div>
+<p>Format a tick value compactly: integers without a decimal point, everything else to four significant figures.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.determinant_nomogram</code> — <span class="md-docstring-sig">Tuple{Vararg{Pair}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L621-L679" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">determinant_nomogram(var =&gt; curve, var =&gt; curve, var =&gt; curve, ...; kwargs...)</code></pre>
+</div>
+<p>A nomogram from scales given directly as curves, fitted to the canvas for you.</p>
+<p>This is the general constructor. Every three-variable nomogram is a set of parametric curves positioned so that d&#39;Ocagne&#39;s determinant</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">| x₁(u)  y₁(u)  1 |
+| x₂(v)  y₂(v)  1 |  =  0
+| x₃(w)  y₃(w)  1 |</code></pre>
+</div>
+<p>vanishes exactly when the relation holds. <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> and <a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> are two particular solutions of that condition. This constructor accepts any other solution you can write down, including curved and concurrent layouts that parallel axes cannot express.</p>
+<p>Each argument is a <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a> paired with a function from its value to a point. The curves can use whatever coordinates suit the geometry: their combined bounding box is measured and mapped onto <code class="md-code-inline">width</code> × <code class="md-code-inline">height</code>. An affine map keeps collinear points collinear, so the fit cannot change what the chart computes. This includes the default fit, which scales the two axes by different factors to fill the canvas.</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">width</code>, <code class="md-code-inline">height</code>: the canvas to fit to.</p>
+</li>
+<li><p><code class="md-code-inline">preserve_aspect</code>: fit with one scale factor and centre the result, rather than stretching each axis to fill.</p>
+</li>
+<li><p><code class="md-code-inline">relation</code>: the algebraic relation, if you have it, for <a href="../95-reference/#Nomograms.relation_residual-Tuple{Nomogram, NamedTuple}"><code class="md-code-inline">relation_residual</code></a> and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> to check the geometry against. It is optional; the chart draws and solves without it.</p>
+</li>
+<li><p><code class="md-code-inline">title</code>, <code class="md-code-inline">nsamples</code>: chart title, and how finely curves are sampled when measuring the bounding box.</p>
+</li>
+</ul>
+<p>Every variable must have a <code class="md-code-inline">domain</code>. There is no designated result variable, so no domain can be derived.</p>
+<p><strong>Example</strong></p>
+<p>The parallel-axis construction, written out by hand in its natural coordinates. Scales at <code class="md-code-inline">x = 0</code>, <code class="md-code-inline">2</code> and <code class="md-code-inline">1</code>, with the middle one at half scale, encode <code class="md-code-inline">u + v = w</code>; the fit then stretches that <code class="md-code-inline">2 × 10</code> sketch onto the full canvas.</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = determinant_nomogram(
+           Variable(:u; domain = (0, 10)) =&gt; u -&gt; (0.0, u),
+           Variable(:v; domain = (0, 10)) =&gt; v -&gt; (2.0, v),
+           Variable(:w; domain = (0, 20)) =&gt; w -&gt; (1.0, w / 2);
+           relation = (u, v, w) -&gt; u + v - w,
+       );
+
+julia&gt; round(evaluate(nom; u = 3, v = 4).w; digits = 10)
+7.0
+
+julia&gt; point(nom[:v], 10)
+(70.0, 100.0)</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.drawing-Tuple{AbstractNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.drawing</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L717-L723" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">drawing(nom::AbstractNomogram; style = NomogramStyle(), isopleths = Isopleth[])</code></pre>
+</div>
+<p>Lay out a nomogram: choose and position ticks, resolve label collisions, and place titles and any alignment lines. Returns a <a href="../95-reference/#Nomograms.NomogramDrawing"><code class="md-code-inline">NomogramDrawing</code></a> of pure geometry, shared by every rendering backend.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.drawing-Tuple{ContourChart}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.drawing</code> — <span class="md-docstring-sig">Tuple{ContourChart}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/contour_draw.jl#L352-L358" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">drawing(chart::ContourChart; style = NomogramStyle(), crossings = Crossing[])</code></pre>
+</div>
+<p>Lay out a <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a>: its axes and frame, each field&#39;s curves and their labels, and any <a href="../95-reference/#Nomograms.Crossing"><code class="md-code-inline">Crossing</code></a>s, each marked with lines dropped to the two axes. Returns a <a href="../95-reference/#Nomograms.NomogramDrawing"><code class="md-code-inline">NomogramDrawing</code></a>, which both renderers draw.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.evaluate-Tuple{CompoundNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{CompoundNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/compound.jl#L188-L199" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate(cn::CompoundNomogram; values...) -&gt; NamedTuple</code></pre>
+</div>
+<p>Solve a compound nomogram by reading its stages in turn.</p>
+<p>Supply enough variables that some stage has exactly one unknown. That stage is solved, its answer is added to the known values, and the pass repeats until every variable is known. You can supply any set of variables that closes the chain. The intermediate on a shared scale is usually left to be derived, but it can also be an input.</p>
+<p>Throws an error, naming the variables still unknown, if the values given are not enough.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.evaluate-Tuple{ContourChart}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{ContourChart}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/contour.jl#L654-L660" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate(chart::ContourChart; values...) -&gt; NamedTuple</code></pre>
+</div>
+<p>Read a <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a>: given any two of its variables, find the point where both hold and return every variable&#39;s value there. Throws if there is no such point, or more than one; <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns them all.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.evaluate-Tuple{GridNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{GridNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L332-L343" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate(nn::GridNomogram; values...) -&gt; NamedTuple</code></pre>
+</div>
+<p>Solve a grid chart. Supply three of its four variables.</p>
+<p>How the chart is solved depends on which variable is unknown. If both grid variables are known, the grid gives a single point, and the problem is an ordinary three-point alignment. If one of them is unknown, the two scales already fix the line, and the answer is where that line crosses the strand for the known grid variable. The strand is a curve, so the line may cross it more than once. As with other charts, <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> throws an error when there are several answers, and <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a> returns them all.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.evaluate-Tuple{Nomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.evaluate</code> — <span class="md-docstring-sig">Tuple{Nomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L274-L298" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate(nom::Nomogram; values...) -&gt; NamedTuple</code></pre>
+</div>
+<p>Solve the relation by alignment. Supply every variable but one, and the remaining one is read from its scale. The result is a <code class="md-code-inline">NamedTuple</code> of all the variables.</p>
+<p>The solver only ever finds where a line crosses a scale, so forward and inverse problems use the same call: any one of the variables can be the unknown.</p>
+<p>Throws an error if the alignment line crosses the unknown&#39;s scale more than once, which can only happen on a curved scale. Use <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a> to get every solution.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 10)),
+           Variable(:s),
+       );
+
+julia&gt; round(evaluate(nom; a = 2, s = 9).b; digits = 10)
+7.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.evaluate_all-Tuple{GridNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.evaluate_all</code> — <span class="md-docstring-sig">Tuple{GridNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L364-L368" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate_all(nn::GridNomogram; values...) -&gt; Vector{NamedTuple}</code></pre>
+</div>
+<p>Every solution consistent with the three values given. See <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.evaluate_all-Tuple{Nomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.evaluate_all</code> — <span class="md-docstring-sig">Tuple{Nomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L306-L328" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">evaluate_all(nom::Nomogram; values...) -&gt; Vector{NamedTuple}</code></pre>
+</div>
+<p>Every solution of the relation consistent with the values given, in increasing order of the unknown.</p>
+<p>A straight alignment line can cross a curved scale more than once, and each crossing is a valid solution. <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> throws an error in that case; <code class="md-code-inline">evaluate_all</code> returns all of them. For a parallel-layout nomogram the result always has exactly one element.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 10)),
+           Variable(:s),
+       );
+
+julia&gt; length(evaluate_all(nom; a = 2, b = 3))
+1</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.fan-Tuple{AbstractNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.fan</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/fan.jl#L1-L31" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">fan(nom; spread = 90, hub = 0.35, radius = 100, inward = :auto) -&gt; nomogram</code></pre>
+</div>
+<p>Redraw a chart with its axes as spokes radiating from one centre. The fanned chart gives exactly the same answers as the original. The result is the same kind of chart as <code class="md-code-inline">nom</code>: a <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a>, a <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a> or a <a href="../95-reference/#Nomograms.GridNomogram"><code class="md-code-inline">GridNomogram</code></a>.</p>
+<p>Parallel lines meet at a point at infinity, and a projective map can bring that point onto the page. Collinear points stay collinear under such a map, so the chart still works (see <a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a>). Every vertical axis becomes a spoke through the new point, including the pivot lines of a <a href="../95-reference/#Nomograms.compound-Tuple{Vararg{Nomogram}}"><code class="md-code-inline">compound</code></a> chart and the strands of a grid.</p>
+<p>Straight lines stay straight, so the far ends of the spokes lie on a straight chord, not an arc, and the middle spokes are shorter than the outer ones; the wider the fan, the bigger the difference. At 90° the middle spokes&#39; tips line up level with the outer spokes&#39; tips.</p>
+<p>The map also squeezes everything near the centre. So by default the chart is laid out both ways round, once with the top of each axis at the rim and once with it at the hub, and the layout that keeps more tick labels is used. A scale that is already crowded at one end, such as a reciprocal scale, works best with that end at the rim.</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">spread = 90</code>: the angle in degrees between the outermost spokes; less than 180.</p>
+</li>
+<li><p><code class="md-code-inline">hub = 0.35</code>: where the spokes start, as a fraction of their length from the centre.</p>
+</li>
+<li><p><code class="md-code-inline">radius = 100</code>: the length of the outer spokes, in chart units.</p>
+</li>
+<li><p><code class="md-code-inline">inward = :auto</code>: <code class="md-code-inline">true</code> puts the top of each axis at the hub, <code class="md-code-inline">false</code> at the rim.</p>
+</li>
+<li><p><code class="md-code-inline">title</code>: defaults to the chart&#39;s own.</p>
+</li>
+</ul>
+<p><code class="md-code-inline">fan</code> works on any chart, but it is designed for parallel axes. A diagonal or curved scale is reshaped too and stays correct, but it does not become a spoke.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.fraction_ticks-Tuple{Real, Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.fraction_ticks</code> — <span class="md-docstring-sig">Tuple{Real, Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L183-L190" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">fraction_ticks(lo, hi; maxden = 16) -&gt; (majors, minors)</code></pre>
+</div>
+<p>Every fraction in <code class="md-code-inline">[lo, hi]</code> whose denominator divides <code class="md-code-inline">maxden</code>. Whole numbers come first (roundest first), then halves, quarters and so on. This is the order of priority on a crowded axis, so it keeps <code class="md-code-inline">1/2</code> before <code class="md-code-inline">3/8</code>. Every fraction is also a minor, so one whose label is dropped keeps its mark, as on a ruler.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.fractionformat">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.fractionformat</code> — <span class="md-docstring-sig">Union{Tuple{}, Tuple{Integer}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L210-L217" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">fractionformat(maxden = 16; mixed = true) -&gt; (value -&gt; String)</code></pre>
+</div>
+<p>A tick label format for fractions: <code class="md-code-inline">1 3/8</code> (or <code class="md-code-inline">11/8</code> with <code class="md-code-inline">mixed = false</code>), <code class="md-code-inline">3/4</code>, <code class="md-code-inline">2</code>. A value that is not a whole number of <code class="md-code-inline">1/maxden</code>ths falls back to plain decimals, so an axis end at 0.3 still reads correctly. This is the default label format for <code class="md-code-inline">tickstyle = :fraction</code>; pass it as <code class="md-code-inline">tickformat</code> to label any axis this way.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.frange-Tuple{ScaleTransform, Tuple{Real, Real}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.frange</code> — <span class="md-docstring-sig">Tuple{ScaleTransform, Tuple{Real, Real}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L151-L157" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">frange(t::ScaleTransform, domain) -&gt; (lo, hi)</code></pre>
+</div>
+<p>The interval spanned by <code class="md-code-inline">transform(t, .)</code> over <code class="md-code-inline">domain</code>, after checking that <code class="md-code-inline">t</code> is monotone there. A transform that folds over would make the axis double back on itself, which no layout can fix, so it is rejected early.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.grid_nomogram-Tuple{Grid, Pair, Pair}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.grid_nomogram</code> — <span class="md-docstring-sig">Tuple{Grid, Pair, Pair}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L124-L166" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">grid_nomogram(grid::Grid, a =&gt; curve_a, b =&gt; curve_b; kwargs...) -&gt; GridNomogram</code></pre>
+</div>
+<p>A four-variable chart: a <a href="../95-reference/#Nomograms.Grid"><code class="md-code-inline">Grid</code></a> carrying two variables, and two ordinary scales given as curves, in the manner of <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>.</p>
+<p>You can write everything in whatever coordinates suit the geometry, and it is all fitted to the canvas together. The fit is affine, so it keeps collinear points collinear and cannot change what the chart computes. The grid&#39;s surface is moved by the same fit as the scales.</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">width</code>, <code class="md-code-inline">height</code>, <code class="md-code-inline">title</code>, <code class="md-code-inline">preserve_aspect</code>, <code class="md-code-inline">nsamples</code>: as for <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>.</p>
+</li>
+<li><p><code class="md-code-inline">relation</code>: the algebraic relation <code class="md-code-inline">(u, v, a, b) -&gt; residual</code>, for <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> to check the geometry against.</p>
+</li>
+</ul>
+<p><strong>Example</strong></p>
+<p>The general quadratic <code class="md-code-inline">a·x² + b·x + c = 0</code>. Written as <code class="md-code-inline">a·x² + b·x = -c</code>, the coefficients are <code class="md-code-inline">α = x²</code>, <code class="md-code-inline">β = x</code>, <code class="md-code-inline">γ = -c</code>, so the grid in <code class="md-code-inline">(x, c)</code> is</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">x₃ = x/(x² + x) = 1/(1 + x)        y₃ = -c/(x² + x) = -c/(x·(1 + x))</code></pre>
+</div>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = grid_nomogram(
+           Grid(
+               Variable(:x; domain = (0.5, 5)),
+               Variable(:c; domain = (0, 4)),
+               (x, c) -&gt; (1 / (1 + x), -c / (x * (1 + x))),
+           ),
+           Variable(:a; domain = (0.5, 3)) =&gt; a -&gt; (0.0, a),
+           Variable(:b; domain = (-6, 0)) =&gt; b -&gt; (1.0, b);
+           relation = (x, c, a, b) -&gt; a * x^2 + b * x + c,
+       );
+
+julia&gt; [round(s.x; digits = 8) for s in evaluate_all(nom; a = 1, b = -3, c = 2)]
+2-element Vector{Float64}:
+ 1.0
+ 2.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.gridpoint-Tuple{GridNomogram, Any, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.gridpoint</code> — <span class="md-docstring-sig">Tuple{GridNomogram, Any, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L248-L252" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">gridpoint(nn::GridNomogram, u, v) -&gt; Point</code></pre>
+</div>
+<p>Where the pair <code class="md-code-inline">(u, v)</code> falls on the chart&#39;s grid.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.hasinverse-Tuple{ScaleTransform}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.hasinverse</code> — <span class="md-docstring-sig">Tuple{ScaleTransform}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L33-L37" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">hasinverse(t::ScaleTransform) -&gt; Bool</code></pre>
+</div>
+<p>Whether <code class="md-code-inline">t</code> provides a closed-form <a href="../95-reference/#Nomograms.invtransform"><code class="md-code-inline">invtransform</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.invert-Tuple{ScaleTransform, Any, Tuple{Real, Real}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.invert</code> — <span class="md-docstring-sig">Tuple{ScaleTransform, Any, Tuple{Real, Real}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L128-L133" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">invert(t::ScaleTransform, y, domain) -&gt; Real</code></pre>
+</div>
+<p>Solve <code class="md-code-inline">transform(t, x) == y</code> for <code class="md-code-inline">x</code>. Uses the closed-form inverse when available and falls back to bracketed root finding over <code class="md-code-inline">domain = (lo, hi)</code> otherwise.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.invtransform">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.invtransform</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L25-L30" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">invtransform(t::ScaleTransform, y)</code></pre>
+</div>
+<p>Map a functional-axis value back to the variable&#39;s own units. Only defined for transforms with <code class="md-code-inline">hasinverse(t) == true</code>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.isopleth</code> — <span class="md-docstring-sig">Tuple{CompoundNomogram, NamedTuple}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/compound.jl#L253-L265" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">isopleth(cn::CompoundNomogram; label = &quot;&quot;, values...) -&gt; Vector{Isopleth}
+isopleth(cn::CompoundNomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Vector{Isopleth}</code></pre>
+</div>
+<p>The alignment lines for one reading of a compound nomogram: one per stage, since reading it means drawing a line across each in turn.</p>
+<p>They come back sharing a <code class="md-code-inline">group</code>, so a renderer draws the whole reading in one colour. Pass the vector straight to <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> or a backend. The label goes on the stage where the answer is read: the one whose result scale no other stage shares. This is not always the last stage in the list, because <a href="../95-reference/#Nomograms.auto_nomogram-Tuple{Any, Vararg{Any}}"><code class="md-code-inline">auto_nomogram</code></a> lists its final stage first, so list order is used only as a fallback.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.isopleth-Tuple{GridNomogram, NamedTuple}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.isopleth</code> — <span class="md-docstring-sig">Tuple{GridNomogram, NamedTuple}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L381-L388" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">isopleth(nn::GridNomogram, solution::NamedTuple; label = &quot;&quot;, group = 0) -&gt; Isopleth
+isopleth(nn::GridNomogram; label = &quot;&quot;, group = 0, values...) -&gt; Isopleth</code></pre>
+</div>
+<p>The alignment line for one reading: it meets scale <code class="md-code-inline">a</code>, the grid, and scale <code class="md-code-inline">b</code>. When the line crosses the known strand more than once, the keyword form returns that one line with every crossing marked, as for a <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a>; see <a href="../95-reference/#Nomograms.isopleth-Tuple{CompoundNomogram, NamedTuple}"><code class="md-code-inline">isopleth</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.isopleth-Tuple{Nomogram, NamedTuple}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.isopleth</code> — <span class="md-docstring-sig">Tuple{Nomogram, NamedTuple}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L339-L357" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">isopleth(nom::Nomogram; label = &quot;&quot;, values...) -&gt; Isopleth
+isopleth(nom::Nomogram, solution::NamedTuple; label = &quot;&quot;) -&gt; Isopleth</code></pre>
+</div>
+<p>The alignment line for one solution of the relation. It records where the line meets every scale, so that it can be drawn.</p>
+<p>The first form solves for the missing variable. If the line crosses that variable&#39;s scale more than once (a curved scale can be crossed twice), every crossing is a solution and all of them lie on this one line. So the result is that line, with each crossing marked. Its <code class="md-code-inline">values</code> then hold only the values that fix the line, because the unknown has several values; get those from <a href="../95-reference/#Nomograms.evaluate_all-Tuple{GridNomogram}"><code class="md-code-inline">evaluate_all</code></a>.</p>
+<p>The second form takes a solution you already have, to draw one reading on its own:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">isos = [isopleth(nom, sol; label = &quot;z = $(sol.z)&quot;) for sol in evaluate_all(nom; p = -3, q = 2)]</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.isopleth_style-Tuple{Integer, Any, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.isopleth_style</code> — <span class="md-docstring-sig">Tuple{Integer, Any, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/svg.jl#L24-L29" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">isopleth_style(i, colors, dashes) -&gt; (color, dash)</code></pre>
+</div>
+<p>Colour and dash for the <code class="md-code-inline">i</code>-th isopleth: the colour advances every line, the dash every full cycle of colours.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.label_box-Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.label_box</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}, AbstractString, Real, Tuple{Symbol, Symbol}, Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L250-L255" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">label_box(pos, text, size, align, rotation) -&gt; (xmin, ymin, xmax, ymax)</code></pre>
+</div>
+<p>The axis-aligned box a piece of text occupies, used both to size the canvas and to detect labels running into each other.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.linear_ticks-Tuple{Real, Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.linear_ticks</code> — <span class="md-docstring-sig">Tuple{Real, Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L74-L83" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">linear_ticks(lo, hi; count = 6) -&gt; (majors, minors)</code></pre>
+</div>
+<p>Evenly spaced &quot;nice&quot; values covering <code class="md-code-inline">[lo, hi]</code>, with each major interval subdivided five ways. The values are round and evenly spaced <em>in the variable</em>, not on the page. A nomogram axis is usually non-uniform, and thinning (see <a href="../95-reference/#Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}"><code class="md-code-inline">thin_ticks</code></a>) decides what fits.</p>
+<p><code class="md-code-inline">majors</code> is returned roundest first, not sorted by value, because that is the order in which <a href="../95-reference/#Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}"><code class="md-code-inline">thin_ticks</code></a> uses it.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.log_ticks-Tuple{Real, Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.log_ticks</code> — <span class="md-docstring-sig">Tuple{Real, Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L111-L127" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">log_ticks(lo, hi) -&gt; (majors, minors)</code></pre>
+</div>
+<p>Ticks for a logarithmic axis: every whole mantissa 1–9 in every decade the range touches, offered as a major, with tenths between them as minors.</p>
+<p>There is no cut-off for wide ranges. <code class="md-code-inline">majors</code> is returned in the order <a href="../95-reference/#Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}"><code class="md-code-inline">thin_ticks</code></a> should try them (decades, then 5s, then 2s, then the rest), and thinning keeps whatever fits. So a crowded axis ends up with decades only, a less crowded one with the familiar 1-2-5 sequence, and a roomy one labels every mantissa, all from the same candidates. A fixed rule that counts decades could pick only one of these, and an earlier rule of that kind labelled only the decades on an axis spanning just over two.</p>
+<p>Every mantissa is also offered as a minor, so one whose label is dropped still gets a tick mark. On a range too narrow to hold three whole mantissas (100 to 200 holds only its ends), the tenths are promoted to majors as well, since otherwise almost nothing would be labelled.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.max_relation_residual-Tuple{CompoundNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.max_relation_residual</code> — <span class="md-docstring-sig">Tuple{CompoundNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/compound.jl#L300-L305" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">max_relation_residual(cn::CompoundNomogram; n = 9) -&gt; Float64</code></pre>
+</div>
+<p>The largest disagreement between any stage&#39;s geometry and its relation: see <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> for a single chart. <code class="md-code-inline">NaN</code> if no stage has a relation.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.max_relation_residual-Tuple{GridNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.max_relation_residual</code> — <span class="md-docstring-sig">Tuple{GridNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/grid.jl#L429-L439" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">max_relation_residual(nn::GridNomogram; n = 7) -&gt; Float64</code></pre>
+</div>
+<p>The largest disagreement between a grid chart&#39;s geometry and the relation it is meant to encode.</p>
+<p>Sweeps both grid variables over an <code class="md-code-inline">n × n</code> grid and the first scale over <code class="md-code-inline">n</code> values, solves the second scale geometrically, and checks each answer against the relation. Inputs whose alignment line misses a scale are skipped; <code class="md-code-inline">NaN</code> comes back when there is no relation to check or nothing in the sweep could be solved.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.max_relation_residual-Tuple{Nomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.max_relation_residual</code> — <span class="md-docstring-sig">Tuple{Nomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L777-L791" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">max_relation_residual(nom::Nomogram; n = 9) -&gt; Float64</code></pre>
+</div>
+<p>The largest disagreement between a nomogram&#39;s geometry and the relation it is meant to encode, over a grid of <code class="md-code-inline">n × n</code> inputs.</p>
+<p>Getting the determinant form right is the hardest part of designing a nomogram by hand, and a chart with a small error in it still draws normally. This function solves for the third variable <em>geometrically</em> from the first two, then uses <a href="../95-reference/#Nomograms.relation_residual-Tuple{Nomogram, NamedTuple}"><code class="md-code-inline">relation_residual</code></a> to check whether the answer satisfies the relation. A result far from zero means the curves and the formula disagree.</p>
+<p>Returns <code class="md-code-inline">NaN</code> for a nomogram built without a <code class="md-code-inline">relation</code>. Inputs whose alignment line misses the third scale are skipped, since they say nothing about correctness.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.multiplicative_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L206-L237" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">multiplicative_nomogram(v1, v2, v3; width = 70, height = 100, title = &quot;&quot;, max_modulus_ratio = 4)</code></pre>
+</div>
+<p>A parallel-scale nomogram, on logarithmic scales, for the product relation</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">f1(v1) * f2(v2) = f3(v3)</code></pre>
+</div>
+<p>Implemented by wrapping each variable&#39;s transform in a logarithm and deferring to <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a>, which turns the product into a sum. All three transforms must be strictly positive over their domains. As with <code class="md-code-inline">additive_nomogram</code>, <code class="md-code-inline">v3</code> is the result and may leave its domain to be derived.</p>
+<p>The logarithm&#39;s base cancels out of the geometry, so none is offered.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = multiplicative_nomogram(
+           Variable(:x; domain = (1, 10)),
+           Variable(:y; domain = (1, 10)),
+           Variable(:z),
+       );
+
+julia&gt; nom[:z].domain
+(1.0, 100.0)
+
+julia&gt; round(evaluate(nom; x = 2, y = 3).z; digits = 10)
+6.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.nicestep-Tuple{Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.nicestep</code> — <span class="md-docstring-sig">Tuple{Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/ticks.jl#L29-L33" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">nicestep(raw) -&gt; Float64</code></pre>
+</div>
+<p>Round <code class="md-code-inline">raw</code> up to the nearest &quot;nice&quot; tick interval: 1, 2, 2.5 or 5 times a power of ten.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.nomogramplot!-Tuple">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.nomogramplot!</code> — <span class="md-docstring-sig">Tuple</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/Nomograms.jl#L159-L163" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">nomogramplot!(ax, nom::Nomogram; kwargs...)</code></pre>
+</div>
+<p>Draw a nomogram into an existing Makie axis. See <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.nomogramplot-Tuple">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.nomogramplot</code> — <span class="md-docstring-sig">Tuple</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/Nomograms.jl#L130-L148" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">nomogramplot(nom::Nomogram; kwargs...) -&gt; Figure
+nomogramplot!(ax, nom::Nomogram; kwargs...) -&gt; ax</code></pre>
+</div>
+<p>Draw a nomogram with Makie. Available once a Makie backend is loaded:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Nomograms, CairoMakie
+fig = nomogramplot(nom; isopleths = [isopleth(nom; R1 = 4, R2 = 6)])
+save(&quot;chart.pdf&quot;, fig)</code></pre>
+</div>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">isopleths</code>, <code class="md-code-inline">style</code>: as for <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a>.</p>
+</li>
+<li><p><code class="md-code-inline">axiscolor</code>, <code class="md-code-inline">textcolor</code>, <code class="md-code-inline">isoplethcolors</code>: colours.</p>
+</li>
+<li><p><code class="md-code-inline">pxperunit = 4.0</code>: figure size per chart unit (<code class="md-code-inline">nomogramplot</code> only).</p>
+</li>
+</ul>
+<p>For vector output without a plotting dependency, use <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.nudge_clear-Tuple{AbstractString, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Real, Tuple{Symbol, Symbol}, NomogramStyle, Vector{NTuple{4, Float64}}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.nudge_clear</code> — <span class="md-docstring-sig">Tuple{AbstractString, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Real, Tuple{Symbol, Symbol}, NomogramStyle, Vector{NTuple{4, Float64}}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L517-L526" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">nudge_clear(text, anchor, dir, size, align, style, occupied) -&gt; (position, box)</code></pre>
+</div>
+<p>Place a label at <code class="md-code-inline">anchor</code>, or at the nearest offset along <code class="md-code-inline">±dir</code> that clears everything in <code class="md-code-inline">occupied</code>, and record the box it takes.</p>
+<p>This is for text that should not be dropped: an axis title, or an isopleth label that the caller asked for explicitly. Tick labels are handled differently: there are many of them, so a tick whose label does not fit loses the label and keeps its mark.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.point-Tuple{Scale, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.point</code> — <span class="md-docstring-sig">Tuple{Scale, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L209-L213" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">point(s::Scale, value) -&gt; Point</code></pre>
+</div>
+<p>Position of <code class="md-code-inline">value</code> on scale <code class="md-code-inline">s</code>, in chart coordinates.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.project-Tuple{Nomogram, AbstractMatrix}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.project</code> — <span class="md-docstring-sig">Tuple{Nomogram, AbstractMatrix}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L890-L933" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">project(nom::AbstractNomogram, H::AbstractMatrix; kwargs...)
+project(nom::AbstractNomogram, src =&gt; dst; kwargs...)</code></pre>
+</div>
+<p>Reshape a nomogram with a projective map. The reshaped chart gives exactly the same answers as the original. This works on any alignment chart: a <a href="../95-reference/#Nomograms.Nomogram"><code class="md-code-inline">Nomogram</code></a>, a <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a>, whose stages stay aligned with one another, or a <a href="../95-reference/#Nomograms.GridNomogram"><code class="md-code-inline">GridNomogram</code></a>, whose surface moves with its strands. It returns the same kind of chart it is given. A <a href="../95-reference/#Nomograms.ContourChart"><code class="md-code-inline">ContourChart</code></a> cannot be reshaped this way.</p>
+<p>A projective map sends straight lines to straight lines, so it preserves the collinearity that a nomogram depends on. Everything else about the picture can change. For example, you can pull open a region where the ticks are crowded together, and the chart still computes exactly what it did before.</p>
+<p>The second form builds the map from four point correspondences with <a href="../95-reference/#Nomograms.projective_transform-Tuple{Any, Any}"><code class="md-code-inline">projective_transform</code></a>, which is usually the easiest way to specify it: give the corners of a quadrilateral in the current chart and where they should end up.</p>
+<p>A projective map can move the bounding box anywhere, so the result is fitted to the canvas again. That fit is affine, and an affine map composed with a projective one is still projective, so the answers are still unchanged.</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">width</code>, <code class="md-code-inline">height</code>: canvas for the reshaped chart; defaults to the original&#39;s.</p>
+</li>
+<li><p><code class="md-code-inline">preserve_aspect</code>, <code class="md-code-inline">nsamples</code>: as for <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a>.</p>
+</li>
+<li><p><code class="md-code-inline">title</code>: defaults to the original&#39;s.</p>
+</li>
+</ul>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = additive_nomogram(
+           Variable(:a; domain = (0, 10)),
+           Variable(:b; domain = (0, 10)),
+           Variable(:s),
+       );
+
+julia&gt; skew = project(nom, [(0, 0), (70, 0), (70, 100), (0, 100)] =&gt;
+                           [(0, 0), (70, 20), (70, 80), (0, 100)]);
+
+julia&gt; round(evaluate(skew; a = 3, b = 4).s; digits = 10)
+7.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.projective_transform-Tuple{Any, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.projective_transform</code> — <span class="md-docstring-sig">Tuple{Any, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L819-L828" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">projective_transform(src, dst) -&gt; Matrix{Float64}</code></pre>
+</div>
+<p>The 3×3 homography taking the four points <code class="md-code-inline">src</code> to the four points <code class="md-code-inline">dst</code>, each given as a 4-tuple (or vector) of <code class="md-code-inline">(x, y)</code>.</p>
+<p>Four correspondences fix a projective map exactly, so this is a practical way to describe one: you say where four corners should land instead of writing out nine coefficients. No three of the four source points may be collinear, and likewise for the destination points.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.proportional_nomogram-NTuple{4, Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.proportional_nomogram</code> — <span class="md-docstring-sig">NTuple{4, Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L488-L524" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">proportional_nomogram(v1, v2, v3, v4; width = 70, height = 100, title = &quot;&quot;)</code></pre>
+</div>
+<p>A proportional nomogram for the four-variable relation</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">f1(v1) / f2(v2) = f3(v3) / f4(v4)</code></pre>
+</div>
+<p>such as the ideal gas law written <code class="md-code-inline">V/T = nR/p</code>, or the law of sines. It is two N charts sharing their diagonal. <code class="md-code-inline">v1</code> and <code class="md-code-inline">v3</code> share the left-hand line, with <code class="md-code-inline">v1</code>&#39;s labels outside and <code class="md-code-inline">v3</code>&#39;s inside; <code class="md-code-inline">v2</code> and <code class="md-code-inline">v4</code> share the right-hand one. Lay a line from <code class="md-code-inline">v1</code> to <code class="md-code-inline">v2</code>, note where it crosses the diagonal, then lay a second line through that point from <code class="md-code-inline">v3</code> to <code class="md-code-inline">v4</code>. Any three of the four values give the fourth. All four transforms must be strictly positive over their domains, and every variable must declare <code class="md-code-inline">domain</code>.</p>
+<p>The diagonal carries the common ratio and is drawn bare: it is a pivot line, as in any <a href="../95-reference/#Nomograms.CompoundNomogram"><code class="md-code-inline">CompoundNomogram</code></a>, which is what this returns. Following Doerfler (see the Bibliography), the scale factors keep <code class="md-code-inline">m1/m2 = m3/m4</code>, so the two N charts read the ratio at the same point of the diagonal.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = proportional_nomogram(
+           Variable(:V; domain = (1, 10)),
+           Variable(:T; domain = (250, 400)),
+           Variable(:nR; domain = (0.01, 0.2)),
+           Variable(:p; domain = (0.5, 5)),
+       );
+
+julia&gt; s = evaluate(nom; V = 5, T = 300, p = 2);
+
+julia&gt; round(s.nR; digits = 10)
+0.0333333333</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.ratio_nomogram</code> — <span class="md-docstring-sig">Tuple{Variable, Variable, Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/construct.jl#L248-L308" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">ratio_nomogram(v1, v2, v3; width = 70, height = 100, title = &quot;&quot;)</code></pre>
+</div>
+<p>An N chart (or Z chart, by its shape) for the ratio relation</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">f1(v1) / f2(v2) = f3(v3)</code></pre>
+</div>
+<p>It has two vertical scales joined by a diagonal, on which the result is read. <code class="md-code-inline">v3</code> may leave <code class="md-code-inline">domain = nothing</code>, in which case the range it can reach is derived from the other two. All three transforms must be strictly positive over their domains.</p>
+<p><strong>Compared with a parallel chart</strong></p>
+<p><a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a> can also chart ratios, by taking logarithms. The N-chart needs no logarithms: the scales stay <em>linear</em>, so precision is even along them and small ratios are not squeezed into a corner. Use it for everyday quantities, such as a rate as distance over time, a concentration or a unit conversion, when the reader will want to interpolate by eye.</p>
+<p><strong>The construction</strong></p>
+<p>Put <code class="md-code-inline">v1</code> on <code class="md-code-inline">x = 0</code> at <code class="md-code-inline">y1 = a1 * f1</code>, running up from the bottom-left corner, and <code class="md-code-inline">v2</code> on <code class="md-code-inline">x = W</code> at <code class="md-code-inline">y2 = H - a2 * f2</code>, running down from the top-right. Take the diagonal between those two corners, <code class="md-code-inline">D(s) = (sW, sH)</code>. A line through a point on each outer scale meets the diagonal where</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">s = a1*f1 / (a1*f1 + a2*f2)</code></pre>
+</div>
+<p>Writing <code class="md-code-inline">r = f1/f2</code> and <code class="md-code-inline">k = a1/a2</code> that is <code class="md-code-inline">s = k*r / (k*r + 1)</code>, a one-to-one map from the ratio onto the diagonal: reading <code class="md-code-inline">s</code> back gives <code class="md-code-inline">r = s / (k * (1 - s))</code>.</p>
+<p>The two scale factors do not have to be equal. The usual textbook derivation makes them equal so that the ratio comes out directly. Here the diagonal&#39;s own scale absorbs <code class="md-code-inline">k</code> instead, so each outer axis can be fitted to the canvas separately. Taking <code class="md-code-inline">a1 = H/max(f1)</code> and <code class="md-code-inline">a2 = H/max(f2)</code> anchors the diagonal at the two corners, which gives the layout its N shape.</p>
+<p>The diagonal is drawn only over the part its scale reaches, <code class="md-code-inline">f1/f2</code> between <code class="md-code-inline">min(f1)/max(f2)</code> and <code class="md-code-inline">max(f1)/min(f2)</code>, so it stops short of the corners, which correspond to the ratios 0 and infinity.</p>
+<p><strong>Example</strong></p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia-repl">julia&gt; nom = ratio_nomogram(
+           Variable(:distance; domain = (1, 10)),
+           Variable(:time; domain = (1, 10)),
+           Variable(:speed),
+       );
+
+julia&gt; nom[:speed].domain
+(0.1, 10.0)
+
+julia&gt; round(evaluate(nom; distance = 6, time = 3).speed; digits = 10)
+2.0</code></pre>
+</div>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.relation_residual-Tuple{Nomogram, NamedTuple}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.relation_residual</code> — <span class="md-docstring-sig">Tuple{Nomogram, NamedTuple}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L398-L406" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">relation_residual(nom::Nomogram, values::NamedTuple) -&gt; Float64</code></pre>
+</div>
+<p>The residual of the <em>algebraic</em> relation the nomogram was built from, independent of the geometry. Use it to check that a chart encodes the equation it is meant to: <code class="md-code-inline">relation_residual</code> should be zero for anything <a href="../95-reference/#Nomograms.evaluate-Tuple{CompoundNomogram}"><code class="md-code-inline">evaluate</code></a> returns.</p>
+<p>Returns <code class="md-code-inline">NaN</code> for nomograms built directly from scales, which carry no algebraic relation.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.resolved_tickstyle-Tuple{Variable}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.resolved_tickstyle</code> — <span class="md-docstring-sig">Tuple{Variable}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L175-L180" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">resolved_tickstyle(v::Variable) -&gt; Symbol</code></pre>
+</div>
+<p><code class="md-code-inline">:linear</code> or <code class="md-code-inline">:log</code>, taking the variable&#39;s own <code class="md-code-inline">tickstyle</code> when it is not <code class="md-code-inline">:auto</code> and otherwise asking the transform.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.save_svg-Tuple{AbstractString, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.save_svg</code> — <span class="md-docstring-sig">Tuple{AbstractString, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/svg.jl#L295-L300" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">save_svg(path, nom::AbstractNomogram; kwargs...) -&gt; path
+save_svg(path, d::NomogramDrawing; kwargs...) -&gt; path</code></pre>
+</div>
+<p>Write <a href="../95-reference/#Nomograms.svg-Tuple{NomogramDrawing}"><code class="md-code-inline">svg</code></a> output to a file. Keywords are those of <code class="md-code-inline">svg</code>.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.scale-Tuple{AbstractNomogram, Symbol}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.scale</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram, Symbol}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L264-L268" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">scale(nom::AbstractNomogram, name::Symbol) -&gt; Scale</code></pre>
+</div>
+<p>The scale carrying the given variable name.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.segment_hits_box-Tuple{Tuple{Float64, Float64}, Tuple{Float64, Float64}, NTuple{4, Float64}, Real}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.segment_hits_box</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}, Tuple{Float64, Float64}, NTuple{4, Float64}, Real}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L274-L282" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">segment_hits_box(a, b, box, pad) -&gt; Bool</code></pre>
+</div>
+<p>Whether the segment from <code class="md-code-inline">a</code> to <code class="md-code-inline">b</code> passes through <code class="md-code-inline">box</code>, grown by <code class="md-code-inline">pad</code>.</p>
+<p>This uses the Liang–Barsky method: clip the segment against each of the box&#39;s four slabs in turn, and see whether any of it is left. It keeps labels clear of alignment lines, since a line drawn through a number makes it as hard to read as an overlapping label.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.separability_defect-Tuple{Any, Any, Any}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.separability_defect</code> — <span class="md-docstring-sig">Tuple{Any, Any, Any}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/auto.jl#L179-L197" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">separability_defect(F, xdomain, ydomain; n = 9) -&gt; Float64</code></pre>
+</div>
+<p>Measure how far <code class="md-code-inline">z = F(x, y)</code> is from being drawable on three straight parallel scales. The result is zero (up to rounding) when transforms <code class="md-code-inline">f</code>, <code class="md-code-inline">g</code>, <code class="md-code-inline">h</code> exist with <code class="md-code-inline">h(z) = f(x) + g(y)</code>. Otherwise it is the largest violation found on an <code class="md-code-inline">n × n</code> grid.</p>
+<p>This is the classical test: such transforms exist exactly when <code class="md-code-inline">ln|F_x / F_y|</code> splits into a function of <code class="md-code-inline">x</code> plus a function of <code class="md-code-inline">y</code>. A mixed second derivative of that is noisy to compute numerically, so this function checks an equivalent identity that needs only first derivatives:</p>
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">L(x, y) − L(x, y₀) − L(x₀, y) + L(x₀, y₀) = 0</code></pre>
+</div>
+<p>Throws an error if <code class="md-code-inline">F</code> is not monotone in each variable, because then no straight scale can represent it, whatever the transforms.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.side_normals-Tuple{Tuple{Float64, Float64}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.side_normals</code> — <span class="md-docstring-sig">Tuple{Tuple{Float64, Float64}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L197-L201" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">side_normals(tangent) -&gt; (left, right)</code></pre>
+</div>
+<p>The two unit normals to a scale, named as <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>&#39;s <code class="md-code-inline">side</code> names them.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.solve_all_on</code> — <span class="md-docstring-sig">Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L49-L62" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">solve_all_on(s::Scale, p, q) -&gt; Vector{Float64}</code></pre>
+</div>
+<p>Every value on scale <code class="md-code-inline">s</code> whose point lies on the line through <code class="md-code-inline">p</code> and <code class="md-code-inline">q</code>, in increasing order. Empty when the line misses the scale.</p>
+<p>A straight line can cross a curved scale more than once, so there is not always a single solution. The usual shortcut, checking only the sign of the residual at the ends of the domain, would report <em>no</em> solution for an even number of crossings and pick one arbitrarily for an odd number. So this function searches the whole domain instead.</p>
+<p>For a straight scale the residual is monotone and this returns at most one value, so charts with only straight scales never have more than one answer.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.solve_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.solve_on</code> — <span class="md-docstring-sig">Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/solve.jl#L190-L197" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">solve_on(s::Scale, p, q) -&gt; Float64</code></pre>
+</div>
+<p>The single value on scale <code class="md-code-inline">s</code> whose point lies on the line through <code class="md-code-inline">p</code> and <code class="md-code-inline">q</code>.</p>
+<p>Throws an error if the line misses the scale, or if it crosses the scale more than once, which can only happen on a curved scale. Use <a href="../95-reference/#Nomograms.solve_all_on-Tuple{Scale, Tuple{Float64, Float64}, Tuple{Float64, Float64}}"><code class="md-code-inline">solve_all_on</code></a> to get every crossing.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.svg-Tuple{NomogramDrawing}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.svg</code> — <span class="md-docstring-sig">Tuple{NomogramDrawing}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/svg.jl#L94-L114" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">svg(nom::AbstractNomogram; kwargs...) -&gt; String
+svg(d::NomogramDrawing; kwargs...) -&gt; String</code></pre>
+</div>
+<p>Render a nomogram as a standalone SVG document, returned as a <code class="md-code-inline">String</code>.</p>
+<p>This backend needs nothing beyond the standard library, so vector output works without any other packages. To put the chart in a Makie <code class="md-code-inline">Figure</code>, load Makie as well (see <a href="../95-reference/#Nomograms.nomogramplot-Tuple"><code class="md-code-inline">nomogramplot</code></a>).</p>
+<p><strong>Keywords</strong></p>
+<ul class="md-list-tight">
+<li><p><code class="md-code-inline">isopleths</code>, <code class="md-code-inline">style</code>: forwarded to <a href="../95-reference/#Nomograms.drawing-Tuple{AbstractNomogram}"><code class="md-code-inline">drawing</code></a> when given a <code class="md-code-inline">Nomogram</code>.</p>
+</li>
+<li><p><code class="md-code-inline">pxperunit = 4.0</code>: pixels per chart unit; the only size control you normally need.</p>
+</li>
+<li><p><code class="md-code-inline">padding = 2.0</code>: margin in chart units, added outside the computed bounding box.</p>
+</li>
+<li><p><code class="md-code-inline">background = &quot;white&quot;</code>, <code class="md-code-inline">axiscolor</code>, <code class="md-code-inline">textcolor</code>, <code class="md-code-inline">isoplethcolors</code>: colours, as any string an SVG renderer accepts. Pass <code class="md-code-inline">background = &quot;none&quot;</code> for a transparent chart.</p>
+</li>
+<li><p><code class="md-code-inline">gridcolor</code>: the colour of a grid&#39;s strands and their labels. By default they are drawn like the axes, since they are read like them; pass a lighter colour to make a dense grid less prominent.</p>
+</li>
+<li><p><code class="md-code-inline">font</code>: CSS font stack for all text.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.thin_ticks-Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.thin_ticks</code> — <span class="md-docstring-sig">Tuple{Scale, AbstractVector{&lt;:Real}, AbstractVector{&lt;:Real}, NomogramStyle}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/drawing.jl#L332-L344" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">thin_ticks(s::Scale, majors, minors, style) -&gt; Vector{TickMark}</code></pre>
+</div>
+<p>Place as many of the candidate ticks as will fit, rejecting any that would land within <code class="md-code-inline">min_major_spacing</code> / <code class="md-code-inline">min_minor_spacing</code> of one already placed.</p>
+<p>Thinning uses distance <em>on the page</em>, not distance in value. This keeps a reciprocal or logarithmic axis readable: the tick values stay round numbers, and where the axis is compressed some of them are dropped.</p>
+<p>This function compares a scale only with itself. Collisions with labels from <em>other</em> scales are handled later, in one pass over the whole chart.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.tickstyle-Tuple{ScaleTransform}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.tickstyle</code> — <span class="md-docstring-sig">Tuple{ScaleTransform}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L40-L45" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">tickstyle(t::ScaleTransform) -&gt; Symbol</code></pre>
+</div>
+<p>How tick values should be chosen for a variable carrying this transform: <code class="md-code-inline">:linear</code> picks evenly spaced &quot;nice&quot; numbers, <code class="md-code-inline">:log</code> picks decades subdivided by mantissa.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.transform">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.transform</code></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/transforms.jl#L18-L22" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">transform(t::ScaleTransform, x)</code></pre>
+</div>
+<p>Map a value in the variable&#39;s own units onto the functional axis.</p>
+</div>
+</div>
+<div class="md-docstring" id="Nomograms.variablenames-Tuple{AbstractNomogram}">
+<div class="md-docstring-header">
+<h4 class="md-docstring-binding"><code>Nomograms.variablenames</code> — <span class="md-docstring-sig">Tuple{AbstractNomogram}</span></h4>
+<a class="md-docstring-source" href="https://github.com/mthelm85/Nomograms.jl/blob/7d963471f45769a8af51267e299d837ccd437585/src/types.jl#L281-L283" title="View source">source</a>
+</div>
+<div class="md-docstring-content">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">variablenames(nom::AbstractNomogram) -&gt; Vector{Symbol}</code></pre>
+</div>
+</div>
+</div>
+      </article>
+      <footer class="md-footer">
+<p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
+      </footer>
+    </main>
+    <aside class="md-toc">
+      <div class="md-toc-inner">
+        <p class="md-toc-title">On this page</p>
+          <a class="md-toc-link md-toc-h2" href="#Contents">Contents</a>
+          <a class="md-toc-link md-toc-h2" href="#Index">Index</a>
+      </div>
+    </aside>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia-repl.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="../siteinfo.js"></script>
+  <script src="../../versions.js"></script>
+  <script src="../assets/materialdocs.js?v=ee0eb25c"></script>
+</body>
+</html>

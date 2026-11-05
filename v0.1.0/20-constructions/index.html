@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Building charts — Nomograms.jl</title>
+  <link rel="stylesheet" href="../assets/materialdocs.css?v=5fb2d4c0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <meta name="title" content="Building charts — Nomograms.jl">
+  <meta property="og:title" content="Building charts — Nomograms.jl">
+  <meta property="twitter:title" content="Building charts — Nomograms.jl">
+  <meta name="description" content="Documentation for Nomograms.jl.">
+  <meta property="og:description" content="Documentation for Nomograms.jl.">
+  <meta property="twitter:description" content="Documentation for Nomograms.jl.">
+  <meta property="og:url" content="https://mthelm85.github.io/Nomograms.jl/20-constructions/">
+  <meta property="twitter:url" content="https://mthelm85.github.io/Nomograms.jl/20-constructions/">
+  <link rel="canonical" href="https://mthelm85.github.io/Nomograms.jl/20-constructions/">
+  <script>
+    (function(){
+      document.documentElement.classList.add('no-transition');
+      var t=localStorage.getItem('md-theme');if(t)document.documentElement.setAttribute('data-theme',t);
+      window.addEventListener('load',function(){setTimeout(function(){document.documentElement.classList.remove('no-transition');},50);});
+    })()
+  </script>
+</head>
+<body data-warn-outdated>
+  <header class="md-navbar">
+    <button id="md-hamburger" class="md-icon-btn md-hamburger" aria-label="Toggle navigation" aria-expanded="false"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <span class="md-navbar-title">Nomograms.jl</span>
+    <span class="md-navbar-spacer"></span>
+    <button id="md-search-btn" class="md-search-bar" aria-label="Search documentation" aria-expanded="false">
+      <svg class="md-icon md-search-bar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span class="md-search-bar-label">Search docs</span>
+      <kbd class="md-search-bar-kbd">Ctrl K</kbd>
+    </button>
+    <div id="md-version" class="md-version" hidden>
+      <button id="md-version-btn" class="md-version-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select documentation version">
+        <span id="md-version-current" class="md-version-current"></span>
+        <svg class="md-icon md-version-caret" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+      <ul id="md-version-menu" class="md-version-menu" role="listbox" hidden></ul>
+    </div>
+    <a class="md-icon-btn md-repo-link" href="https://github.com/mthelm85/Nomograms.jl" title="View the repository on GitHub" aria-label="View the repository on GitHub" rel="noopener" target="_blank"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0012 .3z"/></svg><span class="md-repo-label">GitHub</span></a>
+    <button id="md-theme-toggle" class="md-icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode"><svg class="md-icon md-icon-light" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg><svg class="md-icon md-icon-dark" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+  </header>
+  <div class="md-layout">
+    <nav class="md-sidebar">
+      <a href="../">Nomograms.jl</a>
+      <a href="../10-from-a-formula/">From a formula</a>
+      <a href="../20-constructions/" class="md-nav-active">Building charts</a>
+      <a href="../30-more-variables/">Four or more variables</a>
+      <a href="../35-contour-charts/">Contour charts</a>
+      <a href="../40-solving/">Solving</a>
+      <a href="../50-drawing/">Drawing</a>
+      <a href="../55-gallery/">Gallery</a>
+      <a href="../60-how-it-works/">How it works</a>
+      <a href="../95-reference/">API</a>
+      <a href="../96-references/">Bibliography</a>
+    </nav>
+    <main class="md-content">
+      <article class="md-article">
+      <div class="md-article-actions"><a class="md-icon-btn md-edit-link" href="https://github.com/mthelm85/Nomograms.jl/blob/main/docs/src/20-constructions.md#" title="Edit source on GitHub" aria-label="Edit source on GitHub"><svg class="md-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a></div>
+<h1 id="Building-charts" class="md-heading">Building charts<a href="#Building-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h1>
+<p>A nomogram works because the points you pick on its scales lie on one straight line exactly when their values satisfy the relation. In this package, every chart is a set of parametric curves <code class="md-code-inline">value -&gt; (x, y)</code> (<a href="../95-reference/#Nomograms.Scale"><code class="md-code-inline">Scale</code></a>). Each construction on this page is a way of choosing those curves so that collinearity matches a given relation. <a href="../60-how-it-works/">How it works</a> follows a chart in detail from construction to picture.</p>
+<h2 id="Parallel-scale-nomograms" class="md-heading">Parallel-scale nomograms<a href="#Parallel-scale-nomograms" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>A three-variable relation fits on three parallel scales exactly when it can be separated as</p>
+<div class="md-math md-math-display">
+\[f_1(u) + f_2(v) = f_3(w)\]
+</div>
+<p>Each <code class="md-code-inline">fᵢ</code> is a <a href="../95-reference/#Nomograms.ScaleTransform"><code class="md-code-inline">ScaleTransform</code></a>: <a href="../95-reference/#Nomograms.LinearScale"><code class="md-code-inline">LinearScale</code></a>, <a href="../95-reference/#Nomograms.LogScale"><code class="md-code-inline">LogScale</code></a>, <a href="../95-reference/#Nomograms.ReciprocalScale"><code class="md-code-inline">ReciprocalScale</code></a>, <a href="../95-reference/#Nomograms.PowerScale"><code class="md-code-inline">PowerScale</code></a>, <a href="../95-reference/#Nomograms.ComposedScale"><code class="md-code-inline">ComposedScale</code></a>, or <a href="../95-reference/#Nomograms.FunctionScale"><code class="md-code-inline">FunctionScale</code></a> for anything else. A transform carries its own inverse, so the result axis can be computed exactly instead of found by search. <a href="../95-reference/#Nomograms.additive_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">additive_nomogram</code></a> builds the chart; its docstring describes the geometry.</p>
+<p>You do not choose where the middle axis goes. It falls between the outer two, nearer the one whose transform spans more. When one range is much wider than the other, the middle axis would sit almost on top of its neighbour, and its labels would look like the neighbour&#39;s. To prevent this, the narrower axis is shortened and centred until the middle axis is at least a fifth of the way across. The middle axis moves to match, so readings do not change. Each axis&#39;s length per unit of its transform is its <em>scale modulus</em>, or scaling factor. Use <code class="md-code-inline">max_modulus_ratio</code> to cap how far the outer two may differ, trading the narrow axis&#39;s length against that spacing, or set it to <code class="md-code-inline">Inf</code> to keep full-height axes whatever their ranges.</p>
+<p>Products become sums under a logarithm, and <a href="../95-reference/#Nomograms.multiplicative_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">multiplicative_nomogram</code></a> takes the logarithms for you:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">using Nomograms
+
+cost = multiplicative_nomogram(
+    Variable(:rate; domain = (1, 100), label = &quot;rate (\$/h)&quot;),
+    Variable(:hours; domain = (1, 100), label = &quot;hours&quot;),
+    Variable(:cost; label = &quot;cost (\$)&quot;);
+    title = &quot;Labour cost&quot;,
+)
+drawing(cost; isopleths = [isopleth(cost; rate = 7.5, hours = 12, label = &quot;\$90&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="04c1ee71.svg" alt="Example block output">
+</div>
+</div>
+<h2 id="N-or-Z-charts" class="md-heading">N or Z charts<a href="#N-or-Z-charts" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><a href="../95-reference/#Nomograms.ratio_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">ratio_nomogram</code></a> builds an N-chart (also called a Z-chart) for <code class="md-code-inline">f₁(u) / f₂(v) = f₃(w)</code>. It has two vertical scales joined by a diagonal, and you read the result on the diagonal. Doerfler&#39;s &quot;The Lost Art of Nomography&quot; derives the classic construction (see the <a href="../96-references/">Bibliography</a>).</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">speed = ratio_nomogram(
+    Variable(:distance; domain = (1, 10), label = &quot;distance (km)&quot;),
+    Variable(:time; domain = (1, 10), label = &quot;time (h)&quot;),
+    Variable(:speed; label = &quot;speed (km/h)&quot;);
+    title = &quot;Speed&quot;,
+)
+drawing(speed; isopleths = [isopleth(speed; distance = 6, time = 3, label = &quot;2 km/h&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="1a06d2f8.svg" alt="Example block output">
+</div>
+</div>
+<p><code class="md-code-inline">multiplicative_nomogram</code> can also chart ratios, using logarithms. The advantage of the N-chart is that it needs no logarithms: the outer scales stay <em>linear</em>, so precision is even along them and you can interpolate between ticks by eye.</p>
+<p>Two details of this construction affect what you see. The textbook derivation gives both outer scales the same scale factor so that the ratio comes out directly. Here the diagonal&#39;s own scale absorbs the ratio of the two factors instead, so each outer axis is fitted to the canvas separately. Also, the diagonal is a <em>projective</em> scale, <code class="md-code-inline">s = k·r / (k·r + 1)</code>, so a ratio spanning several decades is spread across it roughly logarithmically. In that case the result axis uses decade-based tick values; linear ticks would leave nothing between 0.1 and 2, which covers most of the diagonal. To override this, pass <code class="md-code-inline">tickstyle = :linear</code> on the <a href="../95-reference/#Nomograms.Variable"><code class="md-code-inline">Variable</code></a>.</p>
+<h2 id="Concurrent-scale-nomograms" class="md-heading">Concurrent-scale nomograms<a href="#Concurrent-scale-nomograms" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><a href="../95-reference/#Nomograms.concurrent_nomogram-Tuple{Variable, Variable, Variable}"><code class="md-code-inline">concurrent_nomogram</code></a> charts <code class="md-code-inline">1/f₁(u) + 1/f₂(v) = 1/f₃(w)</code>: resistors in parallel, capacitors in series, the thin-lens equation. Its three scales start from one point, the zero of every scale, with the result running up the middle:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">parallel = concurrent_nomogram(
+    Variable(:R1; domain = (0, 1000), label = &quot;R₁ (Ω)&quot;),
+    Variable(:R2; domain = (0, 1000), label = &quot;R₂ (Ω)&quot;),
+    Variable(:R; label = &quot;R (Ω)&quot;);
+    title = &quot;Resistors in parallel&quot;,
+)
+drawing(parallel; isopleths = [isopleth(parallel; R1 = 400, R2 = 600, label = &quot;240 Ω&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="8a1f6728.svg" alt="Example block output">
+</div>
+</div>
+<p>The same relation also fits on parallel scales, with <a href="../95-reference/#Nomograms.ReciprocalScale"><code class="md-code-inline">ReciprocalScale</code></a> transforms, as on the home page. The concurrent layout keeps every scale linear, so ticks are evenly spaced and zero is on the chart. Doerfler sets the outer scales at an angle either side of the middle one; here the chart is stretched to fill its canvas, which cannot change what it computes, so <code class="md-code-inline">width</code> and <code class="md-code-inline">height</code> set the spread.</p>
+<h2 id="Other-relations:-the-determinant-method" class="md-heading">Other relations: the determinant method<a href="#Other-relations:-the-determinant-method" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>The parallel and N-chart constructions are particular solutions of the collinearity condition. <a href="../95-reference/#Nomograms.determinant_nomogram-Tuple{Vararg{Pair}}"><code class="md-code-inline">determinant_nomogram</code></a> accepts any other solution you can write down. Give each variable a curve, and the package measures their combined bounding box and maps it onto the canvas. This is the determinant method of the nomography textbooks; Doerfler&#39;s overview is a good worked introduction to it. A curve <code class="md-code-inline">value -&gt; (x, y)</code> is one row <code class="md-code-inline">(x, y, 1)</code> of the determinant in what they call <em>standard nomographic form</em>, and the chart is drawn straight from those rows.</p>
+<p>Once the first two scales are fixed, deriving a curve is mechanical. Put <code class="md-code-inline">p</code> on <code class="md-code-inline">x = 0</code> at height <code class="md-code-inline">p</code> and <code class="md-code-inline">q</code> on <code class="md-code-inline">x = 1</code> at height <code class="md-code-inline">q</code>. A line between them crosses <code class="md-code-inline">x = x₃</code> at <code class="md-code-inline">p + x₃(q - p)</code>, so it meets a third scale exactly when <code class="md-code-inline">(1 - x₃)·p + x₃·q = y₃</code>. To make that equation say <code class="md-code-inline">z·p + q + z² = 0</code>, match coefficients:</p>
+<div class="md-math md-math-display">
+\[\frac{1 - x_3}{z} = \frac{x_3}{1} = \frac{-y_3}{z^2}\]
+</div>
+<p>This gives <code class="md-code-inline">x₃ = 1/(1 + z)</code> and <code class="md-code-inline">y₃ = -z²/(1 + z)</code>, a curved scale for the roots of a quadratic.</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">quad = determinant_nomogram(
+    Variable(:p; domain = (-6, 0)) =&gt; p -&gt; (0.0, p),
+    Variable(:q; domain = (0, 6)) =&gt; q -&gt; (1.0, q),
+    Variable(:z; domain = (0.2, 5), label = &quot;root z&quot;) =&gt; z -&gt; (1 / (1 + z), -z^2 / (1 + z));
+    relation = (p, q, z) -&gt; z^2 + p * z + q,
+    title = &quot;z² + pz + q = 0&quot;,
+)
+roots = evaluate_all(quad; p = -3, q = 2)
+drawing(quad; isopleths = [isopleth(quad, roots[1]; label = &quot;z² − 3z + 2 = 0&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="aefd30cc.svg" alt="Example block output">
+</div>
+</div>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">[sol.z for sol in roots]</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">2-element Vector{Float64}:
+ 1.0000000000000007
+ 1.9999999999999998</code></pre>
+</div>
+<p>There are two answers because a quadratic has two roots. On the chart, one alignment line meets the curved scale twice. This chart for the quadratic is a classic one; Doerfler draws it after Adams (1964) and Otto (1963).</p>
+<p>An affine map keeps collinear points collinear, so fitting the curves to the canvas cannot change what the chart computes. This includes the default fit, which scales the two axes by different factors to fill the canvas. Pass <code class="md-code-inline">preserve_aspect = true</code> to scale both axes by the same factor and centre the result.</p>
+<p>Getting the determinant form right is the hardest part of designing a chart by hand, and a chart with a small error in it still draws normally. <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> solves the chart over a grid of inputs and checks each answer against the relation:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">max_relation_residual(quad)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">5.329070518200751e-15</code></pre>
+</div>
+<p>It returns <code class="md-code-inline">NaN</code> (rather than zero) when there is no relation to check, or when no input in the grid produced a solution.</p>
+<h2 id="Reshaping-a-chart" class="md-heading">Reshaping a chart<a href="#Reshaping-a-chart" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p><em>Projective</em> maps also keep collinear points collinear, and they are a much larger family than affine maps. They can turn parallel scales into converging ones and change the spacing along an axis. Nomographers have long reshaped charts this way; Doerfler&#39;s overview ends with these transformations.</p>
+<p><a href="../95-reference/#Nomograms.project-Tuple{Nomogram, AbstractMatrix}"><code class="md-code-inline">project</code></a> applies a projective map to a chart, and the reshaped chart gives the same answers:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">parallel = additive_nomogram(
+    Variable(:R1, ReciprocalScale(); domain = (1, 10), label = &quot;R₁ (Ω)&quot;),
+    Variable(:R2, ReciprocalScale(); domain = (1, 10), label = &quot;R₂ (Ω)&quot;),
+    Variable(:R, ReciprocalScale(); label = &quot;R (Ω)&quot;),
+)
+corners = [(0, 0), (70, 0), (70, 100), (0, 100)]
+skew = project(parallel, corners =&gt; [(14, 0), (56, 0), (70, 100), (0, 100)])
+drawing(skew; isopleths = [isopleth(skew; R1 = 4, R2 = 6, label = &quot;2.4&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMzYuMDMiIGhlaWdodD0iNDQ1Ljg4IiB2aWV3Qm94PSIwIDAgMzM2LjAzIDQ0NS44OCI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0id2hpdGUiLz4KICA8ZyBmb250LWZhbWlseT0iSGVsdmV0aWNhLCBBcmlhbCwgc3lzdGVtLXVpLCBzYW5zLXNlcmlmIiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPGcgaWQ9InNjYWxlLVIxIj4KICAgICAgPHBvbHlsaW5lIHBvaW50cz0iMjguMDEsMzEuNjAgODQuMDEsNDMxLjYwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMjguMDEiIHkxPSIzMS42MCIgeDI9IjIyLjA3IiB5Mj0iMzIuNDMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDx0ZXh0IHg9IjE4LjkwIiB5PSIzMi44OCIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9ImVuZCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZpbGw9IiMxYTFhMWEiPjE8L3RleHQ+CiAgICAgIDxsaW5lIHgxPSI0My40MCIgeTE9IjE0MS40OSIgeDI9IjQwLjIzIiB5Mj0iMTQxLjkzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iNTguNDUiIHkxPSIyNDguOTkiIHgyPSI1NS4yOCIgeTI9IjI0OS40MyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjY1Ljg1IiB5MT0iMzAxLjg3IiB4Mj0iNTkuOTEiIHkyPSIzMDIuNzAiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDx0ZXh0IHg9IjU2Ljc0IiB5PSIzMDMuMTUiIGZvbnQtc2l6ZT0iMTAuMDAiIHRleHQtYW5jaG9yPSJlbmQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMWExYTFhIj4yPC90ZXh0PgogICAgICA8bGluZSB4MT0iNzAuMjUiIHkxPSIzMzMuMzIiIHgyPSI2Ny4wOCIgeTI9IjMzMy43NyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjczLjE3IiB5MT0iMzU0LjE4IiB4Mj0iNzAuMDAiIHkyPSIzNTQuNjIiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSI3NS4yNSIgeTE9IjM2OS4wMiIgeDI9IjcyLjA4IiB5Mj0iMzY5LjQ3IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iNzYuODEiIHkxPSIzODAuMTMiIHgyPSI3My42NCIgeTI9IjM4MC41NyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9Ijc4LjAxIiB5MT0iMzg4Ljc0IiB4Mj0iNzIuMDciIHkyPSIzODkuNTciIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDx0ZXh0IHg9IjY4LjkwIiB5PSIzOTAuMDIiIGZvbnQtc2l6ZT0iMTAuMDAiIHRleHQtYW5jaG9yPSJlbmQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMWExYTFhIj40PC90ZXh0PgogICAgICA8bGluZSB4MT0iNzguOTgiIHkxPSIzOTUuNjMiIHgyPSI3NS44MSIgeTI9IjM5Ni4wNyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9Ijc5Ljc2IiB5MT0iNDAxLjI1IiB4Mj0iNzYuNTkiIHkyPSI0MDEuNjkiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSI4MC40MiIgeTE9IjQwNS45MyIgeDI9Ijc3LjI1IiB5Mj0iNDA2LjM4IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iODEuNDUiIHkxPSI0MTMuMjgiIHgyPSI3NS41MSIgeTI9IjQxNC4xMSIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPHRleHQgeD0iNzIuMzQiIHk9IjQxNC41NSIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9ImVuZCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZpbGw9IiMxYTFhMWEiPjY8L3RleHQ+CiAgICAgIDxsaW5lIHgxPSI4Mi4yMiIgeTE9IjQxOC43OCIgeDI9Ijc5LjA1IiB5Mj0iNDE5LjIzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iODIuODIiIHkxPSI0MjMuMDYiIHgyPSI3OS42NSIgeTI9IjQyMy41MCIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9Ijg0LjAxIiB5MT0iNDMxLjYwIiB4Mj0iNzguMDciIHkyPSI0MzIuNDMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDx0ZXh0IHg9Ijc0LjkwIiB5PSI0MzIuODgiIGZvbnQtc2l6ZT0iMTAuMDAiIHRleHQtYW5jaG9yPSJlbmQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMWExYTFhIj4xMDwvdGV4dD4KICAgICAgPHRleHQgeD0iMjYuMzUiIHk9IjE5LjcyIiBmb250LXNpemU9IjExLjYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iYXV0byIgZmlsbD0iIzFhMWExYSI+UuKCgSAozqkpPC90ZXh0PgogICAgPC9nPgogICAgPGcgaWQ9InNjYWxlLVIyIj4KICAgICAgPHBvbHlsaW5lIHBvaW50cz0iMzA4LjAxLDMxLjYwIDI1Mi4wMSw0MzEuNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIzMDguMDEiIHkxPSIzMS42MCIgeDI9IjMxMy45NSIgeTI9IjMyLjQzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8dGV4dCB4PSIzMTcuMTIiIHk9IjMyLjg4IiBmb250LXNpemU9IjEwLjAwIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMWExYTFhIj4xPC90ZXh0PgogICAgICA8bGluZSB4MT0iMjkyLjYzIiB5MT0iMTQxLjQ5IiB4Mj0iMjk1LjgwIiB5Mj0iMTQxLjkzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMjc3LjU4IiB5MT0iMjQ4Ljk5IiB4Mj0iMjgwLjc1IiB5Mj0iMjQ5LjQzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMjcwLjE3IiB5MT0iMzAxLjg3IiB4Mj0iMjc2LjEyIiB5Mj0iMzAyLjcwIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8dGV4dCB4PSIyNzkuMjkiIHk9IjMwMy4xNSIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9InN0YXJ0IiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzFhMWExYSI+MjwvdGV4dD4KICAgICAgPGxpbmUgeDE9IjI2NS43NyIgeTE9IjMzMy4zMiIgeDI9IjI2OC45NCIgeTI9IjMzMy43NyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjI2Mi44NSIgeTE9IjM1NC4xOCIgeDI9IjI2Ni4wMiIgeTI9IjM1NC42MiIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjI2MC43NyIgeTE9IjM2OS4wMiIgeDI9IjI2My45NCIgeTI9IjM2OS40NyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjI1OS4yMiIgeTE9IjM4MC4xMyIgeDI9IjI2Mi4zOSIgeTI9IjM4MC41NyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjI1OC4wMSIgeTE9IjM4OC43NCIgeDI9IjI2My45NSIgeTI9IjM4OS41NyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPHRleHQgeD0iMjY3LjEyIiB5PSIzOTAuMDIiIGZvbnQtc2l6ZT0iMTAuMDAiIHRleHQtYW5jaG9yPSJzdGFydCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZpbGw9IiMxYTFhMWEiPjQ8L3RleHQ+CiAgICAgIDxsaW5lIHgxPSIyNTcuMDUiIHkxPSIzOTUuNjMiIHgyPSIyNjAuMjIiIHkyPSIzOTYuMDciIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIyNTYuMjYiIHkxPSI0MDEuMjUiIHgyPSIyNTkuNDMiIHkyPSI0MDEuNjkiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIyNTUuNjEiIHkxPSI0MDUuOTMiIHgyPSIyNTguNzgiIHkyPSI0MDYuMzgiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIyNTQuNTgiIHkxPSI0MTMuMjgiIHgyPSIyNjAuNTIiIHkyPSI0MTQuMTEiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDx0ZXh0IHg9IjI2My42OSIgeT0iNDE0LjU1IiBmb250LXNpemU9IjEwLjAwIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMWExYTFhIj42PC90ZXh0PgogICAgICA8bGluZSB4MT0iMjUzLjgxIiB5MT0iNDE4Ljc4IiB4Mj0iMjU2Ljk4IiB5Mj0iNDE5LjIzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMjUzLjIxIiB5MT0iNDIzLjA2IiB4Mj0iMjU2LjM4IiB5Mj0iNDIzLjUwIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMjUyLjAxIiB5MT0iNDMxLjYwIiB4Mj0iMjU3Ljk1IiB5Mj0iNDMyLjQzIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8dGV4dCB4PSIyNjEuMTIiIHk9IjQzMi44OCIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9InN0YXJ0IiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzFhMWExYSI+MTA8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjMwOS42OCIgeT0iMTkuNzIiIGZvbnQtc2l6ZT0iMTEuNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJhdXRvIiBmaWxsPSIjMWExYTFhIj5S4oKCICjOqSk8L3RleHQ+CiAgICA8L2c+CiAgICA8ZyBpZD0ic2NhbGUtUiI+CiAgICAgIDxwb2x5bGluZSBwb2ludHM9IjE2OC4wMSwzMS42MCAxNjguMDEsNDMxLjYwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iMzEuNjAiIHgyPSIxNzQuMDEiIHkyPSIzMS42MCIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPHRleHQgeD0iMTc3LjIxIiB5PSIzMS42MCIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9InN0YXJ0IiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzFhMWExYSI+MC41PC90ZXh0PgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iMTQxLjQ5IiB4Mj0iMTcxLjIxIiB5Mj0iMTQxLjQ5IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iMjQ4Ljk5IiB4Mj0iMTcxLjIxIiB5Mj0iMjQ4Ljk5IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iMzAxLjg3IiB4Mj0iMTc0LjAxIiB5Mj0iMzAxLjg3IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8dGV4dCB4PSIxNzcuMjEiIHk9IjMwMS44NyIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9InN0YXJ0IiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzFhMWExYSI+MTwvdGV4dD4KICAgICAgPGxpbmUgeDE9IjE2OC4wMSIgeTE9IjMzMy4zMiIgeDI9IjE3MS4yMSIgeTI9IjMzMy4zMiIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjE2OC4wMSIgeTE9IjM1NC4xOCIgeDI9IjE3MS4yMSIgeTI9IjM1NC4xOCIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjE2OC4wMSIgeTE9IjM2OS4wMiIgeDI9IjE3MS4yMSIgeTI9IjM2OS4wMiIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjE2OC4wMSIgeTE9IjM4MC4xMyIgeDI9IjE3MS4yMSIgeTI9IjM4MC4xMyIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPGxpbmUgeDE9IjE2OC4wMSIgeTE9IjM4OC43NCIgeDI9IjE3NC4wMSIgeTI9IjM4OC43NCIgc3Ryb2tlPSIjMzMzMzMzIiBzdHJva2Utd2lkdGg9IjEuMDAiLz4KICAgICAgPHRleHQgeD0iMTc3LjIxIiB5PSIzODguNzQiIGZvbnQtc2l6ZT0iMTAuMDAiIHRleHQtYW5jaG9yPSJzdGFydCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZpbGw9IiMxYTFhMWEiPjI8L3RleHQ+CiAgICAgIDxsaW5lIHgxPSIxNjguMDEiIHkxPSIzOTUuNjMiIHgyPSIxNzEuMjEiIHkyPSIzOTUuNjMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIxNjguMDEiIHkxPSI0MDEuMjUiIHgyPSIxNzEuMjEiIHkyPSI0MDEuMjUiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIxNjguMDEiIHkxPSI0MDUuOTMiIHgyPSIxNzEuMjEiIHkyPSI0MDUuOTMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDxsaW5lIHgxPSIxNjguMDEiIHkxPSI0MTMuMjgiIHgyPSIxNzQuMDEiIHkyPSI0MTMuMjgiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjAwIi8+CiAgICAgIDx0ZXh0IHg9IjE3Ny4yMSIgeT0iNDEzLjI4IiBmb250LXNpemU9IjEwLjAwIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMWExYTFhIj4zPC90ZXh0PgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iNDE4Ljc4IiB4Mj0iMTcxLjIxIiB5Mj0iNDE4Ljc4IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iNDIzLjA2IiB4Mj0iMTcxLjIxIiB5Mj0iNDIzLjA2IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8bGluZSB4MT0iMTY4LjAxIiB5MT0iNDMxLjYwIiB4Mj0iMTc0LjAxIiB5Mj0iNDMxLjYwIiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS4wMCIvPgogICAgICA8dGV4dCB4PSIxNzcuMjEiIHk9IjQzMS42MCIgZm9udC1zaXplPSIxMC4wMCIgdGV4dC1hbmNob3I9InN0YXJ0IiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzFhMWExYSI+NTwvdGV4dD4KICAgICAgPHRleHQgeD0iMTY4LjAxIiB5PSIxOS42MCIgZm9udC1zaXplPSIxMS42MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImF1dG8iIGZpbGw9IiMxYTFhMWEiPlIgKM6pKTwvdGV4dD4KICAgIDwvZz4KICAgIDxnIGlkPSJpc29wbGV0aC0xIj4KICAgICAgPGxpbmUgeDE9IjU4LjIwIiB5MT0iMzg1Ljk5IiB4Mj0iMjc0LjM5IiB5Mj0iNDE2LjAzIiBzdHJva2U9IiMyYTc4ZDYiIHN0cm9rZS13aWR0aD0iMS42MCIvPgogICAgICA8Y2lyY2xlIGN4PSI3OC4wMSIgY3k9IjM4OC43NCIgcj0iMy4yMCIgZmlsbD0iIzJhNzhkNiIvPgogICAgICA8Y2lyY2xlIGN4PSIyNTQuNTgiIGN5PSI0MTMuMjgiIHI9IjMuMjAiIGZpbGw9IiMyYTc4ZDYiLz4KICAgICAgPGNpcmNsZSBjeD0iMTY4LjAxIiBjeT0iNDAxLjI1IiByPSIzLjIwIiBmaWxsPSIjMmE3OGQ2Ii8+CiAgICAgIDx0ZXh0IHg9IjI3Ny41OSIgeT0iNDE2LjAzIiBmb250LXNpemU9IjEwLjAwIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiBmaWxsPSIjMmE3OGQ2Ij4yLjQ8L3RleHQ+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4K" alt="Example block output">
+</div>
+</div>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">(evaluate(parallel; R1 = 4, R2 = 6).R, evaluate(skew; R1 = 4, R2 = 6).R)</code></pre>
+</div>
+<pre class="md-output md-output-text"><code class="nohighlight ansi">(2.4, 2.4)</code></pre>
+</div>
+<p><a href="../95-reference/#Nomograms.projective_transform-Tuple{Any, Any}"><code class="md-code-inline">projective_transform</code></a> builds the map from four point correspondences. You name the corners of a quadrilateral and where they should end up, instead of writing out nine coefficients. A map whose bottom row is <code class="md-code-inline">[0 0 1]</code> is affine (translation, scaling and shear); any other map adds true perspective.</p>
+<p>A projective map can move the bounding box anywhere, so the result is fitted to the canvas again. That fit is affine, and an affine map composed with a projective one is still projective, so the answers are still unchanged.</p>
+<p>This means you can reshape a chart freely while designing it. You can pull open a region where the ticks are crowded without re-deriving anything, and <a href="../95-reference/#Nomograms.max_relation_residual-Tuple{CompoundNomogram}"><code class="md-code-inline">max_relation_residual</code></a> will confirm that the reshaped chart is still correct.</p>
+<p>Watch out for the map&#39;s vanishing line, where its denominator is zero. If that line crosses a scale&#39;s domain, points there are sent to infinity. <code class="md-code-inline">project</code> then throws an error naming the affected scale, instead of returning a chart full of <code class="md-code-inline">Inf</code>.</p>
+<h2 id="Fans" class="md-heading">Fans<a href="#Fans" class="md-heading-anchor" aria-label="Link to this section">#</a></h2>
+<p>Parallel lines meet at a point at infinity, and a projective map can bring that point onto the page. Every axis then runs through it, and the chart becomes a fan of spokes. <a href="../95-reference/#Nomograms.fan-Tuple{AbstractNomogram}"><code class="md-code-inline">fan</code></a> does this:</p>
+<div class="md-multi-output">
+<div class="md-code-block">
+<button class="md-copy-btn" title="Copy to clipboard" aria-label="Copy code"><span class="md-copy-icon">⧉</span><span class="md-copy-feedback">Copied!</span></button>
+<pre><code class="language-julia">title = &quot;Resistors in parallel&quot;
+fanned = fan(additive_nomogram(
+    Variable(:R1, ReciprocalScale(); domain = (1, 10), label = &quot;R₁ (Ω)&quot;),
+    Variable(:R2, ReciprocalScale(); domain = (1, 10), label = &quot;R₂ (Ω)&quot;),
+    Variable(:R, ReciprocalScale(); label = &quot;R (Ω)&quot;);
+    title,
+))
+drawing(fanned; isopleths = [isopleth(fanned; R1 = 4, R2 = 6, label = &quot;4 ∥ 6 = 2.4&quot;)])</code></pre>
+</div>
+<div class="md-output md-output-img">
+<img src="03e70ceb.svg" alt="Example block output">
+</div>
+</div>
+<p>The fanned chart gives the same answers as the original, and <code class="md-code-inline">fan</code> works on compound charts and grids too. Because straight lines stay straight, the spokes end on a straight chord, not an arc. At the default spread of 90° the tips line up level, and wider fans leave the middle spokes shorter than the outer ones. The map also squeezes everything near the hub, so <code class="md-code-inline">fan</code> lays the chart out both ways round and keeps the one that labels more values. Here the crowded ends of the reciprocal scales, from 4 to 10, went to the rim.</p>
+      </article>
+      <footer class="md-footer">
+<p>Built with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and <a href="https://github.com/mthelm85/MaterialDocs.jl">MaterialDocs.jl</a>.</p>
+      </footer>
+    </main>
+    <aside class="md-toc">
+      <div class="md-toc-inner">
+        <p class="md-toc-title">On this page</p>
+          <a class="md-toc-link md-toc-h2" href="#Parallel-scale-nomograms">Parallel-scale nomograms</a>
+          <a class="md-toc-link md-toc-h2" href="#N-or-Z-charts">N or Z charts</a>
+          <a class="md-toc-link md-toc-h2" href="#Concurrent-scale-nomograms">Concurrent-scale nomograms</a>
+          <a class="md-toc-link md-toc-h2" href="#Other-relations:-the-determinant-method">Other relations: the determinant method</a>
+          <a class="md-toc-link md-toc-h2" href="#Reshaping-a-chart">Reshaping a chart</a>
+          <a class="md-toc-link md-toc-h2" href="#Fans">Fans</a>
+      </div>
+    </aside>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/julia-repl.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.18.6/katex.min.js"></script>
+  <script>var MD_KATEX_OPTIONS = {};
+document.querySelectorAll('.md-math').forEach(function (el) {
+  var tex = el.textContent.trim().replace(/^\\[\[(]/, '').replace(/\\[\])]$/, '');
+  katex.render(tex, el, Object.assign({ throwOnError: false }, MD_KATEX_OPTIONS,
+    { displayMode: el.classList.contains('md-math-display') }));
+});</script>
+  <script src="../siteinfo.js"></script>
+  <script src="../../versions.js"></script>
+  <script src="../assets/materialdocs.js?v=5fb2d4c0"></script>
+</body>
+</html>
